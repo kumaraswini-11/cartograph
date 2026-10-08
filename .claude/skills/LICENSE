@@ -1,11 +1,21 @@
-The agent skills in this directory are vendored, unmodified, from
-https://github.com/jsmastery-pro/skills (see skills-lock.json at the repository
-root) and are licensed under the MIT License below. They are not covered by the
-repository's proprietary LICENSE.
+The agent skills in this directory are vendored, unmodified, from two upstream
+sources (versions and hashes in skills-lock.json at the repository root). Both
+are MIT-licensed, and neither is covered by the repository's proprietary
+LICENSE.
+
+1. architect, audit, check, debug, develop, document, scope, sync, test
+   Source: https://github.com/jsmastery-pro/skills
+   License: MIT, Copyright (c) 2026 JavaScript Mastery
+
+2. clerk, clerk-backend-api, clerk-cli, clerk-custom-ui, clerk-nextjs-patterns,
+   clerk-orgs, clerk-setup, clerk-webhooks
+   Source: https://github.com/clerk/skills
+   License: MIT, Copyright (c) Clerk (as stated in the upstream README and in
+   each skill's SKILL.md frontmatter)
+
+-------------------------------------------------------------------------------
 
 MIT License
-
-Copyright (c) 2026 JavaScript Mastery
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
