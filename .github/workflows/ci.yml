@@ -9,14 +9,17 @@ on:
 permissions:
   contents: read
 
+# Cancel superseded PR runs; never cancel runs on main.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
     steps:
       # Actions are pinned to full commit SHAs (immutable); Dependabot keeps
       # them and the version comments up to date.
