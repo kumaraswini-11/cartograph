@@ -10,6 +10,7 @@
 ## Interface and design
 
 - [Design System Checklist](https://www.designsystemchecklist.com/): open checklist of what a design system should cover (design language, foundations like colour and type, components, tooling, process). Useful when settling Cartograph's tokens and palette; the four starting decisions in `docs/project-doc.md` still come first.
+- [Design Token Naming Convention Tool](https://www.namedesigntokens.guide/): interactive guide for choosing a consistent token-naming scheme (category, property, variant, state). Pair with the `better-colors` skill's `token-naming.md` when the token set is defined.
 
 ## Agent skills
 
