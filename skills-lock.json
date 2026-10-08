@@ -175,6 +175,12 @@
       "skillPath": "skills/explain-interface/SKILL.md",
       "computedHash": "a8915ded0557d1c7d78d8371724d0ac83a67e9ae48246499143eb5b69dc71491"
     },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "106acf230014cbb43ca34e6410371321b56ca742f9ee0442e8ec05bf02eb0384"
+    },
     "grill-me": {
       "source": "mattpocock/skills",
       "sourceType": "github",
