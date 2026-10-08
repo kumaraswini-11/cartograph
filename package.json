@@ -11,7 +11,9 @@
     "lint:fix": "eslint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "skills:list": "pnpm dlx skills@1.7.1 list",
+    "skills:update": "pnpm dlx skills@1.7.1 update -p -y"
   },
   "dependencies": {
     "next": "16.4.0",

@@ -61,14 +61,15 @@ Open <http://localhost:3000>.
 
 ## Scripts
 
-| Command                             | What it does                                                     |
-| ----------------------------------- | ---------------------------------------------------------------- |
-| `pnpm dev`                          | Dev server                                                       |
-| `pnpm build`                        | Production build                                                 |
-| `pnpm start`                        | Serve the production build                                       |
-| `pnpm format` / `pnpm format:check` | Prettier: format (incl. import and Tailwind class order) / check |
-| `pnpm lint` / `pnpm lint:fix`       | ESLint / auto-fix                                                |
-| `pnpm typecheck`                    | Generate route types, then `tsc --noEmit`                        |
+| Command                                   | What it does                                                                                                       |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `pnpm dev`                                | Dev server                                                                                                         |
+| `pnpm build`                              | Production build                                                                                                   |
+| `pnpm start`                              | Serve the production build                                                                                         |
+| `pnpm format` / `pnpm format:check`       | Prettier: format (incl. import and Tailwind class order) / check                                                   |
+| `pnpm lint` / `pnpm lint:fix`             | ESLint / auto-fix                                                                                                  |
+| `pnpm typecheck`                          | Generate route types, then `tsc --noEmit`                                                                          |
+| `pnpm skills:list` / `pnpm skills:update` | List the vendored agent skills / update them from upstream (then verify and commit; see `docs/stack-decisions.md`) |
 
 CI runs format check, lint, typecheck and build on every pull request.
 
