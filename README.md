@@ -34,10 +34,11 @@ Open <http://localhost:3000>.
 | `pnpm dev` | Dev server |
 | `pnpm build` | Production build |
 | `pnpm start` | Serve the production build |
+| `pnpm format` / `pnpm format:check` | Prettier: format (incl. import and Tailwind class order) / check |
 | `pnpm lint` / `pnpm lint:fix` | ESLint / auto-fix |
 | `pnpm typecheck` | Generate route types, then `tsc --noEmit` |
 
-CI runs lint, typecheck and build on every pull request.
+CI runs format check, lint, typecheck and build on every pull request.
 
 ## Docs
 

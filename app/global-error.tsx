@@ -1,4 +1,5 @@
-"use client"; // Error boundaries must be Client Components
+// Error boundaries must be Client Components
+"use client";
 
 import { fontVariables } from "./fonts";
 import "./globals.css";

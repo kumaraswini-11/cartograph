@@ -1,8 +1,8 @@
 # Stack decisions, research, and upgrade plan
 
-> **Last reviewed:** 2026-10-08 · **Next review due:** 2026-11-01 (Node 26 LTS check)
+> **Last reviewed:** 2026-10-09 · **Next review due:** 2026-11-01 (Node 26 LTS check)
 >
-> Single source of truth for *why* each toolchain version was chosen, the official sources behind it, and *when/how* to upgrade. Update this file whenever a toolchain package changes.
+> Single source of truth for _why_ each toolchain version was chosen, the official sources behind it, and _when/how_ to upgrade. Update this file whenever a toolchain package changes.
 
 **Policy:** prefer the **LTS / actively-supported stable line** of every runtime and tool, never just "latest". Verify every upgrade against the project's **official** site/changelog and test it before committing. Where a project has no LTS concept, use the newest stable release that is compatible with the rest of the stack.
 
@@ -10,18 +10,21 @@
 
 ## 1. Current baseline
 
-| Package / tool | Version | Pinned as | Why this version | Official source |
-| --- | --- | --- | --- | --- |
-| Node.js | 24.x (Krypton, **Active LTS**) | `engines.node: "24.x"`, `.nvmrc: 24` | Node 20 is EOL (2026-04-30). Node 26 is still "Current" until 2026-10-28. | [Node release schedule](https://github.com/nodejs/Release) |
-| pnpm | 10.34.6 | `packageManager: "pnpm@10.34.6"` | Supported until 2027-04-30; the newest major **Vercel officially supports**. | [pnpm SECURITY.md](https://github.com/pnpm/pnpm/blob/main/SECURITY.md), [Vercel package managers](https://vercel.com/docs/package-managers) |
-| next | 16.4.0 | exact | Latest stable (`latest` tag). | [nextjs.org/blog](https://nextjs.org/blog) |
-| react / react-dom | 19.3.0 | exact | Matches Next 16.4. App Router uses Next's built-in React; this version is for tooling. | `node_modules/next/dist/docs/01-app/01-getting-started/01-installation.md` |
-| typescript | 6.0.3 | `~6.0.3` (patch only) | **Not 7.x** — see §2.2. `~` because typescript-eslint supports `<6.1.0`. | [TS 7.0 announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/), [typescript-eslint versions](https://typescript-eslint.io/users/dependency-versions/) |
-| eslint | 10.12.0 | `^10.12.0` | v9 reached **EOL 2026-08-06**. v10 is officially supported by `eslint-config-next` 16.4. | [ESLint version support](https://eslint.org/version-support) |
-| eslint-config-next | 16.4.0 | exact | Matches `next`. | `node_modules/next/dist/docs/01-app/03-api-reference/05-config/03-eslint.md` |
-| @types/node | 24.x | `^24.19.1` | Must match the Node **runtime** major (24 LTS), not npm `latest` (26). | [Node release schedule](https://github.com/nodejs/Release) |
-| tailwindcss + @tailwindcss/turbopack | 4.3.3 | `^4` | Latest stable; Turbopack loader is the create-next-app 16.4 default. | [tailwindcss.com](https://tailwindcss.com) |
-| babel-plugin-react-compiler | 1.0.0 | exact | Stable React Compiler. | [react.dev](https://react.dev/learn/react-compiler) |
+| Package / tool                       | Version                        | Pinned as                            | Why this version                                                                                  | Official source                                                                                                                                                                    |
+| ------------------------------------ | ------------------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node.js                              | 24.x (Krypton, **Active LTS**) | `engines.node: "24.x"`, `.nvmrc: 24` | Node 20 is EOL (2026-04-30). Node 26 is still "Current" until 2026-10-28.                         | [Node release schedule](https://github.com/nodejs/Release)                                                                                                                         |
+| pnpm                                 | 10.34.6                        | `packageManager: "pnpm@10.34.6"`     | Supported until 2027-04-30; the newest major **Vercel officially supports**.                      | [pnpm SECURITY.md](https://github.com/pnpm/pnpm/blob/main/SECURITY.md), [Vercel package managers](https://vercel.com/docs/package-managers)                                        |
+| next                                 | 16.4.0                         | exact                                | Latest stable (`latest` tag).                                                                     | [nextjs.org/blog](https://nextjs.org/blog)                                                                                                                                         |
+| react / react-dom                    | 19.3.0                         | exact                                | Matches Next 16.4. App Router uses Next's built-in React; this version is for tooling.            | `node_modules/next/dist/docs/01-app/01-getting-started/01-installation.md`                                                                                                         |
+| typescript                           | 6.0.3                          | `~6.0.3` (patch only)                | **Not 7.x** — see §2.2. `~` because typescript-eslint supports `<6.1.0`.                          | [TS 7.0 announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/), [typescript-eslint versions](https://typescript-eslint.io/users/dependency-versions/) |
+| eslint                               | 10.12.0                        | `^10.12.0`                           | v9 reached **EOL 2026-08-06**. v10 is officially supported by `eslint-config-next` 16.4.          | [ESLint version support](https://eslint.org/version-support)                                                                                                                       |
+| eslint-config-next                   | 16.4.0                         | exact                                | Matches `next`.                                                                                   | `node_modules/next/dist/docs/01-app/03-api-reference/05-config/03-eslint.md`                                                                                                       |
+| @types/node                          | 24.x                           | `^24.19.1`                           | Must match the Node **runtime** major (24 LTS), not npm `latest` (26).                            | [Node release schedule](https://github.com/nodejs/Release)                                                                                                                         |
+| tailwindcss + @tailwindcss/turbopack | 4.3.3                          | `^4`                                 | Latest stable; Turbopack loader is the create-next-app 16.4 default.                              | [tailwindcss.com](https://tailwindcss.com)                                                                                                                                         |
+| babel-plugin-react-compiler          | 1.0.0                          | exact                                | Stable React Compiler.                                                                            | [react.dev](https://react.dev/learn/react-compiler)                                                                                                                                |
+| prettier                             | 3.9.9                          | exact                                | Only **stable** formatter of the candidates; what create-next-app itself formats with. See §2.11. | [Prettier changelog](https://github.com/prettier/prettier/blob/3.9.9/CHANGELOG.md)                                                                                                 |
+| prettier-plugin-tailwindcss          | 0.8.1                          | exact                                | Tailwind's official class sorter (v4 needs `tailwindStylesheet`).                                 | [Tailwind editor setup](https://tailwindcss.com/docs/editor-setup#class-sorting-with-prettier)                                                                                     |
+| @ianvs/prettier-plugin-sort-imports  | 4.7.1                          | exact                                | Import sorting owned by the formatter; side-effect imports are never moved.                       | [GitHub](https://github.com/IanVS/prettier-plugin-sort-imports)                                                                                                                    |
 
 `pnpm outdated` will keep reporting `typescript 7.x` and `@types/node 26.x` — **both are intentional**.
 
@@ -33,12 +36,12 @@
 
 - Release table (from [nodejs/Release](https://github.com/nodejs/Release)):
 
-  | Line | Status | Maintenance start | End of life |
-  | --- | --- | --- | --- |
-  | 20.x Iron | EOL | — | 2026-04-30 |
-  | 22.x Jod | Maintenance LTS | 2025-10-21 | 2027-04-30 |
-  | **24.x Krypton** | **Active LTS** | 2026-10-20 | **2028-04-30** |
-  | 26.x | Current → LTS on 2026-10-28 | 2027-10-20 | 2029-04-30 |
+  | Line             | Status                      | Maintenance start | End of life    |
+  | ---------------- | --------------------------- | ----------------- | -------------- |
+  | 20.x Iron        | EOL                         | —                 | 2026-04-30     |
+  | 22.x Jod         | Maintenance LTS             | 2025-10-21        | 2027-04-30     |
+  | **24.x Krypton** | **Active LTS**              | 2026-10-20        | **2028-04-30** |
+  | 26.x             | Current → LTS on 2026-10-28 | 2027-10-20        | 2029-04-30     |
 
 - `engines.node` is `"24.x"`, not `">=24"`: Vercel reads this field and a `>=` range floats to the newest major Vercel offers, which would silently move us off the LTS line ([Vercel Node versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)). Vercel currently offers 24.x (default), 22.x, 20.x.
 - Constraints satisfied: Next 16.4 needs `>=20.9`; ESLint 10 needs `^20.19 || ^22.13 || >=24`.
@@ -48,7 +51,7 @@
 
 - **TS 7.0 (2026-07-08) has no JavaScript compiler API**; a new, different API is planned for 7.1. Tools that embed TypeScript can "only rely on 6.0 for now" — Microsoft names **typescript-eslint** explicitly ([TS 7.0 announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/)).
 - typescript-eslint (pulled in by `eslint-config-next/typescript`) supports `typescript >=4.8.4 <6.1.0` ([source](https://typescript-eslint.io/users/dependency-versions/)). Hence `~6.0.3`.
-- Next.js 16.4 *does* support TS 7 for `next build` via the local `tsc` CLI (`experimental.useTypeScriptCli`, default on) — but linting and the editor plugin would break.
+- Next.js 16.4 _does_ support TS 7 for `next build` via the local `tsc` CLI (`experimental.useTypeScriptCli`, default on) — but linting and the editor plugin would break.
 - **The parser is ts-morph** (`CLAUDE.md`), which wraps the TypeScript compiler API. ts-morph 28 bundles **TypeScript 6.0.2** (`@ts-morph/common` 0.29) — the same generation as our `~6.0.3`. Revisit TS 7 only when ts-morph moves to the TS 7 API.
 - TS 6.0 default changes checked against this project ([TS 6.0 announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-6-0/)): `types` now defaults to `[]` and `noUncheckedSideEffectImports` to `true` — both are covered because `next/types/global.d.ts` has `/// <reference types="node" />` and `declare module '*.css'`. Our tsconfig uses no deprecated options (`baseUrl`, `moduleResolution: node`, `target: es5` …). Next did not rewrite `tsconfig.json`.
 
@@ -58,19 +61,19 @@
 - Next.js docs: "`eslint-config-next` supports ESLint 9 and ESLint 10 … Some of the plugins included … don't list ESLint 10 in their peer dependencies yet" (`node_modules/next/dist/docs/01-app/03-api-reference/05-config/03-eslint.md`).
 - Laggards: `eslint-plugin-import` 2.32.0, `eslint-plugin-react` 7.37.5, `eslint-plugin-jsx-a11y` 6.10.2 (peers stop at `^9`). `eslint-plugin-react-hooks` 7.1.1 and typescript-eslint 8.71.1 already allow `^10`.
 - Verified working: a probe file triggered rules from **every** bundled plugin (`react-hooks`, `@typescript-eslint`, `@next/next`, `jsx-a11y`, `react`, `import`) with no crashes.
-- The three peer warnings are silenced narrowly via `peerDependencyRules.allowedVersions` in `pnpm-workspace.yaml` (any *other* peer problem still shows).
+- The three peer warnings are silenced narrowly via `peerDependencyRules.allowedVersions` in `pnpm-workspace.yaml` (any _other_ peer problem still shows).
 - `next lint` was removed in Next 16; `next build` no longer lints → lint runs as its own script/CI step.
 
 ### 2.4 pnpm 10.34.6 (not 11/12 yet)
 
 - pnpm has **no LTS programme**. Its only support statement is [SECURITY.md](https://github.com/pnpm/pnpm/blob/main/SECURITY.md):
 
-  | Version | Supported |
-  | --- | --- |
-  | 12.x | ✅ (current line, no end date) |
-  | 11.x | ✅ till 2027-04-30 |
-  | 10.x | ✅ till 2027-04-30 |
-  | ≤ 9.x | ❌ |
+  | Version | Supported                      |
+  | ------- | ------------------------------ |
+  | 12.x    | ✅ (current line, no end date) |
+  | 11.x    | ✅ till 2027-04-30             |
+  | 10.x    | ✅ till 2027-04-30             |
+  | ≤ 9.x   | ❌                             |
 
 - **Skip 11 entirely**: same end date as 10, extra migration cost, no benefit.
 - **Why not 12 now**: Vercel docs list pnpm support only up to v10 ([docs](https://vercel.com/docs/package-managers)); issue [vercel/vercel#17434 "pnpm 11 and 12 not supported"](https://github.com/vercel/vercel/issues/17434) and PR [#17450](https://github.com/vercel/vercel/pull/17450) are open with no staff response (checked 2026-10-08).
@@ -81,14 +84,15 @@
 
 All settings below exist in pnpm 10.x **with the same syntax pnpm 11/12 use**, so the later pnpm 12 move is just a version bump. Source: [pnpm.io/supply-chain-security](https://pnpm.io/supply-chain-security), [settings](https://pnpm.io/settings).
 
-| Setting | Value | Since | What it does |
-| --- | --- | --- | --- |
-| `allowBuilds` | `sharp: false`, `unrs-resolver: false` | 10.26 | Explicit allow/deny of dependency build scripts. Replaces `ignoredBuiltDependencies` (deprecated in 10, **removed in 11**). |
-| `strictDepBuilds` | `true` | 10.3 | Fail install if a new dependency has an unreviewed build script (default in 11+). |
-| `minimumReleaseAge` | `1440` (minutes) | 10.16 | Refuse versions published < 24 h ago — protects against freshly-compromised releases (default in 11+). Verified: `pnpm add node-releases@2.0.58` (7 h old) → `ERR_PNPM_NO_MATURE_MATCHING_VERSION`. |
-| `blockExoticSubdeps` | `true` | 10.26 | Only direct deps may come from git/tarball URLs (default in 11+). |
-| `trustPolicy` | `no-downgrade` | 10.21 | Fail if a package's publish trust level (e.g. provenance) drops vs earlier versions. |
-| `peerDependencyRules.allowedVersions` | 3 entries | old | See §2.3. Still valid in pnpm 12 ([docs](https://pnpm.io/settings/peer-dependencies)). |
+| Setting                               | Value                                  | Since | What it does                                                                                                                                                                                        |
+| ------------------------------------- | -------------------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `allowBuilds`                         | `sharp: false`, `unrs-resolver: false` | 10.26 | Explicit allow/deny of dependency build scripts. Replaces `ignoredBuiltDependencies` (deprecated in 10, **removed in 11**).                                                                         |
+| `strictDepBuilds`                     | `true`                                 | 10.3  | Fail install if a new dependency has an unreviewed build script (default in 11+).                                                                                                                   |
+| `minimumReleaseAge`                   | `1440` (minutes)                       | 10.16 | Refuse versions published < 24 h ago — protects against freshly-compromised releases (default in 11+). Verified: `pnpm add node-releases@2.0.58` (7 h old) → `ERR_PNPM_NO_MATURE_MATCHING_VERSION`. |
+| `blockExoticSubdeps`                  | `true`                                 | 10.26 | Only direct deps may come from git/tarball URLs (default in 11+).                                                                                                                                   |
+| `trustPolicy`                         | `no-downgrade`                         | 10.21 | Fail if a package's publish trust level (e.g. provenance) drops vs earlier versions.                                                                                                                |
+| `trustPolicyExclude`                  | `semver@6.3.1`                         | 10.22 | One exact version exempted — see below.                                                                                                                                                             |
+| `peerDependencyRules.allowedVersions` | 3 entries                              | old   | See §2.3. Still valid in pnpm 12 ([docs](https://pnpm.io/settings/peer-dependencies)).                                                                                                              |
 
 Why the two builds are denied (checked in the published tarballs):
 
@@ -104,22 +108,26 @@ minimumReleaseAgeExclude:
 
 **When you hit `ERR_PNPM_IGNORED_BUILDS`**: inspect the package's install script, then add `name: true` (needed) or `name: false` (not needed) under `allowBuilds`. Never use `dangerouslyAllowAllBuilds`.
 
+**When you hit `ERR_PNPM_TRUST_DOWNGRADE`**: treat it as a possible takeover until proven otherwise. Inspect the registry (`curl -s https://registry.npmjs.org/<pkg>` → `time`, `_npmUser`, `dist.attestations` per version). Only if it is a legitimate release, exempt that **exact version** in `trustPolicyExclude` with a comment explaining why. Never switch the policy off or use `trustPolicyIgnoreAfter` (that exempts every old package).
+
+**Exemption on record — `semver@6.3.1`** (approved by the owner, 2026-10-09). Hit when adding Prettier: pnpm re-checked the tree and rejected it. Registry evidence: 7.5.1–7.5.4 (May–Jul 2023) were published by `npm-cli-ops` from CI **with** provenance; 6.3.1 (2023-07-10) is the official backport of the CVE-2022-25883 ReDoS fix to the 6.x line, published by npm CLI maintainer `lukekarrys` locally **without** provenance. The check is date-based, so it misfires on backports. Required by `eslint-plugin-import` (bundled in `eslint-config-next`); forcing semver 7 onto it risks breaking it. **Remove the exemption** once `eslint-config-next` no longer pulls in `semver@6`.
+
 ### 2.6 Next.js configuration (`next.config.ts`)
 
 Reviewed against the docs bundled in `node_modules/next/dist/docs/` (exact match for 16.4.0) and [nextjs.org/blog/next-16-4](https://nextjs.org/blog).
 
-| Option | Status | Notes |
-| --- | --- | --- |
-| `cacheComponents: true` | Stable | Recommended for every app as of 16.4; becomes default in Next 17. Requires Node.js runtime (Edge is deprecated). |
-| `partialPrefetching: true` | Stable | Required alongside cacheComponents (warning otherwise). Option will be removed in Next 17 (always on). |
-| `reactCompiler: true` | Stable, opt-in | Higher compile times; good fit for a heavy graph UI. Use `'use no memo'` to opt a component out. |
-| `typedRoutes: true` | Stable | Statically typed `<Link href>`. Added. |
-| `poweredByHeader: false` | — | Removes `X-Powered-By`. Added. |
+| Option                                                | Status           | Notes                                                                                                                                                                                                 |
+| ----------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cacheComponents: true`                               | Stable           | Recommended for every app as of 16.4; becomes default in Next 17. Requires Node.js runtime (Edge is deprecated).                                                                                      |
+| `partialPrefetching: true`                            | Stable           | Required alongside cacheComponents (warning otherwise). Option will be removed in Next 17 (always on).                                                                                                |
+| `reactCompiler: true`                                 | Stable, opt-in   | Higher compile times; good fit for a heavy graph UI. Use `'use no memo'` to opt a component out.                                                                                                      |
+| `typedRoutes: true`                                   | Stable           | Statically typed `<Link href>`. Added.                                                                                                                                                                |
+| `poweredByHeader: false`                              | —                | Removes `X-Powered-By`. Added.                                                                                                                                                                        |
 | `turbopack.rules['*.css']` → `@tailwindcss/turbopack` | Scaffold default | **Docs are inconsistent**: the CSS guide and tailwindcss.com still document `@tailwindcss/postcss`. If you ever need `next build --webpack`, switch to `@tailwindcss/postcss` + `postcss.config.mjs`. |
 
 **Security headers** (applied to all routes, values from `.../05-config/01-next-config-js/headers.md` and `.../02-guides/content-security-policy.md`):
 
-- `Content-Security-Policy` — the docs' **"Without Nonces"** template. Nonce-based CSP forces dynamic rendering and is *incompatible with Partial Prerendering / Cache Components*. `'unsafe-eval'` is added **in dev only** (React uses `eval` for debugging; not needed in production).
+- `Content-Security-Policy` — the docs' **"Without Nonces"** template. Nonce-based CSP forces dynamic rendering and is _incompatible with Partial Prerendering / Cache Components_. `'unsafe-eval'` is added **in dev only** (React uses `eval` for debugging; not needed in production).
 - `Strict-Transport-Security: max-age=63072000; includeSubDomains` — docs' value **without `preload`** (preload is a hard-to-reverse commitment to browser preload lists; add only deliberately once the production domain is final).
 - `X-Content-Type-Options: nosniff`, `Referrer-Policy: origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()`.
 - `X-Frame-Options` not set — superseded by CSP `frame-ancestors 'none'`.
@@ -141,7 +149,7 @@ Reviewed against the docs bundled in `node_modules/next/dist/docs/` (exact match
 - `actions/checkout` v7.0.1, `pnpm/action-setup` v6.1.0 (supports pnpm ≤ 12; reads version from `packageManager`), `actions/setup-node` v7.0.0 (Node from `.nvmrc`, `cache: pnpm` — pnpm caching is opt-in in v7). setup-node v7.1.0 was skipped because it was published the same day (same 24 h rule as `minimumReleaseAge`).
 - **Actions are pinned to full commit SHAs** with a `# vX.Y.Z` comment — GitHub: pinning to a full-length SHA is "currently the only way to use an action as an immutable release" ([secure use reference](https://docs.github.com/en/actions/reference/security/secure-use)). SHAs were resolved from the official repos' tags.
 - `permissions: contents: read` (least-privilege `GITHUB_TOKEN`), `persist-credentials: false` on checkout (token not left in `.git/config`), `timeout-minutes: 15`, concurrency cancels superseded runs.
-- `pnpm install --frozen-lockfile` → lint → typecheck → build.
+- `pnpm install --frozen-lockfile` → `format:check` → lint → typecheck → build.
 - When moving to pnpm 12, `pnpm/setup@v3` can replace both action-setup and setup-node (pnpm 11+ only).
 
 ### 2.9 Dependabot (`.github/dependabot.yml`)
@@ -149,13 +157,46 @@ Reviewed against the docs bundled in `node_modules/next/dist/docs/` (exact match
 - Dependabot supports pnpm **v7–v10** via the `npm` ecosystem ([supported ecosystems](https://docs.github.com/en/code-security/dependabot/ecosystems-supported-by-dependabot/supported-ecosystems-and-repositories)) — another reason to stay on pnpm 10 for now; **re-check before moving to pnpm 12**.
 - Weekly; minor + patch grouped into one PR; **semver-major updates ignored** (majors are deliberate decisions recorded here).
 - `cooldown.default-days: 3` — must stay ≥ pnpm `minimumReleaseAge` (1 day), otherwise Dependabot PRs fail to install ([options reference](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference)).
-- `github-actions` ecosystem keeps the SHA pins and their version comments current. Note: Dependabot does not raise *vulnerability alerts* for SHA-pinned actions, only version updates.
+- `github-actions` ecosystem keeps the SHA pins and their version comments current. Note: Dependabot does not raise _vulnerability alerts_ for SHA-pinned actions, only version updates.
 
 ### 2.10 Repository hygiene
 
 - `.gitattributes` (`* text=auto eol=lf`): LF everywhere — Windows dev machines (`core.autocrlf=true`) vs Linux CI/Vercel.
 - `.editorconfig`: UTF-8, LF, 2-space indent, final newline.
 - Default branch is `main`; work happens on feature branches merged via PR (CI runs on every PR).
+
+### 2.11 Formatting, import sorting, and linting (researched 2026-10-09)
+
+**Decision:** Prettier 3.9.9 + `prettier-plugin-tailwindcss` 0.8.1 + `@ianvs/prettier-plugin-sort-imports` 4.7.1, all exact pins. **ESLint stays exactly as it is.** No `eslint-config-prettier`, no Oxlint, no ESLint import-order rule.
+
+| Candidate                | Version (2026-10-09)            | Status                                    | Fit here                                                                                                                                                                                                                 |
+| ------------------------ | ------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Prettier**             | 3.9.9 (`next` = 4.0.0-alpha.13) | **Stable**                                | ✅ Chosen. Formats TS/TSX, CSS (Tailwind v4 `@theme`), JSON, YAML, Markdown. create-next-app formats its own templates with Prettier + the Tailwind plugin, so existing code was already its output.                     |
+| Oxfmt (`oxfmt`)          | 0.72.0                          | **Beta** since 2026-02-24, ~weekly minors | Strong runner-up: one package, built-in import + Tailwind sorting, passes 100% of Prettier's JS/TS conformance tests. Trial output was **byte-identical** to Prettier 3.9.9 on this repo. Rejected only for beta status. |
+| Biome (`@biomejs/biome`) | 2.5.15                          | Stable                                    | ❌ No YAML/Markdown formatting yet; Tailwind sorting is a nursery lint rule that can't read a v4 stylesheet; its unsigned `biome.exe` is **blocked by Windows Smart App Control** on the dev machine.                    |
+
+**Import sorting** — owned by the formatter so there is one fix command (`pnpm format`) and the formatter and linter never fight:
+
+- Order: Node built-ins → packages → `@/` aliases → relative, blank line between groups (`.prettierrc.json` `importOrder`). `import type` is merged into the same statement (`importOrderTypeScriptVersion: "6.0.0"`).
+- **Side-effect imports (`import "./globals.css"`) are barriers** — nothing is moved across them, so CSS cascade order can't change.
+- Rejected alternatives: `import/order` (bundled in `eslint-config-next`, not enabled, and **crashes on ESLint 10.12** — `sourceCode.getTokenOrCommentAfter is not a function`); `@trivago/prettier-plugin-sort-imports` (sorts side-effect imports by default — unsafe); `prettier-plugin-organize-imports` (deletes unused imports, no grouping); `eslint-plugin-simple-import-sort` / `perfectionist` (work, but would split ownership with the formatter).
+- Known quirk: the plugin detaches a trailing comment after `"use client";`, so directive comments go on the line **above** the directive.
+
+**Tailwind class sorting:** `prettier-plugin-tailwindcss` with `tailwindStylesheet: "./app/globals.css"` (required for v4). It must be the **last** entry in `plugins`.
+
+**ESLint:**
+
+- `eslint-config-prettier` is **not needed**: `eslint-config-next` 16.4 enables no stylistic rules (86 active rules, all correctness); its own checker reported "No rules that are unnecessary or conflict with Prettier". Add `eslint-config-prettier/flat` (≥ 10.1.8 — 10.1.6/10.1.7 were malicious, CVE-2025-54313) only if stylistic rules are ever added.
+- **Oxlint not now**: covers ~82 of our 86 rules but lacks `react-hooks/config`, `react-hooks/gating`, `react/no-deprecated` and one `@next/next` rule; its React Compiler rules are experimental; its type-aware rules need `oxlint-tsgolint`, built on **TypeScript 7** (we're on 6). Running both linters now is two tools for no gain.
+
+**Setup:**
+
+- `.prettierrc.json` (plugins, `importOrder`, `tailwindStylesheet`); `printWidth` stays at the default 80.
+- `.prettierignore`: `pnpm-lock.yaml` (Prettier already honours `.gitignore`).
+- Scripts: `format` (write), `format:check` (CI step, before lint).
+- **No editor-specific config is committed** (no `.vscode/`, `.idea/`, …) — owner decision, to avoid editor lock-in. Style lives only in tool-neutral files (`.prettierrc.json`, `.editorconfig`); CI's `format:check` is the enforcement. Each developer enables Prettier/ESLint/EditorConfig in their own editor (and, for the Next.js TS plugin, selects the workspace TypeScript version).
+- No `allowBuilds` entries needed — none of the three packages has install scripts.
+- The one-time reformat is a single `style:` commit listed in `.git-blame-ignore-revs` (`git config blame.ignoreRevsFile .git-blame-ignore-revs`; GitHub's blame view applies it automatically).
 
 ---
 
@@ -171,25 +212,30 @@ All on Windows 11, Node 24.13.0, pnpm 10.34.6:
 - `pnpm start`: all security headers present, no `X-Powered-By`, title/description correct, unknown route → 404 with custom page ✅
 - `pnpm dev`: page 200, dev CSP includes `'unsafe-eval'`, Geist font classes applied ✅
 - Pre-commit audit of the full diff: fixed Vercel Toolbar CSP, SHA-pinned actions, added Dependabot, shared fonts for `global-error`, renamed shadowing `Error` component, added `.gitattributes`/`.editorconfig` — then re-ran all checks above ✅
+- 2026-10-09 formatter trial (isolated copy, all three candidates installed under our exact pnpm settings): no parse errors on TSX, `next.config.ts`, Tailwind v4 CSS, YAML or Markdown; Prettier and Oxfmt outputs byte-identical; Biome blocked by Smart App Control. In the repo: `pnpm format` → `format:check` clean on a second run (idempotent), then lint, typecheck and build ✅
 
 ---
 
 ## 4. Upgrade plan and triggers
 
-| When / trigger | Action | Check first |
-| --- | --- | --- |
-| **Now** | Update local Node 24.13.0 → latest 24.x (24.21.0+). | — |
-| **2026-10-28** — Node 26 becomes LTS | **Stay on 24** (Active LTS until 2026-10-20, then Maintenance until 2028-04-30). Plan the 26 move for H1 2027 once Vercel offers `26.x`. | [Vercel Node versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions), [nodejs/Release](https://github.com/nodejs/Release) |
+| When / trigger                                                                                                                                 | Action                                                                                                                                                                                                         | Check first                                                                                                                                                                                                                                                                                    |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Now**                                                                                                                                        | Update local Node 24.13.0 → latest 24.x (24.21.0+).                                                                                                                                                            | —                                                                                                                                                                                                                                                                                              |
+| **2026-10-28** — Node 26 becomes LTS                                                                                                           | **Stay on 24** (Active LTS until 2026-10-20, then Maintenance until 2028-04-30). Plan the 26 move for H1 2027 once Vercel offers `26.x`.                                                                       | [Vercel Node versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions), [nodejs/Release](https://github.com/nodejs/Release)                                                                                                                                               |
 | **Vercel officially supports pnpm 12** (watch [#17434](https://github.com/vercel/vercel/issues/17434)) — **deadline 2027-04-30** (pnpm 10 EOL) | Migrate pnpm 10 → 12 (steps in §5). If Vercel still lacks support by ~2027-03, test `ENABLE_EXPERIMENTAL_COREPACK=1` on a preview deployment. Also confirm **Dependabot** supports pnpm 12 (currently v7–v10). | [pnpm 12 changes](https://pnpm.io/blog/whats-different-in-pnpm-12), [Vercel package managers](https://vercel.com/docs/package-managers), [Dependabot ecosystems](https://docs.github.com/en/code-security/dependabot/ecosystems-supported-by-dependabot/supported-ecosystems-and-repositories) |
-| **TypeScript 7.1 ships its API *and* typescript-eslint *and* ts-morph support TS 7** | Evaluate TS 7 (ts-morph bundles its own TS, so the parser moves when ts-morph does). | [typescript-eslint versions](https://typescript-eslint.io/users/dependency-versions/), [TS blog](https://devblogs.microsoft.com/typescript/) |
-| **typescript-eslint widens to `<6.x`/7** | Relax `typescript` from `~6.0.3` accordingly. | same |
-| **eslint-plugin-import / react / jsx-a11y add ESLint 10 peers** | Remove matching `peerDependencyRules` entries. | `pnpm view <pkg> peerDependencies` |
-| **Next.js 17** | `cacheComponents`/`partialPrefetching` become defaults and the options are removed — delete them. Read the upgrade guide in `node_modules/next/dist/docs/01-app/02-guides/upgrading/`. | [nextjs.org/blog](https://nextjs.org/blog) |
-| **Every Next.js minor** | `pnpm next upgrade`; re-read the release blog; keep `eslint-config-next` = `next`. | — |
-| **Production domain is final** | Add `metadataBase`; consider HSTS `preload` deliberately. | — |
-| **2027-04-30** — Node 22 & pnpm 10/11 EOL | Must be on pnpm 12 by this date. | — |
-| **2028-04-30** — Node 24 EOL | Must be on Node 26 (or newer LTS) by this date. | — |
-| **Every 3 months** | Re-run this review: `pnpm outdated`, check EOL tables, update this file's "Last reviewed". | — |
+| **TypeScript 7.1 ships its API _and_ typescript-eslint _and_ ts-morph support TS 7**                                                           | Evaluate TS 7 (ts-morph bundles its own TS, so the parser moves when ts-morph does).                                                                                                                           | [typescript-eslint versions](https://typescript-eslint.io/users/dependency-versions/), [TS blog](https://devblogs.microsoft.com/typescript/)                                                                                                                                                   |
+| **typescript-eslint widens to `<6.x`/7**                                                                                                       | Relax `typescript` from `~6.0.3` accordingly.                                                                                                                                                                  | same                                                                                                                                                                                                                                                                                           |
+| **eslint-plugin-import / react / jsx-a11y add ESLint 10 peers**                                                                                | Remove matching `peerDependencyRules` entries.                                                                                                                                                                 | `pnpm view <pkg> peerDependencies`                                                                                                                                                                                                                                                             |
+| **Next.js 17**                                                                                                                                 | `cacheComponents`/`partialPrefetching` become defaults and the options are removed — delete them. Read the upgrade guide in `node_modules/next/dist/docs/01-app/02-guides/upgrading/`.                         | [nextjs.org/blog](https://nextjs.org/blog)                                                                                                                                                                                                                                                     |
+| **Every Next.js minor**                                                                                                                        | `pnpm next upgrade`; re-read the release blog; keep `eslint-config-next` = `next`.                                                                                                                             | —                                                                                                                                                                                                                                                                                              |
+| **Production domain is final**                                                                                                                 | Add `metadataBase`; consider HSTS `preload` deliberately.                                                                                                                                                      | —                                                                                                                                                                                                                                                                                              |
+| **2027-04-30** — Node 22 & pnpm 10/11 EOL                                                                                                      | Must be on pnpm 12 by this date.                                                                                                                                                                               | —                                                                                                                                                                                                                                                                                              |
+| **2028-04-30** — Node 24 EOL                                                                                                                   | Must be on Node 26 (or newer LTS) by this date.                                                                                                                                                                | —                                                                                                                                                                                                                                                                                              |
+| **Oxfmt reaches 1.0 (stable)**                                                                                                                 | Re-evaluate replacing Prettier + 2 plugins with Oxfmt (one package). Migration: `oxfmt --migrate prettier`; trial output was byte-identical.                                                                   | [Oxfmt docs](https://oxc.rs/docs/guide/usage/formatter.html)                                                                                                                                                                                                                                   |
+| **Prettier 4 becomes `latest`**                                                                                                                | Upgrade deliberately (Dependabot ignores majors); check both plugins' peer ranges and re-run `format:check`.                                                                                                   | [Prettier blog](https://prettier.io/blog)                                                                                                                                                                                                                                                      |
+| **Oxlint gains `react-hooks/config` + `gating`, _or_ we move to TS 7, _or_ ESLint gets slow**                                                  | Re-evaluate Oxlint alongside ESLint (`oxlint && eslint` + `eslint-plugin-oxlint`).                                                                                                                             | [Oxlint migrate from ESLint](https://oxc.rs/docs/guide/usage/linter/migrate-from-eslint.html)                                                                                                                                                                                                  |
+| **`eslint-config-next` no longer pulls in `semver@6`**                                                                                         | Remove the `semver@6.3.1` `trustPolicyExclude` entry.                                                                                                                                                          | `pnpm why semver`                                                                                                                                                                                                                                                                              |
+| **Every 3 months**                                                                                                                             | Re-run this review: `pnpm outdated`, check EOL tables, update this file's "Last reviewed".                                                                                                                     | —                                                                                                                                                                                                                                                                                              |
 
 ---
 
@@ -252,6 +298,17 @@ Product rules and scope live in `docs/project-doc.md` and `CLAUDE.md` and **over
 - actions/setup-node — <https://github.com/actions/setup-node> · actions/checkout — <https://github.com/actions/checkout>
 - GitHub Actions secure use (SHA pinning, token permissions) — <https://docs.github.com/en/actions/reference/security/secure-use>
 - Dependabot options — <https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference> · supported ecosystems — <https://docs.github.com/en/code-security/dependabot/ecosystems-supported-by-dependabot/supported-ecosystems-and-repositories>
+
+### Formatting & linting tools
+
+- Prettier 3.9.9 changelog — <https://github.com/prettier/prettier/blob/3.9.9/CHANGELOG.md> · editors — <https://prettier.io/docs/editors>
+- prettier-plugin-tailwindcss — <https://github.com/tailwindlabs/prettier-plugin-tailwindcss> · Tailwind class sorting — <https://tailwindcss.com/docs/editor-setup#class-sorting-with-prettier>
+- @ianvs/prettier-plugin-sort-imports — <https://github.com/IanVS/prettier-plugin-sort-imports>
+- Oxfmt beta announcement — <https://oxc.rs/blog/2026-02-24-oxfmt-beta.html> · sorting — <https://oxc.rs/docs/guide/usage/formatter/sorting.html> · migrate from Prettier — <https://oxc.rs/docs/guide/usage/formatter/migrate-from-prettier.html>
+- Oxlint versioning — <https://oxc.rs/docs/guide/usage/linter/versioning.html> · React Compiler support — <https://oxc.rs/blog/2026-08-18-react-compiler-support.html> · type-aware linting — <https://oxc.rs/blog/2026-07-22-type-aware-linting-stable.html>
+- Biome language support — <https://biomejs.dev/internals/language-support/> · organize imports — <https://biomejs.dev/assist/actions/organize-imports/> · useSortedClasses — <https://biomejs.dev/linter/rules/use-sorted-classes/>
+- eslint-config-prettier malicious versions advisory — <https://github.com/advisories/GHSA-f29h-pxvx-f335>
+- pnpm trust policy settings — <https://pnpm.io/10.x/settings#trustpolicy>
 
 ### Language & lint
 
