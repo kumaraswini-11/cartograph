@@ -45,3 +45,8 @@ CI runs format check, lint, typecheck and build on every pull request.
 - [Project doc](docs/project-doc.md): what Cartograph is and why each decision was made
 - [CLAUDE.md](CLAUDE.md): working rules for building it
 - [Stack decisions](docs/stack-decisions.md): toolchain versions, sources and upgrade plan. Read before upgrading anything.
+- [Bookmarks](docs/bookmarks.md): useful external references
+
+## License
+
+Proprietary. Copyright (c) 2026 Aswini Kumar. All rights reserved. See [LICENSE](LICENSE).
