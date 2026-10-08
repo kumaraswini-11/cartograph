@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # pnpm uses the "npm" ecosystem (Dependabot supports pnpm v7–v10).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Must be >= pnpm minimumReleaseAge (1 day) or installs in the PR will fail.
+    cooldown:
+      default-days: 3
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        update-types: [minor, patch]
+    # Major upgrades are deliberate decisions (e.g. TypeScript 7, @types/node 26,
+    # pnpm 12) tracked in docs/stack-decisions.md — never auto-proposed.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3
+    groups:
+      github-actions:
+        patterns: ["*"]
