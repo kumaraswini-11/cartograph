@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "skills": {
+    "architect": {
+      "source": "JavaScript-Mastery-Pro/skills",
+      "sourceType": "github",
+      "skillPath": "skills/architect/SKILL.md",
+      "computedHash": "66856595ec9fd2477534954ff9ee1f0b91c537eabbce0b4b9a19f69329c02f72"
+    },
+    "audit": {
+      "source": "JavaScript-Mastery-Pro/skills",
+      "sourceType": "github",
+      "skillPath": "skills/audit/SKILL.md",
+      "computedHash": "f388e74b95dcfea40615dcce28223b9166e9213867ac35e9971b549b7cda1eae"
+    },
+    "check": {
+      "source": "JavaScript-Mastery-Pro/skills",
+      "sourceType": "github",
+      "skillPath": "skills/check/SKILL.md",
+      "computedHash": "59055fb74dd47dc1443cbdf970152d614e81372dd51aa636159eb3246a627dd8"
+    },
+    "clerk": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk/SKILL.md",
+      "computedHash": "6e563ff39c3eb78eeffaefdbd7625c423dacf42602079427386841d0e3ba80fb"
+    },
+    "clerk-backend-api": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-backend-api/SKILL.md",
+      "computedHash": "f546f7a163670ff580271573e52e01f2a539fcbd6b3b2d6dd714656f60ee1a65"
+    },
+    "clerk-cli": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-cli/SKILL.md",
+      "computedHash": "4f5cb566f15639b0a3f58b2b2afea01583a1956e000d11f10be37484aac1ae87"
+    },
+    "clerk-custom-ui": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-custom-ui/SKILL.md",
+      "computedHash": "cd40d1f32200769778195d4228dd98dfb1553b6c0a2e42fd1bac5f7da5f8fa30"
+    },
+    "clerk-nextjs-patterns": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-nextjs-patterns/SKILL.md",
+      "computedHash": "1ad3e56310ce7cdbdd405f6f06f6517b640945cd90aa363950f4bee14e71a5a3"
+    },
+    "clerk-orgs": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-orgs/SKILL.md",
+      "computedHash": "a7684081f127e1ed710fc15463f938ea256ae594d39e2c3f70a441f4c4e9e016"
+    },
+    "clerk-setup": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-setup/SKILL.md",
+      "computedHash": "175c4df17e58a8162bd2c3ea5be0f69f7b68bd2284073d4399fbfededd5393cb"
+    },
+    "clerk-webhooks": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-webhooks/SKILL.md",
+      "computedHash": "2e09a26af49fcd7081b9c370e9c2008f1ff5ee4474141fd2c693431358c9e4ec"
+    },
+    "debug": {
+      "source": "JavaScript-Mastery-Pro/skills",
+      "sourceType": "github",
+      "skillPath": "skills/debug/SKILL.md",
+      "computedHash": "fa8f950ff8f78b45b5f665d889bc0df9f93b9784deca6dfc588ab08e23152f0e"
+    },
+    "develop": {
+      "source": "JavaScript-Mastery-Pro/skills",
+      "sourceType": "github",
+      "skillPath": "skills/develop/SKILL.md",
+      "computedHash": "151812557fd511f80196653d0dae0efc878558cc96e962857f2710ed98789573"
+    },
+    "document": {
+      "source": "JavaScript-Mastery-Pro/skills",
+      "sourceType": "github",
+      "skillPath": "skills/document/SKILL.md",
+      "computedHash": "a47c5d29a1263d987c2fa05dbc993a5276aaf6c4ddc54fbd329463a5f3a1aa77"
+    },
+    "scope": {
+      "source": "JavaScript-Mastery-Pro/skills",
+      "sourceType": "github",
+      "skillPath": "skills/scope/SKILL.md",
+      "computedHash": "737c19451b3d0e08edf9560b195a864d1a4006e4f70760339ddc3b2d9b6b6447"
+    },
+    "sync": {
+      "source": "JavaScript-Mastery-Pro/skills",
+      "sourceType": "github",
+      "skillPath": "skills/sync/SKILL.md",
+      "computedHash": "5986c38a23bbb14f82c018862ff0a601f3f20b4a8a1f429e9731b4da6742a765"
+    },
+    "test": {
+      "source": "JavaScript-Mastery-Pro/skills",
+      "sourceType": "github",
+      "skillPath": "skills/test/SKILL.md",
+      "computedHash": "6b742c465b3e9cec898bf3621ec555faefb41fdcc0cbbf43ec0a6041fbdcb6be"
+    }
+  }
+}

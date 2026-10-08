@@ -1,0 +1,7 @@
+# Prettier also skips everything in .gitignore.
+pnpm-lock.yaml
+
+# Vendored third-party agent skills: keep byte-identical to upstream
+# (skills-lock.json records their hashes).
+.claude/skills/
+skills-lock.json

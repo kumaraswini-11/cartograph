@@ -1,3 +1,26 @@
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+# pnpm settings. Rationale and sources: docs/stack-decisions.md
+# Uses only settings that exist in pnpm 10.x with the same syntax as pnpm 11/12,
+# so a future pnpm 12 upgrade is just a version bump.
+
+# Supply-chain hardening (https://pnpm.io/supply-chain-security)
+allowBuilds:
+  sharp: false # 0.35+ ships prebuilt @img/* binaries, no install script
+  unrs-resolver: false # postinstall only verifies its optional napi binding
+strictDepBuilds: true # fail on any new dependency with unreviewed build scripts
+minimumReleaseAge: 1440 # minutes; don't install versions published < 24h ago
+blockExoticSubdeps: true # only direct deps may come from git/tarball URLs
+trustPolicy: no-downgrade # fail if a package's publish trust level drops
+trustPolicyExclude:
+  # Official 6.x backport (CVE-2022-25883 fix) published locally by an npm CLI
+  # maintainer after 7.5.1 shipped with provenance; date-based check misfires.
+  # Required by Babel 7 (@babel/core, helper-compilation-targets),
+  # eslint-plugin-import and eslint-plugin-react — all via eslint-config-next.
+  - semver@6.3.1
+
+# eslint-config-next 16.4 officially supports ESLint 10, but these bundled
+# plugins have not added ^10 to their peer ranges yet. Remove once they do.
+peerDependencyRules:
+  allowedVersions:
+    eslint-plugin-import>eslint: "10"
+    eslint-plugin-react>eslint: "10"
+    eslint-plugin-jsx-a11y>eslint: "10"
