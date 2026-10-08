@@ -1,11 +1,21 @@
 # Cartograph
 
-Turn any GitHub repo into an interactive dependency map. Cartograph parses real code to analyze structure, trace imports, calculate blast radius, and explain modules — without AI guessing edges.
+> A **cartograph** is a map or chart. The word comes from Greek *chartēs* (paper, map) and *graphein* (to draw or write). **Cartography** is the craft of making maps; a **cartographer** is the person who makes them.
+>
+> A cartographer surveys unknown ground and turns it into a map people can trust. Cartograph does that for a codebase you didn't write.
+
+A dependency map of any public TypeScript or JavaScript repository, drawn from the code itself.
+
+Paste a repo URL and see folders as boxes and imports as lines. Select a file to see what it imports, what imports it, and what breaks if it changes. Every edge comes from really parsing the code. The AI explains what the parser found; it never decides what's there.
+
+## Status
+
+Early development, built phase by phase from specs in `docs/specs/`.
 
 ## Requirements
 
-- Node.js **24.x** (LTS) — see `.nvmrc`
-- pnpm **10.34.6** — pinned via `packageManager` in `package.json`; any installed pnpm ≥ 9.7 switches to it automatically
+- Node.js **24.x** (LTS), see `.nvmrc`
+- pnpm **10.34.6**, pinned in `package.json` (pnpm ≥ 9.7 switches to it automatically)
 
 ## Getting started
 
@@ -21,20 +31,16 @@ Open <http://localhost:3000>.
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | Start the dev server (Turbopack) |
-| `pnpm build` | Production build (includes type checking) |
+| `pnpm dev` | Dev server |
+| `pnpm build` | Production build |
 | `pnpm start` | Serve the production build |
-| `pnpm lint` / `pnpm lint:fix` | Run ESLint / auto-fix |
-| `pnpm typecheck` | Generate route types and run `tsc --noEmit` |
+| `pnpm lint` / `pnpm lint:fix` | ESLint / auto-fix |
+| `pnpm typecheck` | Generate route types, then `tsc --noEmit` |
 
-CI (`.github/workflows/ci.yml`) runs install with a frozen lockfile, lint, typecheck, and build on every push to `main` and every pull request. Dependabot (`.github/dependabot.yml`) proposes weekly minor/patch and GitHub Actions updates; major upgrades are done deliberately.
+CI runs lint, typecheck and build on every pull request.
 
-## Stack
+## Docs
 
-Next.js 16.4 (App Router, Cache Components, React Compiler) · React 19.3 · TypeScript 6.0 · Tailwind CSS 4.3 · ESLint 10 · pnpm 10 · Vercel.
-
-Why each version was chosen, the official sources, supply-chain settings, and the upgrade plan are documented in [docs/stack-decisions.md](docs/stack-decisions.md). **Read it before upgrading any toolchain package.**
-
-## Working with Next.js 16
-
-This version differs from older Next.js. Before writing code, read the relevant guide in `node_modules/next/dist/docs/` (see `AGENTS.md`).
+- [Project doc](docs/project-doc.md): what Cartograph is and why each decision was made
+- [CLAUDE.md](CLAUDE.md): working rules for building it
+- [Stack decisions](docs/stack-decisions.md): toolchain versions, sources and upgrade plan. Read before upgrading anything.

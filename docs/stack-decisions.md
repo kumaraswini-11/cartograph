@@ -49,7 +49,7 @@
 - **TS 7.0 (2026-07-08) has no JavaScript compiler API**; a new, different API is planned for 7.1. Tools that embed TypeScript can "only rely on 6.0 for now" — Microsoft names **typescript-eslint** explicitly ([TS 7.0 announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/)).
 - typescript-eslint (pulled in by `eslint-config-next/typescript`) supports `typescript >=4.8.4 <6.1.0` ([source](https://typescript-eslint.io/users/dependency-versions/)). Hence `~6.0.3`.
 - Next.js 16.4 *does* support TS 7 for `next build` via the local `tsc` CLI (`experimental.useTypeScriptCli`, default on) — but linting and the editor plugin would break.
-- **Cartograph itself will likely use the TypeScript compiler API** to parse imports. That API exists only in 6.0 until 7.1 ships its replacement.
+- **The parser is ts-morph** (`CLAUDE.md`), which wraps the TypeScript compiler API. ts-morph 28 bundles **TypeScript 6.0.2** (`@ts-morph/common` 0.29) — the same generation as our `~6.0.3`. Revisit TS 7 only when ts-morph moves to the TS 7 API.
 - TS 6.0 default changes checked against this project ([TS 6.0 announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-6-0/)): `types` now defaults to `[]` and `noUncheckedSideEffectImports` to `true` — both are covered because `next/types/global.d.ts` has `/// <reference types="node" />` and `declare module '*.css'`. Our tsconfig uses no deprecated options (`baseUrl`, `moduleResolution: node`, `target: es5` …). Next did not rewrite `tsconfig.json`.
 
 ### 2.3 ESLint 10
@@ -181,7 +181,7 @@ All on Windows 11, Node 24.13.0, pnpm 10.34.6:
 | **Now** | Update local Node 24.13.0 → latest 24.x (24.21.0+). | — |
 | **2026-10-28** — Node 26 becomes LTS | **Stay on 24** (Active LTS until 2026-10-20, then Maintenance until 2028-04-30). Plan the 26 move for H1 2027 once Vercel offers `26.x`. | [Vercel Node versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions), [nodejs/Release](https://github.com/nodejs/Release) |
 | **Vercel officially supports pnpm 12** (watch [#17434](https://github.com/vercel/vercel/issues/17434)) — **deadline 2027-04-30** (pnpm 10 EOL) | Migrate pnpm 10 → 12 (steps in §5). If Vercel still lacks support by ~2027-03, test `ENABLE_EXPERIMENTAL_COREPACK=1` on a preview deployment. Also confirm **Dependabot** supports pnpm 12 (currently v7–v10). | [pnpm 12 changes](https://pnpm.io/blog/whats-different-in-pnpm-12), [Vercel package managers](https://vercel.com/docs/package-managers), [Dependabot ecosystems](https://docs.github.com/en/code-security/dependabot/ecosystems-supported-by-dependabot/supported-ecosystems-and-repositories) |
-| **TypeScript 7.1 ships its API *and* typescript-eslint supports TS 7** | Evaluate TS 7. Also re-evaluate the parser approach for Cartograph if it uses the TS API. | [typescript-eslint versions](https://typescript-eslint.io/users/dependency-versions/), [TS blog](https://devblogs.microsoft.com/typescript/) |
+| **TypeScript 7.1 ships its API *and* typescript-eslint *and* ts-morph support TS 7** | Evaluate TS 7 (ts-morph bundles its own TS, so the parser moves when ts-morph does). | [typescript-eslint versions](https://typescript-eslint.io/users/dependency-versions/), [TS blog](https://devblogs.microsoft.com/typescript/) |
 | **typescript-eslint widens to `<6.x`/7** | Relax `typescript` from `~6.0.3` accordingly. | same |
 | **eslint-plugin-import / react / jsx-a11y add ESLint 10 peers** | Remove matching `peerDependencyRules` entries. | `pnpm view <pkg> peerDependencies` |
 | **Next.js 17** | `cacheComponents`/`partialPrefetching` become defaults and the options are removed — delete them. Read the upgrade guide in `node_modules/next/dist/docs/01-app/02-guides/upgrading/`. | [nextjs.org/blog](https://nextjs.org/blog) |
@@ -213,16 +213,16 @@ All on Windows 11, Node 24.13.0, pnpm 10.34.6:
 
 ## 6. Guidance for building Cartograph features
 
-From the Next.js 16.4 docs (bundled `node_modules/next/dist/docs/01-app/…`); items marked *(judgement)* are not doc-backed.
+Product rules and scope live in `docs/project-doc.md` and `CLAUDE.md` and **override anything here**. This section only records Next.js 16.4 facts (bundled docs, `node_modules/next/dist/docs/01-app/…`) that the phases will run into. Nothing here is built ahead of its phase.
 
-- **Heavy parsing**: use **Route Handlers**, not Server Actions (actions are queued/sequential and meant for mutations — `02-guides/backend-for-frontend.md`). Set `maxDuration` (limit is platform-dependent). Stream progress with `ReadableStream`/SSE (`02-guides/streaming.md`). `after()` shares the same max duration — it is not a job queue. For large repos run parsing in a background job/queue or `worker_threads` *(judgement)*.
-- **Native parsers**: `typescript`, `ts-morph`, `@swc/core` are auto-externalized; add native `tree-sitter` packages to `serverExternalPackages`, and grammar `.wasm` files via `outputFileTracingIncludes`. Stay on the Node.js runtime.
-- **GitHub API + caching**: `fetch` is uncached by default. Resolve ref → SHA with a short `cacheLife`; cache parsed graphs keyed by `owner/repo@sha` with `'use cache'` + `cacheLife('max')` + `cacheTag`. Never share cache entries fetched with a *user's* token. In-memory cache is per-instance (50 MB default) and reset on deploy → use `'use cache: remote'` + `cacheHandlers` or a DB/blob store for durable graphs. Keep `GITHUB_TOKEN` server-only in an `import 'server-only'` module (Data Access Layer pattern, `02-guides/data-security.md`).
-- **Client graph**: keep `'use client'` at the leaf; `next/dynamic(..., { ssr: false })` only inside a Client Component. With Cache Components, hidden routes stay mounted under `<Activity>` — canvas/WebGL effects must clean up and be idempotent (`02-guides/preserving-ui-state.md`). Watch the `react-hooks` `incompatible-library` lint for mutable graph libraries.
-- **Security**: treat every Server Action as a public POST endpoint (authenticate + authorize inside it); rate-limit analysis endpoints; validate repo URLs.
-- **Testing**: Vitest for parser logic; Playwright E2E for async Server Components (docs recommend E2E over unit tests there).
-- **Observability**: `instrumentation.ts` + OpenTelemetry spans per parse phase.
-- **Optional later**: Prettier (+ `eslint-config-prettier`), `experimental.sri` for hash-based CSP, branch protection on `main` (require the CI check), CodeQL code scanning.
+- **Parsing in a request**: one deployable app, no queues/workers (project doc). Use **Route Handlers**, not Server Actions — actions are queued/sequential and meant for mutations (`02-guides/backend-for-frontend.md`). Set `maxDuration` (limit is platform-dependent). Stream live progress with `ReadableStream`/SSE (`02-guides/streaming.md`). `after()` shares the same max duration. A repo too large for one request is a stated limit, not an architecture.
+- **ts-morph**: auto-externalized by Next (`serverExternalPackages` default list). ts-morph 28 bundles **TypeScript 6.0.2** internally — aligned with this project's TS 6 pin. Stay on the Node.js runtime.
+- **Fetching public repos**: no user tokens are stored (project doc). `fetch` is uncached by default under Cache Components. If cached, key by `owner/repo@sha`. The in-memory `use cache` store is per-instance (50 MB default) and reset on deploy — durable results belong in Supabase. Unauthenticated GitHub requests are rate-limited; decide the fetch method in the relevant phase spec.
+- **CSP will need extending when each service lands** (Clerk, Supabase realtime `wss://`, etc.). Check each vendor's CSP docs then; prefer the static "Without Nonces" approach — nonce CSP conflicts with Cache Components. Clerk runs from `proxy.ts` in Next 16 (`middleware` was renamed).
+- **Client map** (React Flow): keep `'use client'` at the leaf; `next/dynamic(..., { ssr: false })` only inside a Client Component. With Cache Components, hidden routes stay mounted under `<Activity>` — effects must clean up and be idempotent (`02-guides/preserving-ui-state.md`). Watch the `react-hooks` `incompatible-library` lint (React Compiler) for mutable graph libraries.
+- **Security**: treat every Server Action as a public POST endpoint; authorization itself is Supabase RLS policy (project doc), not application code.
+- **Checks**: phase acceptance checks are manual (CLAUDE.md). Automated checks are types, lint, build — what CI runs.
+- **Optional later (ask first)**: branch protection on `main` requiring the CI check, CodeQL code scanning.
 
 ---
 
@@ -238,7 +238,7 @@ From the Next.js 16.4 docs (bundled `node_modules/next/dist/docs/01-app/…`); i
 
 ## 8. Sources
 
-**Runtime & package managers**
+### Runtime & package managers
 
 - Node.js release schedule — <https://github.com/nodejs/Release> · release index — <https://nodejs.org/dist/index.json>
 - pnpm SECURITY.md (support table) — <https://github.com/pnpm/pnpm/blob/main/SECURITY.md>
@@ -253,21 +253,23 @@ From the Next.js 16.4 docs (bundled `node_modules/next/dist/docs/01-app/…`); i
 - GitHub Actions secure use (SHA pinning, token permissions) — <https://docs.github.com/en/actions/reference/security/secure-use>
 - Dependabot options — <https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference> · supported ecosystems — <https://docs.github.com/en/code-security/dependabot/ecosystems-supported-by-dependabot/supported-ecosystems-and-repositories>
 
-**Language & lint**
+### Language & lint
 
 - TypeScript 7.0 announcement — <https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/>
 - TypeScript 6.0 announcement — <https://devblogs.microsoft.com/typescript/announcing-typescript-6-0/>
 - typescript-eslint dependency versions — <https://typescript-eslint.io/users/dependency-versions/>
 - ESLint version support — <https://eslint.org/version-support>
 
-**Next.js** (bundled docs for the installed version are authoritative: `node_modules/next/dist/docs/`)
+### Next.js
+
+Bundled docs for the installed version are authoritative: `node_modules/next/dist/docs/`.
 
 - Installation, TypeScript (`05-config/02-typescript.md`), ESLint (`05-config/03-eslint.md`), `useTypeScriptCli`, `typedRoutes`, `headers`, `cacheComponents`, `partialPrefetching`, `reactCompiler`
 - Guides: `content-security-policy.md`, `production-checklist.md`, `environment-variables.md`, `data-security.md`, `self-hosting.md`, `upgrading/version-16.md`
 - File conventions: `error.md`, `not-found.md`
 - Next.js blog — <https://nextjs.org/blog>
 
-**Hosting**
+### Hosting
 
 - Vercel package managers — <https://vercel.com/docs/package-managers>
 - Vercel Node.js versions — <https://vercel.com/docs/functions/runtimes/node-js/node-js-versions>
