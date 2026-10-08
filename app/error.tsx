@@ -11,7 +11,6 @@ export default function ErrorBoundary({
   retry: () => void;
 }) {
   useEffect(() => {
-    // TODO: forward to an error reporting service
     console.error(error);
   }, [error]);
 
