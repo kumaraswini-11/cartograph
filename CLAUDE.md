@@ -120,4 +120,3 @@ Breaking one of these is worse than not finishing.
   loudly.
 - **Don't read from the database on a loop.** Name your columns, limit list
   reads, subscribe instead of polling.
-  

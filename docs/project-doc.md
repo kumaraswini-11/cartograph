@@ -174,7 +174,7 @@ anything that is a file path. Someone using this is scanning a lot of names at
 once, and the layout should assume that rather than fighting it.
 
 **Colour carries meaning or it isn't there.** Two things earn colour. Direction:
-what flows *into* a file and what flows *out* of it are different colours,
+what flows _into_ a file and what flows _out_ of it are different colours,
 because that distinction is the entire reason to look at an edge. And kind: a
 file gets a colour for what sort of thing it is, with enough hues to separate a
 handful of categories and no more. Everything else — surfaces, borders, body
@@ -208,7 +208,7 @@ something legible, and the threshold has to be solved for rather than guessed.
 Expect at least one wrong answer here before a right one.
 
 **Import resolution.** Path aliases, index files, re-exports. The risk isn't
-failure — it's *silent* failure. A repository built on barrel files loses most of
+failure — it's _silent_ failure. A repository built on barrel files loses most of
 its edges and still renders a clean, confident, wrong picture. This is the one
 place loud reporting wins over a tidy interface.
 
@@ -231,4 +231,3 @@ Not "it looks right". Specifics:
   demonstrated by a check rather than asserted.
 - The chat panel shows what it looked up before it answers. An answer arriving
   with no lookups behind it is the exact failure this product exists to prevent.
-  

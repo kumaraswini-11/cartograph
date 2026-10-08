@@ -1,6 +1,6 @@
 # Cartograph
 
-> A **cartograph** is a map or chart. The word comes from Greek *chartēs* (paper, map) and *graphein* (to draw or write). **Cartography** is the craft of making maps; a **cartographer** is the person who makes them.
+> A **cartograph** is a map or chart. The word comes from Greek _chartēs_ (paper, map) and _graphein_ (to draw or write). **Cartography** is the craft of making maps; a **cartographer** is the person who makes them.
 >
 > A cartographer surveys unknown ground and turns it into a map people can trust. Cartograph does that for a codebase you didn't write.
 
@@ -29,14 +29,14 @@ Open <http://localhost:3000>.
 
 ## Scripts
 
-| Command | What it does |
-| --- | --- |
-| `pnpm dev` | Dev server |
-| `pnpm build` | Production build |
-| `pnpm start` | Serve the production build |
+| Command                             | What it does                                                     |
+| ----------------------------------- | ---------------------------------------------------------------- |
+| `pnpm dev`                          | Dev server                                                       |
+| `pnpm build`                        | Production build                                                 |
+| `pnpm start`                        | Serve the production build                                       |
 | `pnpm format` / `pnpm format:check` | Prettier: format (incl. import and Tailwind class order) / check |
-| `pnpm lint` / `pnpm lint:fix` | ESLint / auto-fix |
-| `pnpm typecheck` | Generate route types, then `tsc --noEmit` |
+| `pnpm lint` / `pnpm lint:fix`       | ESLint / auto-fix                                                |
+| `pnpm typecheck`                    | Generate route types, then `tsc --noEmit`                        |
 
 CI runs format check, lint, typecheck and build on every pull request.
 

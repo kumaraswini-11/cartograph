@@ -12,7 +12,12 @@ const vercelLive = isVercelPreview ? ["https://vercel.live"] : [];
 const cspDirectives: Record<string, string[]> = {
   "default-src": ["'self'"],
   // 'unsafe-eval' is only needed in dev (React debugging), never in production.
-  "script-src": ["'self'", "'unsafe-inline'", ...(isDev ? ["'unsafe-eval'"] : []), ...vercelLive],
+  "script-src": [
+    "'self'",
+    "'unsafe-inline'",
+    ...(isDev ? ["'unsafe-eval'"] : []),
+    ...vercelLive,
+  ],
   "style-src": ["'self'", "'unsafe-inline'", ...vercelLive],
   "img-src": [
     "'self'",
@@ -22,11 +27,15 @@ const cspDirectives: Record<string, string[]> = {
   ],
   "font-src": [
     "'self'",
-    ...(isVercelPreview ? ["https://vercel.live", "https://assets.vercel.com"] : []),
+    ...(isVercelPreview
+      ? ["https://vercel.live", "https://assets.vercel.com"]
+      : []),
   ],
   "connect-src": [
     "'self'",
-    ...(isVercelPreview ? ["https://vercel.live", "wss://ws-us3.pusher.com"] : []),
+    ...(isVercelPreview
+      ? ["https://vercel.live", "wss://ws-us3.pusher.com"]
+      : []),
   ],
   "frame-src": ["'self'", ...vercelLive],
   "object-src": ["'none'"],
@@ -42,7 +51,10 @@ const cspHeader = Object.entries(cspDirectives)
 
 const securityHeaders = [
   { key: "Content-Security-Policy", value: cspHeader },
-  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains",
+  },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "origin-when-cross-origin" },
   {

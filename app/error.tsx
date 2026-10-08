@@ -19,7 +19,9 @@ export default function ErrorBoundary({
     <main className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
       <h2 className="text-2xl font-semibold">Something went wrong</h2>
       {error.digest && (
-        <p className="font-mono text-sm text-zinc-500">Reference: {error.digest}</p>
+        <p className="font-mono text-sm text-zinc-500">
+          Reference: {error.digest}
+        </p>
       )}
       <button
         type="button"

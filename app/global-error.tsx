@@ -2,6 +2,7 @@
 "use client";
 
 import { fontVariables } from "./fonts";
+
 import "./globals.css";
 
 // Replaces the root layout when it errors, so it must render its own
@@ -19,7 +20,9 @@ export default function GlobalError({
         <title>Error · Cartograph</title>
         <h2 className="text-2xl font-semibold">Something went wrong</h2>
         {error.digest && (
-          <p className="font-mono text-sm text-zinc-500">Reference: {error.digest}</p>
+          <p className="font-mono text-sm text-zinc-500">
+            Reference: {error.digest}
+          </p>
         )}
         <button
           type="button"
