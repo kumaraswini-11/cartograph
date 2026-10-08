@@ -5,13 +5,15 @@ LICENSE.
 
 1. architect, audit, check, debug, develop, document, scope, sync, test
    Source: https://github.com/jsmastery-pro/skills
+   Revision: 43b69e44c9ca905fe3a3418ccdf4102255e20d40
    License: MIT, Copyright (c) 2026 JavaScript Mastery
 
 2. clerk, clerk-backend-api, clerk-cli, clerk-custom-ui, clerk-nextjs-patterns,
    clerk-orgs, clerk-setup, clerk-webhooks
    Source: https://github.com/clerk/skills
-   License: MIT, Copyright (c) Clerk (as stated in the upstream README and in
-   each skill's SKILL.md frontmatter)
+   Revision: a02dbd2a933b8929525129a6cb9dcf6ed66d0adf
+   License: MIT, Copyright (c) Clerk (as stated in the upstream README,
+   plugin.json and each skill's SKILL.md frontmatter)
 
 -------------------------------------------------------------------------------
 

@@ -9,4 +9,4 @@
 
 ## Agent skills
 
-- [JS Mastery Engineering Workflow](https://jsmastery.com/skills): catalog and docs for the nine workflow skills vendored in `.claude/skills/` (scope, audit, architect, develop, check, test, document, sync, debug). Install/update: `npx skills@latest add JavaScript-Mastery-Pro/skills`.
+- [JS Mastery Engineering Workflow](https://jsmastery.com/skills): catalog and docs for the nine workflow skills vendored in `.claude/skills/` (scope, audit, architect, develop, check, test, document, sync, debug). Install/update: `npx skills@latest add jsmastery-pro/skills -a claude-code`.
