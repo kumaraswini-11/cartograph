@@ -13,7 +13,8 @@ trustPolicy: no-downgrade # fail if a package's publish trust level drops
 trustPolicyExclude:
   # Official 6.x backport (CVE-2022-25883 fix) published locally by an npm CLI
   # maintainer after 7.5.1 shipped with provenance; date-based check misfires.
-  # Pulled in by eslint-plugin-import via eslint-config-next.
+  # Required by Babel 7 (@babel/core, helper-compilation-targets),
+  # eslint-plugin-import and eslint-plugin-react — all via eslint-config-next.
   - semver@6.3.1
 
 # eslint-config-next 16.4 officially supports ESLint 10, but these bundled

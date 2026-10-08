@@ -47,7 +47,7 @@ Early development, built phase by phase from specs in `docs/specs/`. Nothing abo
 ## Requirements
 
 - Node.js **24.x** (LTS), see `.nvmrc`
-- pnpm **10.34.6**, pinned in `package.json` (pnpm ≥ 9.7 switches to it automatically)
+- pnpm **10.34.6**, pinned in `package.json` (pnpm ≥ 10 switches to it automatically)
 
 ## Getting started
 
