@@ -7,7 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: { default: "Cartograph", template: "%s · Cartograph" },
   description:
-    "Turn any GitHub repo into an interactive dependency map: trace imports, calculate blast radius, and explain modules from real parsed code.",
+    "A dependency map of any public TypeScript or JavaScript repository, drawn from the code itself.",
   applicationName: "Cartograph",
 };
 
