@@ -10,3 +10,5 @@
 ## Agent skills
 
 - [JS Mastery Engineering Workflow](https://jsmastery.com/skills): catalog and docs for the nine workflow skills vendored in `.claude/skills/` (scope, audit, architect, develop, check, test, document, sync, debug). Install/update: `npx skills@latest add jsmastery-pro/skills -a claude-code`.
+- [Jakub Krehel's interface skills](https://jakub.kr/skills): catalog for the thirteen `better-*`, `break`, `build-design`, `explain-interface`, `interface-review`, `state-machine` and `variant` skills in `.claude/skills/`. Source: [jakubkrehel/skills](https://github.com/jakubkrehel/skills).
+- [Clerk agent skills](https://github.com/clerk/skills): source of the eight `clerk*` skills in `.claude/skills/`.
