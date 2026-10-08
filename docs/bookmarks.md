@@ -7,6 +7,10 @@
   Toolchain sources and upgrade decisions live in stack-decisions.md, not here.
 -->
 
+## Interface and design
+
+- [Design System Checklist](https://www.designsystemchecklist.com/): open checklist of what a design system should cover (design language, foundations like colour and type, components, tooling, process). Useful when settling Cartograph's tokens and palette; the four starting decisions in `docs/project-doc.md` still come first.
+
 ## Agent skills
 
 - [JS Mastery Engineering Workflow](https://jsmastery.com/skills): catalog and docs for the nine workflow skills vendored in `.claude/skills/` (scope, audit, architect, develop, check, test, document, sync, debug). Install/update: `npx skills@latest add jsmastery-pro/skills -a claude-code`.
