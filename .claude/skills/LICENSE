@@ -1,6 +1,7 @@
-The agent skills in this directory are vendored, unmodified, from four upstream
-sources (versions and hashes in skills-lock.json at the repository root). All
-are MIT-licensed, and none is covered by the repository's proprietary LICENSE.
+The agent skills in this directory are vendored, unmodified, from five upstream
+sources (versions and hashes in skills-lock.json at the repository root). None
+is covered by the repository's proprietary LICENSE. Sources 1-4 are MIT; source
+5 is Apache-2.0 and ships its own licence text.
 
 1. architect, audit, check, debug, develop, document, scope, sync, test
    Source: <https://github.com/jsmastery-pro/skills>
@@ -29,6 +30,16 @@ are MIT-licensed, and none is covered by the repository's proprietary LICENSE.
    Source: <https://github.com/mattpocock/skills>
    Revision: b0618bc436ad893b3c5e84e55fba86586d34a404
    License: MIT, Copyright (c) 2026 Matt Pocock
+
+5. frontend-design
+   Source: <https://github.com/anthropics/skills> (skills/frontend-design)
+   Revision: 683bc88e56f3e09ba94f7055977f3d3aa499f202
+   License: Apache License 2.0; full text in frontend-design/LICENSE.txt
+   (copied unmodified from upstream, as the skill's frontmatter directs)
+
+-------------------------------------------------------------------------------
+
+The MIT License text below applies to sources 1-4.
 
 -------------------------------------------------------------------------------
 
