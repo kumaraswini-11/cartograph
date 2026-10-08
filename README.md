@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cartograph
 
-## Getting Started
+Turn any GitHub repo into an interactive dependency map. Cartograph parses real code to analyze structure, trace imports, calculate blast radius, and explain modules — without AI guessing edges.
 
-First, run the development server:
+## Requirements
+
+- Node.js **24.x** (LTS) — see `.nvmrc`
+- pnpm **10.34.6** — pinned via `packageManager` in `package.json`; any installed pnpm ≥ 9.7 switches to it automatically
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+cp .env.example .env.local   # then fill in values
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | Start the dev server (Turbopack) |
+| `pnpm build` | Production build (includes type checking) |
+| `pnpm start` | Serve the production build |
+| `pnpm lint` / `pnpm lint:fix` | Run ESLint / auto-fix |
+| `pnpm typecheck` | Generate route types and run `tsc --noEmit` |
 
-## Learn More
+CI (`.github/workflows/ci.yml`) runs install with a frozen lockfile, lint, typecheck, and build on every push to `main` and every pull request. Dependabot (`.github/dependabot.yml`) proposes weekly minor/patch and GitHub Actions updates; major upgrades are done deliberately.
 
-To learn more about Next.js, take a look at the following resources:
+## Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Next.js 16.4 (App Router, Cache Components, React Compiler) · React 19.3 · TypeScript 6.0 · Tailwind CSS 4.3 · ESLint 10 · pnpm 10 · Vercel.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Why each version was chosen, the official sources, supply-chain settings, and the upgrade plan are documented in [docs/stack-decisions.md](docs/stack-decisions.md). **Read it before upgrading any toolchain package.**
 
-## Deploy on Vercel
+## Working with Next.js 16
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This version differs from older Next.js. Before writing code, read the relevant guide in `node_modules/next/dist/docs/` (see `AGENTS.md`).
