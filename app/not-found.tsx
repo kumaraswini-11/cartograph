@@ -1,15 +1,38 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+import { buttonVariants } from "@/components/shadcn-ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/shadcn-ui/empty";
+
+export const metadata: Metadata = { title: "Page not found" };
 
 export default function NotFound() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
-      <h2 className="text-2xl font-semibold">Page not found</h2>
-      <p className="text-zinc-600 dark:text-zinc-400">
-        Could not find the requested resource.
-      </p>
-      <Link href="/" className="font-medium underline underline-offset-4">
-        Return home
-      </Link>
+    <main className="flex flex-1 p-4">
+      <Empty>
+        <EmptyHeader>
+          <EmptyTitle>
+            <h1>Page not found</h1>
+          </EmptyTitle>
+          <EmptyDescription>There is nothing at this address.</EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          {/* A styled Link, not Button: Base UI's Button always sets
+              role="button", which would hide the link role. */}
+          <Link
+            href="/"
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            Return home
+          </Link>
+        </EmptyContent>
+      </Empty>
     </main>
   );
 }

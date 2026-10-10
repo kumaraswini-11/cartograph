@@ -4,6 +4,7 @@
 
 # Supply-chain hardening (https://pnpm.io/supply-chain-security)
 allowBuilds:
+  core-js: false # via @clerk/ui; postinstall only prints a funding banner
   sharp: false # 0.35+ ships prebuilt @img/* binaries, no install script
   unrs-resolver: false # postinstall only verifies its optional napi binding
 strictDepBuilds: true # fail on any new dependency with unreviewed build scripts
