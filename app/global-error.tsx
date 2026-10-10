@@ -1,12 +1,16 @@
 // Error boundaries must be Client Components
 "use client";
 
+import { ErrorFallback } from "@/components/error-fallback";
+
 import { fontVariables } from "./fonts";
 
 import "./globals.css";
 
 // Replaces the root layout when it errors, so it must render its own
 // <html>/<body>, styles, fonts, and title (metadata exports are not supported here).
+// ThemeProvider lives in the root layout, so this screen follows the OS theme
+// rather than a stored Light/Dark choice. Accepted for a last-resort screen.
 export default function GlobalError({
   error,
   retry,
@@ -15,22 +19,12 @@ export default function GlobalError({
   retry: () => void;
 }) {
   return (
-    <html lang="en" className={`${fontVariables} antialiased`}>
-      <body className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
+    <html lang="en" className={`${fontVariables} h-full antialiased`}>
+      <body className="flex min-h-full flex-col">
         <title>Error · Cartograph</title>
-        <h2 className="text-2xl font-semibold">Something went wrong</h2>
-        {error.digest && (
-          <p className="font-mono text-sm text-zinc-500">
-            Reference: {error.digest}
-          </p>
-        )}
-        <button
-          type="button"
-          onClick={() => retry()}
-          className="rounded-full bg-foreground px-5 py-2 text-background"
-        >
-          Try again
-        </button>
+        <main className="flex flex-1 p-4">
+          <ErrorFallback digest={error.digest} retry={retry} />
+        </main>
       </body>
     </html>
   );

@@ -5,22 +5,20 @@
 
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 
-const button =
-  "rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900";
+import { Button } from "@/components/shadcn-ui/button";
 
 export function AuthControls() {
   return (
     <div className="flex items-center gap-2">
       <Show when="signed-out">
+        {/* Clerk clones its child and attaches onClick, which Button forwards. */}
         <SignInButton>
-          <button type="button" className={button}>
+          <Button variant="outline" size="sm">
             Sign in
-          </button>
+          </Button>
         </SignInButton>
         <SignUpButton>
-          <button type="button" className={button}>
-            Sign up
-          </button>
+          <Button size="sm">Sign up</Button>
         </SignUpButton>
       </Show>
       <Show when="signed-in">
