@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 
+// Importing env validates every variable when the config loads, so a build
+// with a missing or malformed value fails before anything ships.
+import "./env";
+
 const isDev = process.env.NODE_ENV === "development";
 // Vercel Toolbar / Comments run on preview deployments only.
 // https://vercel.com/docs/vercel-toolbar/managing-toolbar#using-a-content-security-policy

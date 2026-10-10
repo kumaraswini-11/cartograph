@@ -16,9 +16,11 @@
     "skills:update": "pnpm dlx skills@1.7.1 update -p -y"
   },
   "dependencies": {
+    "@t3-oss/env-nextjs": "0.13.11",
     "next": "16.4.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "4.7.1",
