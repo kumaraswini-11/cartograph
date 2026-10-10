@@ -20,6 +20,14 @@ jobs:
     timeout-minutes: 15
     env:
       NEXT_TELEMETRY_DISABLED: 1
+      # Skip env.ts validation here; it runs on every Vercel and local build,
+      # where the real values live. Both approaches are valid: T3 Env prefers
+      # providing values over skipping, and well-formed dummy values would let
+      # CI exercise the schema too. We skip because key-shaped dummies
+      # (pk_test_..., sk_test_...) in a public repo look like leaked keys and
+      # can trip secret scanners. CI holds no keys, real or fake.
+      # Decision record: docs/stack-decisions.md §2.12.
+      SKIP_ENV_VALIDATION: "1"
     steps:
       # Actions are pinned to full commit SHAs (immutable); Dependabot keeps
       # them and the version comments up to date.

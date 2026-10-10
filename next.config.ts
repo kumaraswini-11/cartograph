@@ -1,10 +1,35 @@
 import type { NextConfig } from "next";
 
+// Importing env validates every variable when the config loads, so a build
+// with a missing or malformed value fails before anything ships.
+import { clerkFrontendApiHost, env } from "./env";
+
 const isDev = process.env.NODE_ENV === "development";
 // Vercel Toolbar / Comments run on preview deployments only.
 // https://vercel.com/docs/vercel-toolbar/managing-toolbar#using-a-content-security-policy
 const isVercelPreview = process.env.VERCEL_ENV === "preview";
 const vercelLive = isVercelPreview ? ["https://vercel.live"] : [];
+
+// Each environment's exact Clerk Frontend API host (dev:
+// <slug>.clerk.accounts.dev, prod: clerk.<domain>), decoded from the validated
+// publishable key, so the CSP needs no wildcard. Headers are computed when the
+// config loads (build time on Vercel), so a key change needs a rebuild. CI
+// skips validation and has no key, so it gets no Clerk host. If NEXT_PUBLIC_CLERK_DOMAIN
+// or NEXT_PUBLIC_CLERK_PROXY_URL is ever set, the Frontend API host changes
+// and this derivation must follow it.
+// https://clerk.com/docs/guides/secure/best-practices/csp-headers
+const clerkPublishableKey = env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
+const clerkHost = clerkFrontendApiHost(clerkPublishableKey);
+const clerkFrontendApi = clerkHost ? [`https://${clerkHost}`] : [];
+// Dev instances send telemetry; production instances don't.
+const clerkTelemetry = clerkPublishableKey.startsWith("pk_test_")
+  ? ["https://clerk-telemetry.com", "https://*.clerk-telemetry.com"]
+  : [];
+// Bot protection on sign-up runs Cloudflare Turnstile in an iframe.
+const clerkBotProtection = [
+  "https://challenges.cloudflare.com",
+  "https://*.protect.clerk.com",
+];
 
 // Static CSP ("Without Nonces" pattern). Nonce-based CSP forces dynamic
 // rendering and is incompatible with Cache Components / Partial Prerendering.
@@ -17,6 +42,8 @@ const cspDirectives: Record<string, string[]> = {
     "'unsafe-inline'",
     ...(isDev ? ["'unsafe-eval'"] : []),
     ...vercelLive,
+    ...clerkFrontendApi,
+    ...clerkBotProtection,
   ],
   "style-src": ["'self'", "'unsafe-inline'", ...vercelLive],
   "img-src": [
@@ -24,6 +51,7 @@ const cspDirectives: Record<string, string[]> = {
     "blob:",
     "data:",
     ...(isVercelPreview ? ["https://vercel.live", "https://vercel.com"] : []),
+    "https://img.clerk.com",
   ],
   "font-src": [
     "'self'",
@@ -36,8 +64,13 @@ const cspDirectives: Record<string, string[]> = {
     ...(isVercelPreview
       ? ["https://vercel.live", "wss://ws-us3.pusher.com"]
       : []),
+    ...clerkFrontendApi,
+    "https://*.protect.clerk.com:*",
+    ...clerkTelemetry,
   ],
-  "frame-src": ["'self'", ...vercelLive],
+  "frame-src": ["'self'", ...vercelLive, ...clerkBotProtection],
+  // Clerk runs a web worker from a blob: URL.
+  "worker-src": ["'self'", "blob:"],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
   "form-action": ["'self'"],
