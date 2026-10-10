@@ -16,6 +16,7 @@
     "skills:update": "pnpm dlx skills@1.7.1 update -p -y"
   },
   "dependencies": {
+    "@clerk/nextjs": "7.9.13",
     "@t3-oss/env-nextjs": "0.13.11",
     "next": "16.4.0",
     "react": "19.3.0",
