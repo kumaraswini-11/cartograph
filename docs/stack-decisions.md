@@ -233,6 +233,13 @@ Reviewed against the docs bundled in `node_modules/next/dist/docs/` (exact match
 - `CLERK_SECRET_KEY` stays out of the browser because Next.js only inlines `NEXT_PUBLIC_*`; verified by scanning a real build's client bundles for `sk_` values (none).
 - New variables go in `env.ts` and `.env.example` in the phase that first reads them.
 
+### 2.13 Supabase MCP server (`.mcp.json`, 2026-10-10)
+
+- **Read-only, no account tools**: `read_only=true&features=docs,database,debugging,development`. Supabase's own setup page generated a URL with `account,functions,branching` as well (it confirms the feature names); those were removed.
+- **Why** ([Supabase MCP security guidance](https://supabase.com/docs/guides/getting-started/mcp)): scope to one project and prefer read-only; the main risk is prompt injection from data the agent reads. This file is committed to a public repo, and Claude Code loads project MCP servers without asking in non-interactive runs (`claude -p`, Agent SDK).
+- **Schema changes don't go through MCP**: they are versioned migration files applied with the Supabase CLI, so every table and RLS policy is reviewed in a PR. For a one-off write session, add a write-capable server in _local_ scope, never in this file.
+- **Pending**: add `project_ref=<ref>` to scope it to the one Cartograph project (it also disables account tools). The ref is the subdomain of `NEXT_PUBLIC_SUPABASE_URL`; it isn't secret.
+
 ## 3. Verification performed (2026-10-08 – 2026-10-09)
 
 All on Windows 11, Node 24.13.0, pnpm 10.34.6:

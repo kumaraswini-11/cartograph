@@ -33,8 +33,9 @@ const appPath = z.string().regex(/^\/(?!\/)/);
 // values are present and well-formed. CLERK_SECRET_KEY stays out of the
 // browser because Next.js only inlines NEXT_PUBLIC_* variables; createEnv
 // additionally throws if client code reads a server variable through `env`.
-// CI sets SKIP_ENV_VALIDATION=1 because it holds no keys; Vercel and local
-// builds always validate.
+// CI sets SKIP_ENV_VALIDATION=1 because it holds no keys, real or fake (see
+// the comment in .github/workflows/ci.yml); Vercel and local builds always
+// validate.
 export const env = createEnv({
   server: {
     CLERK_SECRET_KEY: z.string().regex(/^sk_(?:test|live)_/),
