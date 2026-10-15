@@ -20,9 +20,12 @@
 
 ## Agent skills
 
-Skill collections for coding agents. None is installed in this repository; the
-commands below install one when it's needed.
+Skill collections for coding agents. Installed skills are committed as plain
+files in `.claude/skills/` (installed with `--copy`, so no symlinks), with
+their source and content hash in `skills-lock.json`. Collections without an
+installed skill are listed for when one is needed.
 
+- [shadcn/ui skill](https://github.com/shadcn-ui/ui/tree/main/skills/shadcn): installed. Teaches the agent the shadcn CLI, registries and component rules for this project's `components.json`. Install/update: `npx skills@latest add shadcn/ui --skill shadcn -a claude-code --copy`.
 - [JS Mastery Engineering Workflow](https://jsmastery.com/skills): catalog and docs for nine workflow skills (scope, audit, architect, develop, check, test, document, sync, debug). Install: `npx skills@latest add jsmastery-pro/skills -a claude-code`.
 - [Jakub Krehel's interface skills](https://jakub.kr/skills) (author's site: <https://jakub.kr/>): catalog for thirteen interface skills: `better-*`, `break`, `build-design`, `explain-interface`, `interface-review`, `state-machine` and `variant`. Source: [jakubkrehel/skills](https://github.com/jakubkrehel/skills).
 - [Clerk agent skills](https://github.com/clerk/skills): eight `clerk*` skills for Clerk authentication and organizations.

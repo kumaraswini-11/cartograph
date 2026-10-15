@@ -17,3 +17,7 @@ todos.json
 
 # typescript
 *.tsbuildinfo
+
+# Claude Code personal files (shared config such as .claude/skills is committed)
+.claude/settings.local.json
+CLAUDE.local.md
