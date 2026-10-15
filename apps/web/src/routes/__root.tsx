@@ -2,6 +2,7 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 
+import { Toaster } from "@workspace/ui/components/toast"
 import appCss from "@workspace/ui/globals.css?url"
 
 export const Route = createRootRoute({
@@ -47,6 +48,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        {/* One toast region for the whole app: call toast.add() from
+            @workspace/ui/components/toast anywhere to show a toast. */}
+        <Toaster />
         {/* Development only: the devtools Vite plugin strips this from
             production builds (removeDevtoolsOnBuild defaults to true). */}
         <TanStackDevtools
