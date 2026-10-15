@@ -13,7 +13,12 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "Cartograph",
+      },
+      {
+        name: "description",
+        content:
+          "A dependency map of any public TypeScript or JavaScript repository, drawn from the code itself.",
       },
     ],
     links: [
