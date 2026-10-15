@@ -1,0 +1,18 @@
+# Store and check out text files with LF on every OS, matching Prettier's
+# endOfLine: "lf"; git detects text vs binary for anything not listed here.
+* text=auto eol=lf
+
+# Binary assets: never convert line endings or show text diffs
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.woff binary
+*.woff2 binary
+
+# Generated files: collapsed in GitHub diffs and left out of language stats
+apps/web/src/routeTree.gen.ts linguist-generated=true
+pnpm-lock.yaml linguist-generated=true
