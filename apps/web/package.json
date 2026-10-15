@@ -14,10 +14,8 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "catalog:",
-    "@tanstack/react-devtools": "latest",
-    "@tanstack/react-router": "latest",
-    "@tanstack/react-router-devtools": "latest",
-    "@tanstack/react-start": "latest",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/react-start": "catalog:",
     "@tanstack/react-virtual": "catalog:",
     "@workspace/ui": "workspace:*",
     "lucide-react": "catalog:",
@@ -26,15 +24,17 @@
     "tailwindcss": "catalog:"
   },
   "devDependencies": {
-    "@tanstack/devtools-vite": "latest",
+    "@tanstack/devtools-vite": "catalog:",
     "@tanstack/eslint-config": "catalog:",
-    "@tanstack/router-cli": "^1.167.40",
+    "@tanstack/react-devtools": "catalog:",
+    "@tanstack/react-router-devtools": "catalog:",
+    "@tanstack/router-cli": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "^6",
+    "@vitejs/plugin-react": "catalog:",
     "eslint": "catalog:",
     "typescript": "catalog:",
-    "vite": "^8"
+    "vite": "catalog:"
   }
 }
