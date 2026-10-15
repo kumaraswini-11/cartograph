@@ -113,10 +113,23 @@ Then import them from the UI package:
 import { Button } from "@workspace/ui/components/button"
 ```
 
-## Docs
+## Agent skills
+
+Claude Code skills live in `.claude/skills/`, pinned in `skills-lock.json`.
+Always install with `-a claude-code --copy`:
+
+```bash
+pnpm dlx skills@latest add <source> --skill <name> -a claude-code --copy -y
+pnpm dlx skills@latest update
+```
+
+Every command, the reason for each flag, and what's installed are in
+[docs/bookmarks.md](docs/bookmarks.md#agent-skills).
+
+## References
 
 - [Project doc](docs/project-doc.md): what Cartograph is and why each decision was made
-- [Bookmarks](docs/bookmarks.md): useful external references
+- [Bookmarks](docs/bookmarks.md): useful external references, and the installed agent skills
 
 ## License
 
