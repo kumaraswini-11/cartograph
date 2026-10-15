@@ -8,3 +8,6 @@ node_modules/
 coverage/
 pnpm-lock.yaml
 .pnpm-store/
+
+# vendored agent skills: installed by the skills CLI, hashed in skills-lock.json
+.claude/skills/

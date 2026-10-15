@@ -2,6 +2,7 @@
   "name": "cartograph",
   "version": "0.0.1",
   "private": true,
+  "license": "UNLICENSED",
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
@@ -13,7 +14,7 @@
     "prettier": "^3.9.9",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "turbo": "^2.11.7",
-    "typescript": "^6.0.2"
+    "typescript": "catalog:"
   },
   "packageManager": "pnpm@11.25.0",
   "engines": {

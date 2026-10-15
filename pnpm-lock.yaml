@@ -4,6 +4,45 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@tailwindcss/vite':
+      specifier: 4.3.3
+      version: 4.3.3
+    '@tanstack/eslint-config':
+      specifier: 0.4.0
+      version: 0.4.0
+    '@tanstack/react-virtual':
+      specifier: 3.14.19
+      version: 3.14.19
+    '@types/node':
+      specifier: 22.20.5
+      version: 22.20.5
+    '@types/react':
+      specifier: 19.3.0
+      version: 19.3.0
+    '@types/react-dom':
+      specifier: 19.3.0
+      version: 19.3.0
+    eslint:
+      specifier: 10.12.0
+      version: 10.12.0
+    lucide-react:
+      specifier: 1.57.0
+      version: 1.57.0
+    react:
+      specifier: 19.3.0
+      version: 19.3.0
+    react-dom:
+      specifier: 19.3.0
+      version: 19.3.0
+    tailwindcss:
+      specifier: 4.3.3
+      version: 4.3.3
+    typescript:
+      specifier: 6.0.3
+      version: 6.0.3
+
 importers:
 
   .:
@@ -18,13 +57,13 @@ importers:
         specifier: ^2.11.7
         version: 2.11.7
       typescript:
-        specifier: ^6.0.2
+        specifier: 'catalog:'
         version: 6.0.3
 
   apps/web:
     dependencies:
       '@tailwindcss/vite':
-        specifier: ^4
+        specifier: 'catalog:'
         version: 4.3.3(vite@8.3.2(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.21.0))
       '@tanstack/react-devtools':
         specifier: latest
@@ -38,48 +77,51 @@ importers:
       '@tanstack/react-start':
         specifier: latest
         version: 1.169.1(esbuild@0.28.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.12)(supports-color@7.2.0)(vite@8.3.2(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.21.0))
+      '@tanstack/react-virtual':
+        specifier: 'catalog:'
+        version: 3.14.19(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@workspace/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       lucide-react:
-        specifier: ^1.57.0
+        specifier: 'catalog:'
         version: 1.57.0(@types/react@19.3.0)(react@19.3.0)
       react:
-        specifier: ^19.2.8
+        specifier: 'catalog:'
         version: 19.3.0
       react-dom:
-        specifier: ^19.2.8
+        specifier: 'catalog:'
         version: 19.3.0(react@19.3.0)
       tailwindcss:
-        specifier: ^4
+        specifier: 'catalog:'
         version: 4.3.3
     devDependencies:
       '@tanstack/devtools-vite':
         specifier: latest
         version: 0.8.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(vite@8.3.2(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.21.0))
       '@tanstack/eslint-config':
-        specifier: latest
+        specifier: 'catalog:'
         version: 0.4.0(@typescript-eslint/utils@8.60.0(eslint@10.12.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3))(eslint@10.12.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3)
       '@tanstack/router-cli':
         specifier: ^1.167.40
         version: 1.167.40(supports-color@7.2.0)
       '@types/node':
-        specifier: ^22
+        specifier: 'catalog:'
         version: 22.20.5
       '@types/react':
-        specifier: ^19
+        specifier: 'catalog:'
         version: 19.3.0
       '@types/react-dom':
-        specifier: ^19
+        specifier: 'catalog:'
         version: 19.3.0(@types/react@19.3.0)
       '@vitejs/plugin-react':
         specifier: ^6
         version: 6.1.2(vite@8.3.2(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.21.0))
       eslint:
-        specifier: ^10
+        specifier: 'catalog:'
         version: 10.12.0(jiti@2.7.0)(supports-color@7.2.0)
       typescript:
-        specifier: ^6.0.2
+        specifier: 'catalog:'
         version: 6.0.3
       vite:
         specifier: ^8
@@ -100,13 +142,13 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0
       lucide-react:
-        specifier: ^1.57.0
+        specifier: 'catalog:'
         version: 1.57.0(@types/react@19.3.0)(react@19.3.0)
       react:
-        specifier: ^19.2.8
+        specifier: 'catalog:'
         version: 19.3.0
       react-dom:
-        specifier: ^19.2.8
+        specifier: 'catalog:'
         version: 19.3.0(react@19.3.0)
       shadcn:
         specifier: ^4.21.4
@@ -119,31 +161,31 @@ importers:
         version: 4.6.5
     devDependencies:
       '@tailwindcss/vite':
-        specifier: ^4
+        specifier: 'catalog:'
         version: 4.3.3(vite@8.3.2(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.21.0))
       '@tanstack/eslint-config':
-        specifier: latest
+        specifier: 'catalog:'
         version: 0.4.0(@typescript-eslint/utils@8.60.0(eslint@10.12.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3))(eslint@10.12.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3)
       '@turbo/gen':
         specifier: ^2.11.7
         version: 2.11.7(@types/node@22.20.5)
       '@types/node':
-        specifier: ^22
+        specifier: 'catalog:'
         version: 22.20.5
       '@types/react':
-        specifier: ^19
+        specifier: 'catalog:'
         version: 19.3.0
       '@types/react-dom':
-        specifier: ^19
+        specifier: 'catalog:'
         version: 19.3.0(@types/react@19.3.0)
       eslint:
-        specifier: ^10
+        specifier: 'catalog:'
         version: 10.12.0(jiti@2.7.0)(supports-color@7.2.0)
       tailwindcss:
-        specifier: ^4
+        specifier: 'catalog:'
         version: 4.3.3
       typescript:
-        specifier: ^6.0.2
+        specifier: 'catalog:'
         version: 6.0.3
 
 packages:
@@ -1449,6 +1491,12 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  '@tanstack/react-virtual@3.14.19':
+    resolution: {integrity: sha512-zmVdJO8DDqHphZ2H6SnTmgpVXcUy5DprB+clZF0ik679/d0MQ1UPEb2jtaX6F5VTAX4o3ozSLQaRCnybS2KYLA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   '@tanstack/router-cli@1.167.40':
     resolution: {integrity: sha512-KKX9hedstsc0eEKfUAwrwy7CLNXdSxjiBBq0uojnjMnOnraRXP9Nf+x6/ZsAultxHp7NhWfYddO8VdT0zAtUDg==}
     engines: {node: '>=20.19'}
@@ -1535,6 +1583,9 @@ packages:
 
   '@tanstack/store@0.11.2':
     resolution: {integrity: sha512-sJ4mjol8uQsHV0gOJzzjwXfh2Fwm+Sz0+8deqiTm4jGbMdjzNSW+xZCFm0kUa870uhd8yi+DpKnZb5Kc4apa0Q==}
+
+  '@tanstack/virtual-core@3.19.4':
+    resolution: {integrity: sha512-ygZ3O99Il18dl0gG0q7sH78iSkb96F07G+xK9V83eCgV8NQbcNd7R+cgcJJMFO7llBoebd0A82sCCstQq2Vp6Q==}
 
   '@tanstack/virtual-file-routes@1.162.0':
     resolution: {integrity: sha512-uhOeFyxLcU41HzvrxsGpiWdcMbScY1EDgbZ5K7DVRMYInbLYWAC0EA/kx9wXAoSM8q82bUG2hRl8+EAjE6XAbA==}
@@ -2114,10 +2165,6 @@ packages:
   encodeurl@2.0.0:
     resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
     engines: {node: '>= 0.8'}
-
-  enhanced-resolve@5.22.0:
-    resolution: {integrity: sha512-xYcDWrpELkFzz9SpZ3PlI6Eu6eD93Yf0WLDRxikGhWJ3MAir2SNZTIVCVZqZ/NUyx8AdMc2gT9C0gPiw18kG+A==}
-    engines: {node: '>=10.13.0'}
 
   enhanced-resolve@5.26.0:
     resolution: {integrity: sha512-9vhedylFonb2YGogzUKX6+Ja72gOJbN1QHAqdrvqLwhdl/QWbKopzoUC9EbQNVsAns/bx/4uyqalrQAoy1IByw==}
@@ -4865,6 +4912,12 @@ snapshots:
       react-dom: 19.3.0(react@19.3.0)
       use-sync-external-store: 1.6.0(react@19.3.0)
 
+  '@tanstack/react-virtual@3.14.19(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+    dependencies:
+      '@tanstack/virtual-core': 3.19.4
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
+
   '@tanstack/router-cli@1.167.40(supports-color@7.2.0)':
     dependencies:
       '@tanstack/router-generator': 1.167.40(supports-color@7.2.0)
@@ -5020,6 +5073,8 @@ snapshots:
       '@tanstack/router-core': 1.171.37
 
   '@tanstack/store@0.11.2': {}
+
+  '@tanstack/virtual-core@3.19.4': {}
 
   '@tanstack/virtual-file-routes@1.162.0': {}
 
@@ -5512,11 +5567,6 @@ snapshots:
 
   encodeurl@2.0.0: {}
 
-  enhanced-resolve@5.22.0:
-    dependencies:
-      graceful-fs: 4.2.11
-      tapable: 2.3.3
-
   enhanced-resolve@5.26.0:
     dependencies:
       graceful-fs: 4.2.11
@@ -5642,7 +5692,7 @@ snapshots:
   eslint-plugin-n@17.24.0(eslint@10.12.0(jiti@2.7.0)(supports-color@7.2.0))(typescript@6.0.3):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@10.12.0(jiti@2.7.0)(supports-color@7.2.0))
-      enhanced-resolve: 5.22.0
+      enhanced-resolve: 5.26.0
       eslint: 10.12.0(jiti@2.7.0)(supports-color@7.2.0)
       eslint-plugin-es-x: 7.8.0(eslint@10.12.0(jiti@2.7.0)(supports-color@7.2.0))
       get-tsconfig: 4.14.0
