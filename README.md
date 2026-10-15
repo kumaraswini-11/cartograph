@@ -101,7 +101,7 @@ Run from the repository root; Turborepo runs each across the workspace.
 ## Adding UI components
 
 Add shadcn components from the root; they're written to
-`packages/ui/src/components`:
+`packages/ui/src/components/shadcn-ui`, which holds registry output only:
 
 ```bash
 pnpm dlx shadcn@latest add button -c apps/web
@@ -110,7 +110,7 @@ pnpm dlx shadcn@latest add button -c apps/web
 Then import them from the UI package:
 
 ```tsx
-import { Button } from "@workspace/ui/components/button"
+import { Button } from "@workspace/ui/components/shadcn-ui/button"
 ```
 
 ## Agent skills

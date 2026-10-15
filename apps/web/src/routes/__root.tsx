@@ -2,7 +2,10 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 
+import { Toaster } from "@workspace/ui/components/shadcn-ui/toast"
 import appCss from "@workspace/ui/globals.css?url"
+
+import { ThemeProvider } from "@/components/theme/theme-provider"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -41,12 +44,19 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    // The theme script sets the class on <html> before React hydrates, so the
+    // attribute differs from the server render on purpose.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
-        {children}
+        <ThemeProvider defaultTheme="system" storageKey="theme">
+          {children}
+        </ThemeProvider>
+        {/* One toast region for the whole app: call toast.add() from
+            @workspace/ui/components/shadcn-ui/toast anywhere to show a toast. */}
+        <Toaster />
         {/* Development only: the devtools Vite plugin strips this from
             production builds (removeDevtoolsOnBuild defaults to true). */}
         <TanStackDevtools
