@@ -261,9 +261,16 @@ function Drawing({ input }: { input: MapInput }) {
   )
 
   return (
+    // React Flow's attribution stays (its docs allow removing it only with a
+    // Pro subscription), without its own white background, which clashes with
+    // the dark palette: cleared through React Flow's theming variable.
+    // Its link keeps React Flow's grey (#999), faint on white. To take a theme
+    // colour instead, load React Flow's styles in Tailwind's base layer, as its
+    // theming docs advise (`@import "@xyflow/react/dist/base.css" layer(base)`):
+    // they load outside any layer now, so they win over Tailwind's classes.
     <div
       ref={wrapper}
-      className="size-full"
+      className="size-full [--xy-attribution-background-color:transparent]"
       onKeyDown={(event) => {
         if (event.key === "Escape") actions.select(null)
       }}

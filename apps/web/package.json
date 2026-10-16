@@ -11,7 +11,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "sample": "node scripts/sample.ts"
+    "sample": "node scripts/sample.ts",
+    "og-image": "node scripts/og-image.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "catalog:",
@@ -30,6 +31,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@fontsource-variable/inter": "catalog:",
     "@tanstack/devtools-vite": "catalog:",
     "@tanstack/eslint-config": "catalog:",
     "@tanstack/react-devtools": "catalog:",

@@ -3,8 +3,16 @@ import { Link, createFileRoute } from "@tanstack/react-router"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
 
 import { ThemeToggle } from "@/components/theme/theme-toggle"
+import { SITE, seo, websiteJsonLd } from "@/lib/site"
 
-export const Route = createFileRoute("/")({ component: Home })
+export const Route = createFileRoute("/")({
+  head: () => ({
+    ...seo({ title: SITE.title, description: SITE.description, path: "/" }),
+    // The site's name for Google, on the home page only.
+    scripts: [websiteJsonLd()],
+  }),
+  component: Home,
+})
 
 function Home() {
   return (

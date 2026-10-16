@@ -137,6 +137,22 @@ type Box = {
   only. They and the empty panes share `EmptyState`, a thin composition of
   shadcn's `Empty` in `packages/ui/src/components`, since it appears more
   than three times (AGENTS.md: the rule of three).
+- **D-12** Search and link previews, asked for by the user: every page sends
+  Open Graph's four required tags (`og:title`, `og:type`, `og:image`,
+  `og:url`, [ogp.me](https://ogp.me/)), a description, a canonical link,
+  and X's `summary_large_image` card, the one tag X can't read from Open
+  Graph; the home page adds `WebSite` structured data for Google's site
+  name ([site names](https://developers.google.com/search/docs/appearance/site-names)).
+  One helper, `seo()` in `src/lib/site.ts`, builds them from one site
+  config; TanStack Router keeps the deepest route's copy of each tag.
+  Addresses are absolute, from `VERCEL_PROJECT_PRODUCTION_URL`, which Vercel
+  sets on every build, previews included, and which `turbo.json` declares
+  so Strict Mode passes it to the build. The 1200 × 630 share image is drawn
+  by `scripts/og-image.ts` and committed. Titles put the page first and
+  the site's name after it, the home page the brand line (Google: title
+  links). `twitter:url` isn't one of X's card tags; it carries the page's
+  address anyway, since link checkers ask for it. The home description stays
+  within three lines on mobile (at most 120 characters).
 
 ## Layout values
 

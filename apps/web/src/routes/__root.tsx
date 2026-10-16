@@ -6,6 +6,7 @@ import { Toaster } from "@workspace/ui/components/shadcn-ui/toast"
 import appCss from "@workspace/ui/globals.css?url"
 
 import { ThemeProvider } from "@/components/theme/theme-provider"
+import { siteMeta } from "@/lib/site"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -17,14 +18,8 @@ export const Route = createRootRoute({
         name: "viewport",
         content: "width=device-width, initial-scale=1",
       },
-      {
-        title: "Cartograph",
-      },
-      {
-        name: "description",
-        content:
-          "A dependency map of any public TypeScript or JavaScript repository, drawn from the code itself.",
-      },
+      // The site-wide search and share tags; each page adds its own.
+      ...siteMeta(),
     ],
     links: [
       {
