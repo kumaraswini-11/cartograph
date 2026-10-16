@@ -38,7 +38,7 @@ samples, `/sample/$name`, and the home page's links.
 
 ## T03 — The pane's insights and routes
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T01, T02
 **Covers:** FR-008 to FR-012, C-04, C-05, AC-05 to AC-07, AC-11
 
@@ -48,9 +48,9 @@ selects it on the map.
 
 **Done when:**
 
-- [ ] The section starts closed, every file selects, and the NestJS and
+- [x] The section starts closed, every file selects, and the NestJS and
       Express samples show their routes and their sentence.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T04 — Acceptance
 

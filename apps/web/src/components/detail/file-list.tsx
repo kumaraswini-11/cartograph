@@ -8,9 +8,6 @@ import {
 } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { ChevronDownIcon } from "lucide-react"
-import { fileName, folderOf } from "@workspace/parser/paths"
-import { Badge } from "@workspace/ui/components/shadcn-ui/badge"
-import { Button } from "@workspace/ui/components/shadcn-ui/button"
 import {
   Collapsible,
   CollapsibleContent,
@@ -27,12 +24,10 @@ import {
 } from "@workspace/ui/components/shadcn-ui/sidebar"
 import { cn } from "@workspace/ui/lib/utils"
 
-import { useChooseFile } from "@/components/detail/use-choose-file"
-import {
-  MARKED,
-  useHoverHandlers,
-  useHovered,
-} from "@/components/map/map-hover"
+import { PathLabel, pathLabelText } from "@/components/detail/path-label"
+import { ShowAllButton, useShowAll } from "@/components/detail/show-all"
+import { useFileButton } from "@/components/detail/use-file-button"
+import { MARKED } from "@/components/map/map-hover"
 
 /** A list longer than this renders only the rows in view (plan D-06). */
 const LIST_VIRTUAL_FROM = 100
@@ -79,8 +74,7 @@ export function FileList({
   defaultOpen?: boolean
 }) {
   const headingId = useId()
-  const [showAll, setShowAll] = useState(false)
-  const shown = limit === undefined || showAll ? rows : rows.slice(0, limit)
+  const { shown, toggle } = useShowAll(rows, limit)
   const Heading = headingLevel
   const label = (
     <>
@@ -101,16 +95,7 @@ export function FileList({
           ))}
         </SidebarMenu>
       )}
-      {limit !== undefined && rows.length > limit && (
-        <Button
-          variant="link"
-          size="sm"
-          aria-expanded={showAll}
-          onClick={() => setShowAll(!showAll)}
-        >
-          {showAll ? "Show fewer" : `Show all ${rows.length}`}
-        </Button>
-      )}
+      {toggle && <ShowAllButton {...toggle} count={rows.length} />}
     </SidebarGroupContent>
   )
 
@@ -147,33 +132,18 @@ export function FileList({
   )
 }
 
-/**
- * A file's name, then its folder, muted and cut from its start, so the end
- * that tells two `page.tsx` apart stays in view, then its mark. The name
- * never shrinks (any shrink, even a fraction of a pixel, would cut it) and
- * is cut only when it alone is wider than the row. A row narrower than 13rem
- * shows the name alone; the whole path shows on hover, and the button's name
- * always carries all of it, in the order shown. Hovering or focusing it
- * marks the file on the map, and a file hovered on the map is marked here
- * (spec 004, FR-013).
- */
+/** A file's row: its path label, and its count over the row's end. */
 function Row({
   row,
   ...props
 }: { row: FileRow } & React.ComponentProps<typeof SidebarMenuItem>) {
-  const choose = useChooseFile()
-  const hover = useHoverHandlers(row.path)
-  const marked = useHovered((path) => path === row.path)
-  const name = fileName(row.path)
-  const folder = folderOf(row.path)
+  const button = useFileButton(row.path)
   return (
     <SidebarMenuItem {...props}>
       <SidebarMenuButton
         title={row.path}
-        aria-label={[name, folder, row.mark].filter(Boolean).join(" ")}
-        onClick={() => choose(row.path)}
-        {...hover}
-        data-marked={marked}
+        aria-label={pathLabelText(row.path, row.mark)}
+        {...button}
         // The count sits over the button's end: room is kept for it.
         className={cn(
           "@container font-mono text-path",
@@ -181,20 +151,7 @@ function Row({
           row.count !== undefined && "pe-10"
         )}
       >
-        <span className="max-w-full shrink-0 truncate">{name}</span>
-        {folder !== "" && (
-          <span className="hidden min-w-0 truncate text-muted-foreground [direction:rtl] @min-[13rem]:inline">
-            <bdi dir="ltr">{folder}</bdi>
-          </span>
-        )}
-        {row.mark !== undefined && (
-          <Badge
-            variant="outline"
-            className="ms-auto hidden shrink-0 font-sans @min-[13rem]:inline-flex"
-          >
-            {row.mark}
-          </Badge>
-        )}
+        <PathLabel path={row.path} mark={row.mark} />
       </SidebarMenuButton>
       {row.count !== undefined && (
         <SidebarMenuBadge className="tabular-nums">

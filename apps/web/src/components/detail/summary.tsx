@@ -16,6 +16,8 @@ import { FactList } from "@/components/detail/fact-list"
 import type { Fact } from "@/components/detail/fact-list"
 import { FileList } from "@/components/detail/file-list"
 import type { FileRow } from "@/components/detail/file-list"
+import { Insights } from "@/components/detail/insights"
+import { RoutesTable } from "@/components/detail/routes-table"
 import { useMapData } from "@/components/map/map-data"
 
 /** The summary's first heading, where the focus goes when a selection is cleared. */
@@ -40,7 +42,8 @@ function routeCount({
 /**
  * The repository's summary (spec 004, FR-001 to FR-005): the detail pane's
  * resting state, not a placeholder (C-01), rendered on the server so the
- * first paint already says what the repository is.
+ * first paint already says what the repository is; then its routes and,
+ * closed, its insights (spec 005).
  */
 export function Summary() {
   const { input } = useMapData()
@@ -106,6 +109,9 @@ export function Summary() {
         limit={SUMMARY_LIST_LENGTH}
         empty="Every file is imported by another."
       />
+      <RoutesTable />
+      {/* Last, and closed: never the first thing shown (spec 005, C-04). */}
+      <Insights />
     </>
   )
 }
