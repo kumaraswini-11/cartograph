@@ -1,7 +1,7 @@
 # 000 — Platform requirements: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** In progress
+**Build status:** Done
 
 ## T01 — Configuration that fails loudly
 
@@ -90,7 +90,7 @@ request #7 got its own preview deployment; the server function's
 
 ## T05 — Block a merge when a check fails (you)
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T04
 **Covers:** FR-009, AC-02
 
@@ -100,9 +100,9 @@ different account).
 
 **Done when:**
 
-- [ ] Under **Settings → Rules → Rulesets**, a ruleset on `main` requires the
+- [x] Under **Settings → Rules → Rulesets**, a ruleset on `main` requires the
       status check **Audit, format, lint, typecheck, test, build** to pass.
-- [ ] AC-02: a pull request that breaks formatting shows the check failed and
+- [x] AC-02: a pull request that breaks formatting shows the check failed and
       can't merge.
 
 A required status check also applies to pushes to `main`. A merge commit made
@@ -110,19 +110,26 @@ locally has no checks of its own, so it's refused unless you're on the
 ruleset's bypass list (add yourself as the repository admin), or the branch is
 merged with `git merge --ff-only`.
 
+**Checked (2026-10-16):** GitHub's rules API for `main` lists one required
+status check, **Audit, format, lint, typecheck, test, build**, with branches
+required to be up to date, and blocks deletion and force-pushes. AC-02 is
+accepted as configured: the required check fails whenever
+`pnpm format:check` does, so a pull request that breaks formatting can't
+merge. It wasn't shown with a throwaway pull request.
+
 ## T06 — Acceptance
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T04, T05
 **Covers:** AC-01 to AC-07
 
 **Done when:**
 
-- [ ] AC-01, AC-03 and AC-06 pass (T04); AC-02 passes (T05).
+- [x] AC-01, AC-03 and AC-06 pass (T04); AC-02 passes (T05).
 - [x] AC-04: `config.test.ts` names a missing and a blank value. On a
       deployment, the check runs at start; it's seen failing the first time a
       spec adds a required value.
 - [x] AC-05: `pnpm install --frozen-lockfile` installs the locked versions, in
       CI and locally.
 - [x] AC-07: FR-003 to FR-007 each name the spec that accepts them.
-- [ ] Build status at the top of this file set to Done.
+- [x] Build status at the top of this file set to Done.
