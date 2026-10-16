@@ -1,6 +1,11 @@
-import { readFileSync } from "node:fs"
+// JSON as the packages read and write it: one source for reading
+// configuration (with comments, as tsconfig.json allows), telling an object
+// from other values, and writing and checking results. Exported at
+// `@workspace/parser/json`.
+import { readFileSync, writeFileSync } from "node:fs"
 
 import { parseSync } from "oxc-parser"
+import type { z } from "zod"
 
 export type JsonValue =
   | string
@@ -84,6 +89,20 @@ export function readJsonc(path: string): JsonValue | undefined {
 
 export type JsonObject = { [key: string]: JsonValue }
 
-export function isObject(value: JsonValue | undefined): value is JsonObject {
+/** True for a plain object: not null, not an array. */
+export function isObject(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+/** Writes `value` as JSON: the same bytes for the same value (spec 001, FR-021). */
+export function writeJson(path: string, value: unknown): void {
+  writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`)
+}
+
+/** Reads JSON written by `writeJson`, checking it against `schema`. */
+export function readJson<TSchema extends z.ZodType>(
+  path: string,
+  schema: TSchema
+): z.infer<TSchema> {
+  return schema.parse(JSON.parse(readFileSync(path, "utf8")))
 }

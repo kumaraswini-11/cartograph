@@ -23,3 +23,56 @@ export function folderOf(path: string): string {
 export function fileName(path: string): string {
   return path.slice(path.lastIndexOf("/") + 1)
 }
+
+/** Extensions of the JavaScript and TypeScript files the parser reads (FR-003). */
+export const SOURCE_EXTENSIONS = [
+  ".ts",
+  ".tsx",
+  ".mts",
+  ".cts",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".cjs",
+] as const
+
+/** True when `path` ends in one of the source extensions. */
+export function isSourceFile(path: string): boolean {
+  return SOURCE_EXTENSIONS.some((extension) => path.endsWith(extension))
+}
+
+/**
+ * Any source extension, for building a regular expression: `\.(?:ts|tsx|…)`.
+ * One source with `SOURCE_EXTENSIONS`, so a pattern never drifts from it.
+ */
+export const SOURCE_EXTENSION_PATTERN = `\\.(?:${SOURCE_EXTENSIONS.map((e) => e.slice(1)).join("|")})`
+
+/**
+ * The source files a compiled extension can come from, in the order
+ * TypeScript tries them: an import of `./a.js` means `a.ts`, `a.tsx`, `a.js`
+ * or `a.jsx` (TypeScript's module resolution: file extension substitution).
+ */
+export const SOURCE_FOR: Readonly<Record<string, ReadonlyArray<string>>> = {
+  ".js": [".ts", ".tsx", ".js", ".jsx"],
+  ".jsx": [".tsx", ".jsx"],
+  ".mjs": [".mts", ".mjs"],
+  ".cjs": [".cts", ".cjs"],
+}
+
+/**
+ * The files a path written without its extension can mean, in the order a
+ * resolver tries them: as written, with each source extension, then as a
+ * folder's index.
+ */
+export function withSourceExtensions(path: string): Array<string> {
+  return [
+    path,
+    ...SOURCE_EXTENSIONS.map((e) => `${path}${e}`),
+    ...SOURCE_EXTENSIONS.map((e) => `${path}/index${e}`),
+  ]
+}
+
+/** A path's text, escaped to match itself inside a regular expression. */
+export function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}

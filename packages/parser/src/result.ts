@@ -1,9 +1,9 @@
 // The parser's result: the contract every later spec reads (spec 001, C-05).
 // The Zod schema is the one source; the types are inferred from it, and
 // readResult checks a result against it.
-import { readFileSync, writeFileSync } from "node:fs"
-
 import { z } from "zod"
+
+import { readJson, writeJson } from "./jsonc.ts"
 
 export const SCHEMA_VERSION = 1
 
@@ -122,10 +122,10 @@ export function isTooLarge(result: ParseResult): result is TooLargeRepository {
 
 /** Writes a result as JSON: the same bytes for the same result (FR-021, FR-022). */
 export function writeResult(path: string, result: ParseResult): void {
-  writeFileSync(path, `${JSON.stringify(result, null, 2)}\n`)
+  writeJson(path, result)
 }
 
 /** Reads a written result back, checking it against the schema (FR-021). */
 export function readResult(path: string): ParseResult {
-  return parseResult.parse(JSON.parse(readFileSync(path, "utf8")))
+  return readJson(path, parseResult)
 }

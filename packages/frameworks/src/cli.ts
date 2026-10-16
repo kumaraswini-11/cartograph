@@ -5,7 +5,7 @@ import { resolve } from "node:path"
 import { exit, stdout } from "node:process"
 
 import { isTooLarge, parseRepository } from "@workspace/parser"
-import { directoryArgs } from "@workspace/parser/cli"
+import { directoryArgs, tooLargeMessage } from "@workspace/parser/command"
 
 import { detectFrameworks } from "./detect.ts"
 import { writeDetection } from "./result.ts"
@@ -15,9 +15,7 @@ const { directory, out } = directoryArgs("detect")
 const root = resolve(directory)
 const parsed = parseRepository(root)
 if (isTooLarge(parsed)) {
-  stdout.write(
-    `Too large: ${parsed.tooLarge.files} files, over the ${parsed.tooLarge.maxFiles}-file limit. Nothing was detected.\n`
-  )
+  stdout.write(`${tooLargeMessage(parsed.tooLarge, "detected")}\n`)
   exit(1)
 }
 

@@ -9,7 +9,7 @@ import { findPackages, localPath } from "./packages.ts"
 import { DETECTION_SCHEMA_VERSION } from "./result.ts"
 import type { Detection, FileRole, PackageRecord, Route } from "./result.ts"
 import { createSyntax } from "./syntax.ts"
-import { UNIDENTIFIED, mergeTaxonomies } from "./taxonomy.ts"
+import { UNIDENTIFIED, mergeTaxonomies, rolesOf } from "./taxonomy.ts"
 
 /** The first adapter that recognises the package, or the generic one (FR-002, FR-003). */
 function adapterFor(declared: ReadonlySet<string>): Adapter {
@@ -44,13 +44,7 @@ export function detectFrameworks(
     const description = adapter.describe(input)
     const entryPoints = commonEntryPoints(input)
     const known = new Set(
-      adapter.taxonomy
-        ? [
-            ...adapter.taxonomy.surface,
-            ...adapter.taxonomy.layer,
-            ...adapter.taxonomy.plumbing,
-          ]
-        : []
+      adapter.taxonomy ? rolesOf(adapter.taxonomy).map((r) => r.role) : []
     )
     for (const path of pkg.files) {
       // A test of a model isn't a model: tests take no role (FR-005).

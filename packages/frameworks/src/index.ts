@@ -14,5 +14,12 @@ export type {
   Route,
   TaxonomyEntry,
 } from "./result.ts"
-export { TAXONOMIES, TIERS, UNIDENTIFIED, mergeTaxonomies } from "./taxonomy.ts"
+export {
+  ROLE_TIERS,
+  TAXONOMIES,
+  TIERS,
+  UNIDENTIFIED,
+  mergeTaxonomies,
+  rolesOf,
+} from "./taxonomy.ts"
 export type { Taxonomy, TaxonomyRole, Tier } from "./taxonomy.ts"

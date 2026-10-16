@@ -4,7 +4,12 @@
 import { resolve } from "node:path"
 import { exit, stdout } from "node:process"
 
-import { directoryArgs } from "./cli-args.ts"
+import {
+  directoryArgs,
+  percent,
+  tooLargeMessage,
+  unresolvedLines,
+} from "./command.ts"
 import { parseRepository } from "./parse.ts"
 import { compareText } from "./paths.ts"
 import { isTooLarge, writeResult } from "./result.ts"
@@ -22,14 +27,11 @@ const result = parseRepository(resolve(directory))
 if (out !== undefined) writeResult(resolve(out), result)
 
 if (isTooLarge(result)) {
-  stdout.write(
-    `Too large: ${result.tooLarge.files} files, over the ${result.tooLarge.maxFiles}-file limit. Nothing was parsed.\n`
-  )
+  stdout.write(`${tooLargeMessage(result.tooLarge, "parsed")}\n`)
   exit(1)
 }
 
 const { coverage } = result
-const percent = (n: number) => `${(n * 100).toFixed(1)}%`
 const lines = [
   `Files found:   ${coverage.filesFound}`,
   `Files parsed:  ${coverage.filesParsed}`,
@@ -48,12 +50,7 @@ const lines = [
   `  external:   ${coverage.imports.external}`,
   `  excluded:   ${coverage.imports.excluded}`,
   `  unresolved: ${coverage.imports.unresolved}`,
-  ...coverage.unresolvedByReason.flatMap((group) => [
-    `    ${group.reason}: ${group.count}`,
-    ...group.examples.map(
-      (e) => `      ${e.file}:${e.line} ${e.specifier || "(not a literal)"}`
-    ),
-  ]),
+  ...unresolvedLines(coverage.unresolvedByReason, "    "),
   `Edges: ${result.edges.length}`,
   coverage.figure === null
     ? "Coverage: no imports found"

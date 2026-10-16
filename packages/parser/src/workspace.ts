@@ -3,6 +3,7 @@ import { join, posix } from "node:path"
 
 import { isObject, readJsonc } from "./jsonc.ts"
 import type { JsonObject, JsonValue } from "./jsonc.ts"
+import { SOURCE_FOR, escapeRegExp } from "./paths.ts"
 
 /** A package of the repository's own workspace (spec 001, FR-012). */
 export type WorkspacePackage = {
@@ -64,7 +65,7 @@ function globToRegExp(glob: string): RegExp {
     .map((segment) =>
       segment === "**"
         ? ".*"
-        : segment.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^/]*")
+        : segment.split("*").map(escapeRegExp).join("[^/]*")
     )
     .join("/")
   return new RegExp(`^${source.replace(/\/\.\*$/, "(/.*)?")}$`)
@@ -189,38 +190,55 @@ export function workspaceTargets(
   return { paths: paths.map(inPackage) }
 }
 
+/** A package's build-output folder and the source folder it's built from. */
+export type SourceDirectories = { out: string; source: string }
+
 /**
- * Where a build-output path comes from in source, through the package's
- * tsconfig `outDir` → `rootDir` (plan D-02). Both must be set: the parser
- * maps only what the configuration states, never a guess.
+ * A package's tsconfig `outDir` and `rootDir`, relative to the repository
+ * (plan D-02). Both must be set: the parser maps only what the
+ * configuration states, never a guess. Read once per package by the
+ * resolver.
  */
-export function sourceCandidates(
+export function sourceDirectories(
   pkg: WorkspacePackage,
-  path: string,
   root: string
-): Array<string> {
+): SourceDirectories | undefined {
   const tsconfig = readJsonc(join(root, pkg.directory, "tsconfig.json"))
   const options = isObject(tsconfig) ? tsconfig.compilerOptions : undefined
-  if (!isObject(options)) return []
+  if (!isObject(options)) return undefined
   const { outDir, rootDir } = options
-  if (typeof outDir !== "string" || typeof rootDir !== "string") return []
+  if (typeof outDir !== "string" || typeof rootDir !== "string")
+    return undefined
+  return {
+    out: posix.normalize(posix.join(pkg.directory, outDir)),
+    source: posix.normalize(posix.join(pkg.directory, rootDir)),
+  }
+}
 
-  const out = posix.normalize(posix.join(pkg.directory, outDir))
-  if (!path.startsWith(`${out}/`)) return []
+/** A declaration's source, then a compiled file's (`SOURCE_FOR`). */
+const SOURCE_SWAPS: ReadonlyArray<[RegExp, ReadonlyArray<string>]> = [
+  [/\.d\.ts$/, [".ts", ".tsx"]],
+  [/\.d\.mts$/, [".mts"]],
+  [/\.d\.cts$/, [".cts"]],
+  ...Object.entries(SOURCE_FOR).map(
+    ([from, to]): [RegExp, ReadonlyArray<string>] => [
+      new RegExp(`${escapeRegExp(from)}$`),
+      to,
+    ]
+  ),
+]
+
+/** Where a build-output path comes from in source (plan D-02). */
+export function sourceCandidates(
+  directories: SourceDirectories | undefined,
+  path: string
+): Array<string> {
+  if (!directories || !path.startsWith(`${directories.out}/`)) return []
   const inSource = posix.join(
-    posix.normalize(posix.join(pkg.directory, rootDir)),
-    path.slice(out.length + 1)
+    directories.source,
+    path.slice(directories.out.length + 1)
   )
-
-  const swaps: Array<[RegExp, Array<string>]> = [
-    [/\.d\.ts$/, [".ts", ".tsx"]],
-    [/\.d\.mts$/, [".mts"]],
-    [/\.d\.cts$/, [".cts"]],
-    [/\.js$/, [".ts", ".tsx", ".js", ".jsx"]],
-    [/\.mjs$/, [".mts", ".mjs"]],
-    [/\.cjs$/, [".cts", ".cjs"]],
-  ]
-  for (const [pattern, extensions] of swaps) {
+  for (const [pattern, extensions] of SOURCE_SWAPS) {
     if (pattern.test(inSource))
       return extensions.map((e) => inSource.replace(pattern, e))
   }

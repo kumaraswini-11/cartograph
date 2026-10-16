@@ -11,9 +11,49 @@ import {
   writeFileSync,
 } from "node:fs"
 import { join } from "node:path"
+import { exit, stdout } from "node:process"
 
 /** Counts by name, as a spec's golden data pins them. */
 export type Counts = Record<string, number | string>
+
+/** A golden repository at its pinned commit. */
+export type GoldenRepository = { repository: string; commit: string }
+
+/** What checking one golden repository found. */
+export type GoldenReport = {
+  /** How long the step under test took, in seconds. */
+  seconds: number
+  lines: Array<string>
+  drift: boolean
+}
+
+/**
+ * A golden script's loop: each repository downloaded, checked, and printed
+ * under a heading with what was `done` ("parsed", "detected") and how long it
+ * took; the script exits with status 1 if anything drifted.
+ */
+export async function runGolden<TGolden extends GoldenRepository>(
+  goldens: ReadonlyArray<TGolden>,
+  done: string,
+  check: (golden: TGolden, directory: string) => GoldenReport
+): Promise<void> {
+  let drift = false
+  for (const golden of goldens) {
+    const directory = await checkout(golden.repository, golden.commit)
+    const report = check(golden, directory)
+    drift ||= report.drift
+    const heading = `${golden.repository} @ ${golden.commit.slice(0, 7)} (${done} in ${report.seconds.toFixed(1)} s)`
+    stdout.write(`${[heading, ...report.lines].join("\n")}\n\n`)
+  }
+  if (drift) exit(1)
+}
+
+/** `step`'s value, and how long it took in seconds. */
+export function timed<TValue>(step: () => TValue): [TValue, number] {
+  const started = performance.now()
+  const value = step()
+  return [value, (performance.now() - started) / 1000]
+}
 
 const DOWNLOAD_TIMEOUT_MS = 120_000
 /** Git-ignored (`.cache` in the root .gitignore). */

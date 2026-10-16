@@ -9,13 +9,16 @@
   },
   "scripts": {
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*",
     "eslint": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

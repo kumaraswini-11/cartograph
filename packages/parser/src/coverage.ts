@@ -1,3 +1,4 @@
+import { compareText } from "./paths.ts"
 import type { Coverage, ImportRecord, UnresolvedReason } from "./result.ts"
 
 type CountedImport = Pick<
@@ -48,7 +49,7 @@ export function measureCoverage(
   return {
     imports: counts,
     unresolvedByReason: [...byReason.values()].sort((a, b) =>
-      a.reason < b.reason ? -1 : 1
+      compareText(a.reason, b.reason)
     ),
     figure: measured === 0 ? null : counts.resolved / measured,
   }

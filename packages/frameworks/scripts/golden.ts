@@ -2,9 +2,7 @@
 // repository at its pinned commit, parses and detects it, and prints its
 // frameworks, role counts and routes beside the spec's golden data, held
 // here too (spec 002, T05). Exits 1 on any drift.
-import { exit, stdout } from "node:process"
-
-import { checkout, compareCounts, compareList } from "@workspace/golden"
+import { compareCounts, compareList, runGolden, timed } from "@workspace/golden"
 import type { Counts } from "@workspace/golden"
 import { isTooLarge, parseRepository } from "@workspace/parser"
 
@@ -159,28 +157,18 @@ function countsOf(result: Detection): Counts {
   }
 }
 
-let drift = false
-for (const golden of GOLDEN) {
-  const directory = await checkout(golden.repository, golden.commit)
+await runGolden(GOLDEN, "detected", (golden, directory) => {
   const parsed = parseRepository(directory)
   if (isTooLarge(parsed)) throw new Error(`${golden.repository} is too large`)
-  const started = performance.now()
-  const result = detectFrameworks(directory, parsed)
-  const seconds = (performance.now() - started) / 1000
-
+  const [result, seconds] = timed(() => detectFrameworks(directory, parsed))
   const counts = compareCounts(countsOf(result), golden.pinned?.counts)
   const routes = compareList(
     result.routes.map((r) => `${r.method} ${r.path}  ${r.file}:${r.line}`),
     golden.pinned?.routes
   )
-  drift ||= counts.drift || routes.drift
-  stdout.write(
-    [
-      `${golden.repository} @ ${golden.commit.slice(0, 7)} (detected in ${seconds.toFixed(1)} s)`,
-      ...counts.lines,
-      "  routes:",
-      ...routes.lines,
-    ].join("\n") + "\n\n"
-  )
-}
-if (drift) exit(1)
+  return {
+    seconds,
+    lines: [...counts.lines, "  routes:", ...routes.lines],
+    drift: counts.drift || routes.drift,
+  }
+})

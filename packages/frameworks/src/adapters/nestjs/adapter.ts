@@ -194,55 +194,78 @@ function settingsOf(pkg: PackageInput): Settings | undefined {
     if (!settingCalls.every(onApplication)) return undefined
 
     for (const call of memberCalls(file.program, "setGlobalPrefix")) {
-      const [value, options] = argumentsOf(call)
-      const prefix = literalValue(value)
-      if (prefix === undefined) return undefined
-      prefixes.add(trim(prefix))
-      if (options === undefined) continue
-      const list = property(options, "exclude")
-      if (list === undefined) continue
-      if (list.type !== "ArrayExpression") return undefined
-      for (const item of list.elements as Array<Node>) {
-        const itemPath =
-          literalValue(item) ?? literalValue(property(item, "path"))
-        if (itemPath === undefined || /[*(:]/.test(itemPath)) return undefined
-        const method =
-          item.type === "ObjectExpression"
-            ? requestMethod(property(item, "method"))
-            : "ALL"
-        if (method === undefined) return undefined
-        exclude.push({
-          path: trim(itemPath),
-          method: method === "ALL" ? undefined : method,
-        })
-      }
+      const global = globalPrefixOf(call)
+      if (!global) return undefined
+      prefixes.add(global.prefix)
+      exclude.push(...global.exclude)
     }
 
     for (const call of memberCalls(file.program, "enableVersioning")) {
-      const [options] = argumentsOf(call)
-      const type = property(options, "type")
-      if (type?.type !== "MemberExpression") return undefined
-      // Header and media-type versions leave the path as it is.
-      const typeName = (type.property as { name?: string } | undefined)?.name
-      if (typeName !== "URI") continue
-      const prefixNode = property(options, "prefix")
-      const versionPrefix =
-        prefixNode === undefined
-          ? "v"
-          : prefixNode.type === "Literal" && prefixNode.value === false
-            ? ""
-            : literalValue(prefixNode)
-      if (versionPrefix === undefined) return undefined
-      const defaultNode = property(options, "defaultVersion")
-      const defaults =
-        defaultNode === undefined ? undefined : versionsOf(defaultNode)
-      if (defaultNode !== undefined && defaults === undefined) return undefined
-      versioning = { prefix: versionPrefix, defaults }
+      const read = uriVersioningOf(call)
+      if (read === undefined) return undefined
+      if (read !== null) versioning = read
     }
   }
   if (prefixes.size > 1) return undefined
   const [prefix = ""] = prefixes
   return { prefix, exclude, versioning }
+}
+
+/**
+ * `app.setGlobalPrefix(prefix, { exclude })`: the prefix and the paths that
+ * skip it; undefined when either isn't a literal, or an excluded path is a
+ * pattern.
+ */
+function globalPrefixOf(
+  call: Node
+): Pick<Settings, "prefix" | "exclude"> | undefined {
+  const [value, options] = argumentsOf(call)
+  const prefix = literalValue(value)
+  if (prefix === undefined) return undefined
+  const list = options === undefined ? undefined : property(options, "exclude")
+  if (list === undefined) return { prefix: trim(prefix), exclude: [] }
+  if (list.type !== "ArrayExpression") return undefined
+  const exclude: Settings["exclude"] = []
+  for (const item of list.elements as Array<Node>) {
+    const itemPath = literalValue(item) ?? literalValue(property(item, "path"))
+    if (itemPath === undefined || /[*(:]/.test(itemPath)) return undefined
+    const method =
+      item.type === "ObjectExpression"
+        ? requestMethod(property(item, "method"))
+        : "ALL"
+    if (method === undefined) return undefined
+    exclude.push({
+      path: trim(itemPath),
+      method: method === "ALL" ? undefined : method,
+    })
+  }
+  return { prefix: trim(prefix), exclude }
+}
+
+/**
+ * `app.enableVersioning(options)`: the URI versioning it sets; null for
+ * header and media-type versions, which leave the path as it is; undefined
+ * when its options aren't literals.
+ */
+function uriVersioningOf(call: Node): Settings["versioning"] | null {
+  const [options] = argumentsOf(call)
+  const type = property(options, "type")
+  if (type?.type !== "MemberExpression") return undefined
+  const typeName = (type.property as { name?: string } | undefined)?.name
+  if (typeName !== "URI") return null
+  const prefixNode = property(options, "prefix")
+  const prefix =
+    prefixNode === undefined
+      ? "v"
+      : prefixNode.type === "Literal" && prefixNode.value === false
+        ? ""
+        : literalValue(prefixNode)
+  if (prefix === undefined) return undefined
+  const defaultNode = property(options, "defaultVersion")
+  const defaults =
+    defaultNode === undefined ? undefined : versionsOf(defaultNode)
+  if (defaultNode !== undefined && defaults === undefined) return undefined
+  return { prefix, defaults }
 }
 
 /** A controller's paths and version, when all of them are literals. */
@@ -286,57 +309,88 @@ function routesOf(
     const members = (cls.body as Node).body as Array<Node & Decorated>
     for (const member of members) {
       if (member.type !== "MethodDefinition") continue
-      let binding:
-        { method: HttpMethod; paths: Array<string>; line: number } | undefined
-      let methodVersions: Array<Version> | undefined
-      let exact = true
-      for (const decorator of member.decorators ?? []) {
-        const name = fromCommon(decorator.expression)
-        if (name === undefined) continue
-        const method = METHOD_DECORATORS[name]
-        if (method) {
-          const [argument] = argumentsOf(decorator.expression)
-          const paths = argument === undefined ? [""] : literalList(argument)
-          if (paths)
-            binding = { method, paths, line: file.lineOf(decorator.start) }
-          else exact = false
-        } else if (name === "Version") {
-          methodVersions = versionsOf(argumentsOf(decorator.expression)[0])
-          if (!methodVersions) exact = false
-        }
-      }
-      if (!binding || !exact) continue
-
-      const versions: Array<Version | undefined> = settings.versioning
-        ? (methodVersions ??
-          controller.versions ??
-          settings.versioning.defaults ?? [undefined])
-        : [undefined]
-      for (const controllerPath of controller.paths) {
-        for (const methodPath of binding.paths) {
-          const local = join(controllerPath, methodPath)
-          const excluded = settings.exclude.some(
-            (e) =>
-              join(e.path) === local &&
-              (e.method === undefined || e.method === binding.method)
-          )
-          for (const version of versions) {
-            const segment =
-              version === undefined || version === NEUTRAL
-                ? ""
-                : `${settings.versioning?.prefix ?? ""}${version}`
-            routes.push({
-              method: binding.method,
-              path: join(excluded ? "" : settings.prefix, segment, local),
-              file: path,
-              line: binding.line,
-            })
-          }
-        }
+      const binding = bindingOf(member, fromCommon, file)
+      if (!binding) continue
+      for (const route of fullPaths(controller, binding, settings)) {
+        routes.push({ ...route, file: path, line: binding.line })
       }
     }
   }
   return routes
+}
+
+/** A controller method's route: its HTTP method, paths, line and versions. */
+type Binding = {
+  method: HttpMethod
+  paths: Array<string>
+  line: number
+  versions: Array<Version> | undefined
+}
+
+/**
+ * A method's route decorators (`@Get(path)`, `@Version(v)`), read only when
+ * every argument is a literal; undefined for a method that isn't a route or
+ * can't be read exactly.
+ */
+function bindingOf(
+  member: Node & Decorated,
+  fromCommon: (expression: Node) => string | undefined,
+  file: ParsedFile
+): Binding | undefined {
+  let route: Omit<Binding, "versions"> | undefined
+  let versions: Array<Version> | undefined
+  for (const decorator of member.decorators ?? []) {
+    const name = fromCommon(decorator.expression)
+    if (name === undefined) continue
+    const method = METHOD_DECORATORS[name]
+    if (method) {
+      const [argument] = argumentsOf(decorator.expression)
+      const paths = argument === undefined ? [""] : literalList(argument)
+      if (!paths) return undefined
+      route = { method, paths, line: file.lineOf(decorator.start) }
+    } else if (name === "Version") {
+      versions = versionsOf(argumentsOf(decorator.expression)[0])
+      if (!versions) return undefined
+    }
+  }
+  return route && { ...route, versions }
+}
+
+/**
+ * Each full path a route answers on (FR-016, FR-017): every controller path
+ * by every method path, under the global prefix unless excluded, and under
+ * each version when URI versioning is on.
+ */
+function fullPaths(
+  controller: { paths: Array<string>; versions: Array<Version> | undefined },
+  binding: Binding,
+  settings: Settings
+): Array<Pick<Route, "method" | "path">> {
+  const versions: Array<Version | undefined> = settings.versioning
+    ? (binding.versions ??
+      controller.versions ??
+      settings.versioning.defaults ?? [undefined])
+    : [undefined]
+  return controller.paths.flatMap((controllerPath) =>
+    binding.paths.flatMap((methodPath) => {
+      const local = join(controllerPath, methodPath)
+      const excluded = settings.exclude.some(
+        (e) =>
+          join(e.path) === local &&
+          (e.method === undefined || e.method === binding.method)
+      )
+      return versions.map((version) => {
+        const segment =
+          version === undefined || version === NEUTRAL
+            ? ""
+            : `${settings.versioning?.prefix ?? ""}${version}`
+        return {
+          method: binding.method,
+          path: join(excluded ? "" : settings.prefix, segment, local),
+        }
+      })
+    })
+  )
 }
 
 /** A file that creates the application with `NestFactory` (FR-014). */

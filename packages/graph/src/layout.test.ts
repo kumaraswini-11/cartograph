@@ -26,8 +26,8 @@ const edges = [
 ]
 const map = buildBoxes(files, edges)
 
-/** Every endpoint that exists in a layout: boxes, and rows of open panels. */
-function endpoints(layout: Layout): Set<string> {
+/** Every edge end that exists in a layout: boxes, and rows of open panels. */
+function ends(layout: Layout): Set<string> {
   const known = new Set<string>()
   for (const node of layout.boxes) {
     known.add(node.id)
@@ -44,7 +44,7 @@ describe("layout (FR-009, FR-012)", () => {
     "ends every edge on a box or row that exists, with %j open (AC-03)",
     (open: Array<string>) => {
       const layout = layoutMap(map, edges, new Set(open))
-      const known = endpoints(layout)
+      const known = ends(layout)
       for (const e of layout.edges) {
         expect(known.has(key(e.from))).toBe(true)
         expect(known.has(key(e.to))).toBe(true)

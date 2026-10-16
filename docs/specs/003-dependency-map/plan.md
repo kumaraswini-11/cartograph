@@ -126,7 +126,7 @@ type Box = {
 - **D-10** One source for each concern. Paths are compared, split into
   folders and named by `@workspace/parser/paths` (pure, so the browser can
   use it), and the commands' `<directory> [--out <file>]` by
-  `@workspace/parser/cli`; the graph package declares `sideEffects: false`,
+  `@workspace/parser/command`; the graph package declares `sideEffects: false`,
   so a page that imports one value from it doesn't also load dagre.
 - **D-11** Not-found, error and pending pages, asked for by the user while
   the shell was built: the router's `defaultNotFoundComponent`,

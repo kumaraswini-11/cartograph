@@ -6,14 +6,23 @@ import type { NapiResolveOptions } from "oxc-resolver"
 
 import { isObject, readJsonc } from "./jsonc.ts"
 import type { UnresolvedReason } from "./result.ts"
-import { SOURCE_EXTENSIONS } from "./walk.ts"
+import {
+  SOURCE_EXTENSIONS,
+  SOURCE_FOR,
+  escapeRegExp,
+  fileName,
+  isSourceFile,
+  withSourceExtensions,
+} from "./paths.ts"
+import { isTsConfig } from "./walk.ts"
 import {
   findWorkspacePackages,
   matchWorkspacePackage,
   sourceCandidates,
+  sourceDirectories,
   workspaceTargets,
 } from "./workspace.ts"
-import type { WorkspacePackage } from "./workspace.ts"
+import type { SourceDirectories, WorkspacePackage } from "./workspace.ts"
 
 export type Resolution =
   | { resolution: "resolved"; to: string }
@@ -79,15 +88,13 @@ function pathAliases(
     }
   }
   for (const config of configs) {
-    if (/(^|\/)(ts|js)config(\..+)?\.json$/.test(config))
-      read(join(root, config), new Set())
+    if (isTsConfig(fileName(config))) read(join(root, config), new Set())
   }
   return [...keys].map((key) => {
     const [prefix = "", suffix = ""] = key.split("*")
-    const escape = (s: string) => s.replace(/[.+?^${}()|[\]\\]/g, "\\$&")
     return key.includes("*")
-      ? new RegExp(`^${escape(prefix)}.*${escape(suffix)}$`)
-      : new RegExp(`^${escape(key)}$`)
+      ? new RegExp(`^${escapeRegExp(prefix)}.*${escapeRegExp(suffix)}$`)
+      : new RegExp(`^${escapeRegExp(key)}$`)
   })
 }
 
@@ -103,18 +110,18 @@ export function createResolver(input: ResolverInput) {
     nodePath: false,
     builtinModules: true,
     symlinks: false,
+    // A declaration file stands in for its source right after .ts and .tsx,
+    // as in TypeScript's own lookup.
     extensions: [
-      ...SOURCE_EXTENSIONS.slice(0, 2),
+      ".ts",
+      ".tsx",
       ".d.ts",
-      ...SOURCE_EXTENSIONS.slice(2),
+      ...SOURCE_EXTENSIONS.filter((e) => e !== ".ts" && e !== ".tsx"),
       ".json",
     ],
-    extensionAlias: {
-      ".js": [".ts", ".tsx", ".js", ".jsx"],
-      ".jsx": [".tsx", ".jsx"],
-      ".mjs": [".mts", ".mjs"],
-      ".cjs": [".cts", ".cjs"],
-    },
+    extensionAlias: Object.fromEntries(
+      Object.entries(SOURCE_FOR).map(([from, to]) => [from, [...to]])
+    ),
     mainFields: ["module", "main"],
     conditionNames: ["import", "require", "node", "default"],
   }
@@ -148,10 +155,18 @@ export function createResolver(input: ResolverInput) {
     if (skipped.has(path)) return { resolution: "excluded" }
     if (excluded.some((e) => path === e || path.startsWith(`${e}/`)))
       return { resolution: "excluded" }
-    const isSource = SOURCE_EXTENSIONS.some((e) => path.endsWith(e))
-    return isSource
+    return isSourceFile(path)
       ? { resolution: "unresolved", reason: "not found" }
       : { resolution: "excluded" }
+  }
+
+  /** Each workspace package's build and source folders, read once. */
+  const directories = new Map<string, SourceDirectories | undefined>()
+  const directoriesOf = (pkg: WorkspacePackage) => {
+    if (!directories.has(pkg.directory)) {
+      directories.set(pkg.directory, sourceDirectories(pkg, root))
+    }
+    return directories.get(pkg.directory)
   }
 
   /** An import of a workspace package, through its manifest (plan D-02). */
@@ -168,7 +183,7 @@ export function createResolver(input: ResolverInput) {
       )
       const foundPath = found.path ? inRoot(found.path) : undefined
       if (foundPath !== undefined) return classify(foundPath)
-      for (const source of sourceCandidates(match.pkg, path, root)) {
+      for (const source of sourceCandidates(directoriesOf(match.pkg), path)) {
         if (files.has(source)) return { resolution: "resolved", to: source }
       }
     }
@@ -206,11 +221,7 @@ export function createResolver(input: ResolverInput) {
       if (existsSync(join(root, target))) return classify(target)
       // Found only by ignoring case: Windows and macOS resolve it, Linux
       // doesn't. Report it the same everywhere (FR-022).
-      const candidates = [
-        target,
-        ...SOURCE_EXTENSIONS.map((e) => `${target}${e}`),
-        ...SOURCE_EXTENSIONS.map((e) => `${target}/index${e}`),
-      ]
+      const candidates = withSourceExtensions(target)
       const differsInCase = (c: string) => {
         const actual = lowerCaseFiles.get(c.toLowerCase())
         return actual !== undefined && actual !== c

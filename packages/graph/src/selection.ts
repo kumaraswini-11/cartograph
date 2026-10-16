@@ -28,11 +28,13 @@ export function fullStrength(
   layout: Layout,
   selection: Selection
 ): FullStrength {
-  const kept = new Set<string>([
-    selection.file === undefined
-      ? selection.box
-      : `${selection.box}\0${selection.file}`,
-  ])
+  const kept = new Set<string>()
+  // A kept row keeps its box too, so its panel stays readable.
+  const keep = (end: EdgeEnd) => {
+    kept.add(edgeEndKey(end))
+    kept.add(end.box)
+  }
+  keep({ box: selection.box, row: selection.file })
   const into = new Set<string>()
   const outOf = new Set<string>()
   for (const edge of layout.edges) {
@@ -40,16 +42,11 @@ export function fullStrength(
     const toSelected = isSelected(edge.to, selection)
     if (toSelected && !fromSelected) {
       into.add(edge.id)
-      kept.add(edgeEndKey(edge.from))
+      keep(edge.from)
     } else if (fromSelected && !toSelected) {
       outOf.add(edge.id)
-      kept.add(edgeEndKey(edge.to))
+      keep(edge.to)
     }
-  }
-  // A kept row keeps its panel readable.
-  for (const key of [...kept]) {
-    const box = key.split("\0")[0]
-    if (box !== undefined) kept.add(box)
   }
   return { kept, into, outOf }
 }

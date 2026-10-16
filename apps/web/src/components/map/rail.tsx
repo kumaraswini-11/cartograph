@@ -1,4 +1,4 @@
-import type { TaxonomyEntry } from "@workspace/frameworks"
+import type { TaxonomyEntry } from "@workspace/frameworks/taxonomy"
 import {
   Sidebar,
   SidebarContent,
