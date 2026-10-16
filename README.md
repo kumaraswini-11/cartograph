@@ -16,7 +16,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
 [![CodeRabbit](https://img.shields.io/badge/CodeRabbit-FF570A?style=for-the-badge&logo=coderabbit&logoColor=white)](https://www.coderabbit.ai)
 
-> The name comes from **cartography**, the craft of making maps: French _carte_ (map, ultimately from Greek _khartÄ“s_) and _-graphie_ (from Greek _graphein_, to write or draw). A **cartographer** is the person who makes them.
+> The name comes from **cartography**, the craft of making maps: French _carte_ (map, ultimately from Greek _khartēs_) and _-graphie_ (from Greek _graphein_, to write or draw). A **cartographer** is the person who makes them.
 >
 > A cartographer surveys unknown ground and turns it into a map people can trust. Cartograph does that for a codebase you didn't write.
 
@@ -102,11 +102,22 @@ Run from the repository root. Turborepo runs `dev`, `build`, `lint` and
 
 ## Adding UI components
 
-Add shadcn components from the root; they're written to
-`packages/ui/src/components/shadcn-ui`, which holds registry output only:
+Components are written to `packages/ui/src/components/shadcn-ui`, which holds
+registry output only. From the repository root, run the shadcn CLI installed in
+the UI package (the version pinned in the catalog):
 
 ```bash
-pnpm dlx shadcn@latest add button -c apps/web
+pnpm --filter @workspace/ui exec shadcn add [COMPONENT]
+```
+
+Running it from the app's folder, as
+[shadcn's monorepo guide](https://ui.shadcn.com/docs/monorepo) shows, writes
+the same files with the latest CLI. Use this form for blocks: their
+page-specific parts belong in `apps/web`, which the UI package can't see.
+
+```bash
+cd apps/web
+pnpm dlx shadcn@latest add [COMPONENT]
 ```
 
 Then import them from the UI package:
