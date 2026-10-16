@@ -1,7 +1,7 @@
 # 004 — Detail pane: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** In progress
+**Build status:** Done
 
 ## T01 — The walk, the summary's lists and the new map input
 
@@ -91,12 +91,12 @@ across selections; every level with its count, the nearest
 
 ## T06 — Acceptance
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T04, T05
 **Covers:** AC-01 to AC-13
 
 **Done when:**
 
-- [ ] Every acceptance criterion passes, each checked the way its row says,
+- [x] Every acceptance criterion passes, each checked the way its row says,
       the browser ones on the preview deployment.
-- [ ] Build status at the top of this file set to Done.
+- [x] Build status at the top of this file set to Done.
