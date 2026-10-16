@@ -12,8 +12,9 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@tanstack/eslint-config": "catalog:",
     "@types/node": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
     "eslint": "catalog:",
     "typescript": "catalog:"
   }

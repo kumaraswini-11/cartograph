@@ -13,13 +13,13 @@ and detection's contracts), so they stay reusable and testable without it.
 
 From the repository root:
 
-| Command                      | What it does                                     |
-| ---------------------------- | ------------------------------------------------ |
-| `pnpm dev`                   | Starts the app at <http://localhost:3000>        |
-| `pnpm build`                 | Builds it for Vercel (`.vercel/output`)          |
-| `pnpm --filter web test`     | Runs its tests (Vitest)                          |
-| `pnpm --filter web og-image` | Redraws the share image, `public/og.png`         |
-| `pnpm --filter web sample`   | Rewrites the sample map, `src/sample/map.gen.ts` |
+| Command                      | What it does                                                            |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| `pnpm dev`                   | Starts the app at <http://localhost:3000>                               |
+| `pnpm build`                 | Builds it: a Node.js server in `.output`, or `.vercel/output` on Vercel |
+| `pnpm --filter web test`     | Runs its tests (Vitest)                                                 |
+| `pnpm --filter web og-image` | Redraws the share image, `public/og.png`                                |
+| `pnpm --filter web sample`   | Rewrites the sample map, `src/sample/map.gen.ts`                        |
 
 Configuration is checked at start: a required value that is missing, blank
 or invalid stops the app, naming each one (`src/lib/config.ts`). Server-only

@@ -144,7 +144,9 @@ type Box = {
   Graph; the home page adds `WebSite` structured data for Google's site
   name ([site names](https://developers.google.com/search/docs/appearance/site-names)).
   One helper, `seo()` in `src/lib/site.ts`, builds them from one site
-  config; TanStack Router keeps the deepest route's copy of each tag.
+  config; TanStack Router keeps the deepest route's copy of each tag. X reads
+  Open Graph for the rest, but its own title, description and image tags are
+  sent too: they cost a line each and some link checkers ask for them.
   Addresses are absolute, from `VERCEL_PROJECT_PRODUCTION_URL`, which Vercel
   sets on every build, previews included, and which `turbo.json` declares
   so Strict Mode passes it to the build. A build for Vercel without it
@@ -184,7 +186,9 @@ type Box = {
   when it never collapses: the page's own JavaScript is 36.7 KB gzipped, and
   React Flow with dagre (77.7 KB) loads with the map, after the shell.
 - TanStack Router reloads loader data when it's stale, by default at once;
-  the sample is fixed, so its route sets `staleTime: Infinity`.
+  the sample is fixed, so its route sets `staleTime: Infinity`, and
+  `preloadStaleTime: Infinity`, since a preload (hovering the link) has its
+  own staleness, 30 s by default.
 
 ## Testing
 

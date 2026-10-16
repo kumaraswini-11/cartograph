@@ -21,9 +21,11 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@workspace/golden": "workspace:*",
-    "@tanstack/eslint-config": "catalog:",
     "@types/node": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/golden": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*",
     "eslint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

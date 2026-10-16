@@ -4,6 +4,12 @@
   "type": "module",
   "private": true,
   "description": "Cartograph's shared interface: shadcn/ui components on Base UI, the Tailwind theme and the cn helper.",
+  "exports": {
+    "./globals.css": "./src/styles/globals.css",
+    "./lib/*": "./src/lib/*.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts"
+  },
   "scripts": {
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
@@ -21,19 +27,13 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",
-    "@tanstack/eslint-config": "catalog:",
-    "@turbo/gen": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
     "eslint": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:"
-  },
-  "exports": {
-    "./globals.css": "./src/styles/globals.css",
-    "./lib/*": "./src/lib/*.ts",
-    "./components/*": "./src/components/*.tsx",
-    "./hooks/*": "./src/hooks/*.ts"
   }
 }

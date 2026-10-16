@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
-  "sideEffects": false,
   "description": "The map's arithmetic: folding, labels, box sizes, layout, selection, role counts, and blast radius and dependency chain, as pure functions (docs/specs/003-dependency-map, 004-detail-pane).",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
   },
@@ -15,12 +15,14 @@
   },
   "dependencies": {
     "@dagrejs/dagre": "catalog:",
+    "@workspace/frameworks": "workspace:*",
     "@workspace/parser": "workspace:*"
   },
   "devDependencies": {
-    "@tanstack/eslint-config": "catalog:",
     "@types/node": "catalog:",
-    "@workspace/frameworks": "workspace:*",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*",
     "eslint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

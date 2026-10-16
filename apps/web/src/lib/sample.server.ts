@@ -1,3 +1,8 @@
+// The marker makes TanStack Start refuse to import this file into the
+// browser bundle, as for env.server.ts (spec 000 plan: .server.ts import
+// protection is still experimental).
+import "@tanstack/react-start/server-only"
+
 import type { MapInput } from "@workspace/graph"
 
 import { SAMPLE_MAP } from "@/sample/map.gen"

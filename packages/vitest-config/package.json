@@ -1,0 +1,24 @@
+{
+  "name": "@workspace/vitest-config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Cartograph's Vitest settings, one source for every package's tests.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "vitest": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "eslint": "catalog:",
+    "typescript": "catalog:"
+  }
+}

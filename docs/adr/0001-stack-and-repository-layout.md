@@ -62,9 +62,14 @@ the theme tokens.
 
 ### Language and checks
 
-TypeScript in strict mode, ESLint (`@tanstack/eslint-config`) and Prettier.
-CI runs a dependency audit, the format check, lint, type check and build on
-every change (`000` FR-009).
+TypeScript in strict mode, ESLint (`@tanstack/eslint-config`), Vitest and
+Prettier. CI runs a dependency audit, the format check, lint, type check,
+tests and build on every change (`000` FR-009). Their settings are shared
+packages, `@workspace/typescript-config`, `@workspace/eslint-config` and
+`@workspace/vitest-config`, which every package extends, as Turborepo
+recommends, so one rule never drifts between copies. Lint, type check and
+test depend on a `transit` task, which runs nothing: they run in parallel yet
+rerun when a dependency changes (Turborepo: transit nodes).
 
 ### Services, chosen when their first spec is built
 
@@ -98,7 +103,12 @@ Each is confirmed, or replaced, in its spec's `plan.md` when that spec starts
 - New code goes into the package that owns it. A package that needs another
   declares it as a dependency and imports it by its package name, never by a
   relative path into it.
-- Each package has its own lint, type check and build, which Turborepo runs and
-  caches.
+- Each package has its own lint and type check, tests where it has logic, and
+  a build where it has output (only `apps/web`); Turborepo runs and caches
+  them.
+- One departure, deliberate: `apps/web` resolves `@workspace/ui/*` to the
+  package's source through `tsconfig.json`'s `paths`, beside its exports map,
+  because the shadcn CLI reads `components.json`'s aliases through those
+  paths. Both point at the same files.
 - Swapping any service in the table above changes that spec's `plan.md` and
   this record, never a `spec.md`.

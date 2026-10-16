@@ -80,6 +80,8 @@ packages/
   frameworks/   each package's framework, file roles, entry points and routes
   graph/        the map's arithmetic: folding, labels, layout, selection
   golden/       dev-only: downloads the golden repositories the tests pin
+  typescript-config/, eslint-config/, vitest-config/
+                the settings every package shares
 ```
 
 Each package has a README: what it is, why it's a package of its own, and

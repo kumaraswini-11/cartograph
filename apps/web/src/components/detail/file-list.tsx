@@ -187,6 +187,7 @@ function VirtualRows({
     >
       {virtualizer.getVirtualItems().map((item) => {
         const row = rows[item.index]
+        if (row === undefined) return null
         return (
           <Row
             key={row.path}

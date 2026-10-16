@@ -41,6 +41,12 @@ cd apps/web
 pnpm dlx shadcn@latest add [COMPONENT]
 ```
 
+Registry output is never edited by hand, and some of it imports names it
+doesn't use, so this package's `tsconfig.json` allows unused names. Its
+`paths` entry (`@workspace/ui/*` → `src/*`) is how the CLI resolves
+`components.json`'s aliases; `apps/web` has the same entry for the same
+reason ([ADR 0001](../../docs/adr/0001-stack-and-repository-layout.md#consequences)).
+
 A composition of components that appears a third time becomes one shared
 component in `src/components`, beside `shadcn-ui`
 ([rule of three](<https://en.wikipedia.org/wiki/Rule_of_three_(computer_programming)>)).

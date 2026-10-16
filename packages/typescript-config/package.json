@@ -1,0 +1,11 @@
+{
+  "name": "@workspace/typescript-config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Cartograph's TypeScript settings, one source for every package: base.json, node.json for code Node.js runs directly, react.json for the interface.",
+  "exports": {
+    "./base.json": "./base.json",
+    "./node.json": "./node.json",
+    "./react.json": "./react.json"
+  }
+}

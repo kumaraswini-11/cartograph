@@ -7,7 +7,8 @@ import { SHARE_IMAGE } from "./share-image"
 /**
  * The site's public address. Open Graph wants absolute http(s) addresses;
  * on Vercel the build sets production's (vite.config.ts), even in previews,
- * so shared links and canonical tags always point at production.
+ * so shared links and canonical tags always point at production. Locally it's
+ * the dev server's address (`--port 3000` in package.json).
  */
 export const SITE_URL = import.meta.env.VITE_SITE_URL ?? "http://localhost:3000"
 
