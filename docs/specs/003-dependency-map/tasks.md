@@ -1,7 +1,7 @@
 # 003 — Dependency map: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** In progress
+**Build status:** Done
 
 ## T01 — The graph package: folding, labels and sizes
 
@@ -68,12 +68,12 @@ only on action; the keyboard.
 
 ## T05 — Acceptance
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T04
 **Covers:** AC-01 to AC-18
 
 **Done when:**
 
-- [ ] Every acceptance criterion passes, each checked the way its row says,
+- [x] Every acceptance criterion passes, each checked the way its row says,
       the browser ones on the preview deployment.
-- [ ] Build status at the top of this file set to Done.
+- [x] Build status at the top of this file set to Done.

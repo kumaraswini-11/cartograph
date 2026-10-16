@@ -26,7 +26,7 @@ which direction to go; the same arithmetic that draws the map does the walk.
   (`005`); the insights (`005`); a file's explanation (`009`); and a file's
   source at the analysed commit.
 - **FR-003** The chat shall run blast radius and dependency chain lookups with
-  the same walk as the detail pane, bounded at `REACH_DEPTH`.
+  the same walk as the detail pane.
 - **FR-004** The chat shall show each lookup, with what it returned, before the
   answer.
 - **FR-005** If a question needs more than `MAX_LOOKUPS` lookups, then the chat
@@ -89,6 +89,8 @@ which direction to go; the same arithmetic that draws the map does the walk.
 ## Open questions
 
 - [NEEDS CLARIFICATION] `MAX_LOOKUPS`: proposed 12.
+- [NEEDS CLARIFICATION] How deep a chat lookup walks: every level, as the
+  detail pane does (`004`), or a depth the answer can hold?
 - [NEEDS CLARIFICATION] Where the chat sits in the three-column shell: a tab of
   the detail pane (proposed), or a fourth area?
 - [NEEDS CLARIFICATION] Are conversations kept after the page closes, and, if
