@@ -2,15 +2,13 @@
 // at its pinned commit, parses it, and prints its counts beside the ones
 // pinned in the spec's golden data (spec 001, T07). Exits 1 on any drift.
 // The network belongs to this script, never to the parser (C-01).
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs"
-import { execFileSync } from "node:child_process"
-import { join } from "node:path"
 import { exit, stdout } from "node:process"
+
+import { checkout, compareCounts } from "@workspace/golden"
+import type { Counts } from "@workspace/golden"
 
 import { isTooLarge, parseRepository } from "../src/index.ts"
 import type { ParsedRepository } from "../src/index.ts"
-
-type Counts = Record<string, number | string>
 
 type Golden = {
   repository: string
@@ -64,45 +62,6 @@ const GOLDEN: ReadonlyArray<Golden> = [
   },
 ]
 
-const DOWNLOAD_TIMEOUT_MS = 120_000
-const CACHE = join(import.meta.dirname, "..", ".cache", "golden")
-
-/** The repository's files at `commit`, downloaded once into the cache. */
-async function checkout({ repository, commit }: Golden): Promise<string> {
-  const directory = join(CACHE, `${repository.replace("/", "-")}-${commit}`)
-  if (existsSync(directory)) return directory
-
-  const response = await fetch(
-    `https://codeload.github.com/${repository}/tar.gz/${commit}`,
-    { signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS) }
-  )
-  if (!response.ok)
-    throw new Error(`${repository}@${commit}: HTTP ${response.status}`)
-  mkdirSync(directory, { recursive: true })
-  const archive = join(
-    directory,
-    "..",
-    `${repository.replace("/", "-")}-${commit}.tar.gz`
-  )
-  writeFileSync(archive, Buffer.from(await response.arrayBuffer()))
-  try {
-    // Relative paths: GNU tar reads "C:\..." as a remote host.
-    execFileSync(
-      "tar",
-      ["-xzf", `../${archive.split(/[\\/]/).pop()}`, "--strip-components=1"],
-      {
-        cwd: directory,
-      }
-    )
-  } catch (error) {
-    rmSync(directory, { recursive: true, force: true })
-    throw error
-  } finally {
-    rmSync(archive, { force: true })
-  }
-  return directory
-}
-
 function countsOf(result: ParsedRepository): Counts {
   const { coverage, imports } = result
   const of = (kind: string) => imports.filter((i) => i.kind === kind)
@@ -132,7 +91,7 @@ function countsOf(result: ParsedRepository): Counts {
 
 let drift = false
 for (const golden of GOLDEN) {
-  const directory = await checkout(golden)
+  const directory = await checkout(golden.repository, golden.commit)
   const started = performance.now()
   const result = parseRepository(directory)
   const seconds = (performance.now() - started) / 1000
@@ -142,17 +101,9 @@ for (const golden of GOLDEN) {
   const lines = [
     `${golden.repository} @ ${golden.commit.slice(0, 7)} (parsed in ${seconds.toFixed(1)} s)`,
   ]
-  for (const [name, value] of Object.entries(counts)) {
-    const pinned = golden.pinned?.[name]
-    const mark =
-      pinned === undefined
-        ? ""
-        : pinned === value
-          ? "  ok"
-          : `  pinned ${pinned}`
-    if (pinned !== undefined && pinned !== value) drift = true
-    lines.push(`  ${name.padEnd(20)} ${String(value).padStart(7)}${mark}`)
-  }
+  const compared = compareCounts(counts, golden.pinned)
+  lines.push(...compared.lines)
+  drift ||= compared.drift
   for (const group of result.coverage.unresolvedByReason) {
     lines.push(`  unresolved, ${group.reason}: ${group.count}`)
     for (const e of group.examples)
