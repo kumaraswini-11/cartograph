@@ -99,8 +99,11 @@ file), so the same repository gives byte-identical output (`001` FR-022).
   prefix, its `exclude` list, `enableVersioning` options and controller and
   method paths, are read only when every value is a literal; any other value,
   a `RouterModule` path, or an `exclude` pattern with wildcards or parameters
-  means no route for the controller, or the package, it touches. _Why:_ exact
-  or absent (`002` C-01, FR-017).
+  means no route for the controller, or the package, it touches. The prefix
+  and versioning are read only on the variable `NestFactory.create` returned;
+  a call on anything else might be the same application, so it also means no
+  routes, never routes that could miss a prefix (CodeRabbit review on PR 8).
+  _Why:_ exact or absent (`002` C-01, FR-017).
 - **D-07** Shared test and script helpers, by package name: the parser
   exports its syntax helpers (one language rule, line numbers, literals) at
   `@workspace/parser/syntax` and `makeRepository` at

@@ -5,8 +5,10 @@
 **Depends on:** NNN-name, NNN-name (or "none")
 
 <!--
-What and why only. Name no framework, library, vendor or folder: someone else
-must be able to build this with their own stack. Use the terms in CONTEXT.md.
+What and why only. Name no framework, library, vendor or folder the product is
+built with: someone else must be able to build this with their own stack. What
+the product itself reads or recognises (GitHub, TypeScript, a framework it
+detects) is named. Use the terms in CONTEXT.md.
 -->
 
 ## Summary

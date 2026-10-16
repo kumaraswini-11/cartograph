@@ -13,6 +13,7 @@ describe("the app folder (FR-010, FR-014, AC-01, AC-08)", () => {
       "app/page.tsx": "",
       "app/layout.tsx": "",
       "app/loading.tsx": "",
+      "app/@modal/default.tsx": "",
       "app/(shop)/cart/page.tsx": "",
       "app/api/posts/route.ts": "export async function GET() {}",
       "app/opengraph-image.tsx": "",
@@ -29,6 +30,7 @@ describe("the app folder (FR-010, FR-014, AC-01, AC-08)", () => {
     expect(result.packages).toEqual([{ path: "", framework: "Next.js" }])
     expect(roles(result)).toEqual([
       ["app/(shop)/cart/page.tsx", "Page routes", true],
+      ["app/@modal/default.tsx", "Loading and error UI", true],
       ["app/_lib/data.ts", "Utilities", false],
       ["app/api/posts/route.ts", "API endpoints", true],
       ["app/blog/_components/post.tsx", "Components", false],

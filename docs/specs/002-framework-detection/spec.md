@@ -64,10 +64,11 @@ route that can't be recovered exactly is the same failure as an invented edge.
 | React     | Pages                                                      | Components, Hooks, Contexts                      | Configuration, Utilities                         |
 
 - **FR-010** The Next.js adapter shall read both of its routing conventions,
-  at the package root or under `src`. In the `app` folder: `page` and
-  `default` files are Page routes, `route` files API endpoints, `layout` and
+  at the package root or under `src`. In the `app` folder: `page` files
+  are Page routes, `route` files API endpoints, `layout` and
   `template` files Layouts, `loading`, `error`, `global-error`,
-  `not-found`, `forbidden` and `unauthorized` files Loading and error UI, and
+  `not-found`, `forbidden` and `unauthorized` files, and `default` (a
+  parallel-route slot's fallback, not an address), Loading and error UI, and
   `icon`, `apple-icon`, `opengraph-image`, `twitter-image`, `sitemap`,
   `robots` and `manifest` files Metadata files; nothing under a private
   folder (`_name`) is a routing file. In the `pages` folder: `_app` and

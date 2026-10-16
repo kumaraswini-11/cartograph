@@ -3,7 +3,13 @@
 // counts printed beside the ones its spec pins. The network belongs here,
 // never to the packages these scripts check.
 import { execFileSync } from "node:child_process"
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs"
+import {
+  existsSync,
+  mkdirSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs"
 import { join } from "node:path"
 
 /** Counts by name, as a spec's golden data pins them. */
@@ -29,16 +35,24 @@ export async function checkout(
   if (!response.ok) {
     throw new Error(`${repository}@${commit}: HTTP ${response.status}`)
   }
-  mkdirSync(directory, { recursive: true })
+  const body = Buffer.from(await response.arrayBuffer())
+
+  // Extracted beside the cache entry, then renamed into place: the entry
+  // exists only once complete, so an interrupted run never leaves one
+  // half-filled that a later run would trust.
+  const staging = join(CACHE, `${name}.partial`)
   const archive = join(CACHE, `${name}.tar.gz`)
-  writeFileSync(archive, Buffer.from(await response.arrayBuffer()))
+  rmSync(staging, { recursive: true, force: true })
+  mkdirSync(staging, { recursive: true })
+  writeFileSync(archive, body)
   try {
     // Relative paths: GNU tar reads "C:\..." as a remote host.
     execFileSync("tar", ["-xzf", `../${name}.tar.gz`, "--strip-components=1"], {
-      cwd: directory,
+      cwd: staging,
     })
+    renameSync(staging, directory)
   } catch (error) {
-    rmSync(directory, { recursive: true, force: true })
+    rmSync(staging, { recursive: true, force: true })
     throw error
   } finally {
     rmSync(archive, { force: true })
@@ -58,13 +72,16 @@ export function compareCounts(
   const width = Math.max(...Object.keys(counts).map((k) => k.length))
   const lines = Object.entries(counts).map(([name, value]) => {
     const expected = pinned?.[name]
-    if (expected !== undefined && expected !== value) drift = true
+    // Once counts are pinned, a new one is drift too, not a silent pass.
+    if (pinned !== undefined && expected !== value) drift = true
     const mark =
-      expected === undefined
+      pinned === undefined
         ? ""
-        : expected === value
-          ? "  ok"
-          : `  pinned ${expected}`
+        : expected === undefined
+          ? "  not pinned"
+          : expected === value
+            ? "  ok"
+            : `  pinned ${expected}`
     return `  ${name.padEnd(width)} ${String(value).padStart(7)}${mark}`
   })
   for (const name of Object.keys(pinned ?? {})) {

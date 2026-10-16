@@ -39,8 +39,10 @@ by its package name, never by a relative path into it.
 
 ### Repository
 
-- `spec.md` files name no framework, library or vendor. How this repository
-  builds a spec goes in its `plan.md`.
+- `spec.md` files name no framework, library or vendor that Cartograph is
+  built with. How this repository builds a spec goes in its `plan.md`. What
+  the product itself reads or recognises is named: GitHub, TypeScript,
+  JavaScript, the frameworks `002` detects and the file types `001` reads.
 - Every dependency's version lives in the pnpm catalog (`pnpm-workspace.yaml`);
   packages write `catalog:`.
 - Agent skills install with `-a claude-code --copy` (see `docs/bookmarks.md`).

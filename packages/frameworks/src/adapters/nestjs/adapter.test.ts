@@ -185,6 +185,27 @@ describe("routes (FR-016, FR-017, AC-02, AC-07, AC-13)", () => {
     }
   })
 
+  it("reads settings only on the application NestFactory created (plan D-06)", () => {
+    const helper = `
+import { NestFactory } from "@nestjs/core"
+export async function configure(server) { server.setGlobalPrefix("api") }
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  await configure(app)
+}`
+    const result = detected({
+      "package.json": NEST,
+      "src/main.ts": helper,
+      "src/a.controller.ts": controller(
+        '@Controller("cats")',
+        "  @Get() list() {}"
+      ),
+    })
+    // `server` may be the application: no route rather than `/cats` without
+    // its prefix.
+    expect(result.routes).toEqual([])
+  })
+
   it("ignores decorators that aren't NestJS's own (plan D-05)", () => {
     const result = detected({
       "package.json": NEST,

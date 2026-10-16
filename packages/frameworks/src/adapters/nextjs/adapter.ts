@@ -17,7 +17,6 @@ import { taxonomy } from "./taxonomy.ts"
 /** Routing files of the `app` folder, by name without extension. */
 const APP_FILES: Record<string, string> = {
   page: "Page routes",
-  default: "Page routes",
   route: "API endpoints",
   layout: "Layouts",
   template: "Layouts",
@@ -27,6 +26,8 @@ const APP_FILES: Record<string, string> = {
   "not-found": "Loading and error UI",
   forbidden: "Loading and error UI",
   unauthorized: "Loading and error UI",
+  // A parallel-route slot's fallback, not an address of its own.
+  default: "Loading and error UI",
 }
 
 /** Metadata files of the `app` folder (`icon1`, `opengraph-image`, `sitemap`). */

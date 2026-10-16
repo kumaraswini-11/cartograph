@@ -4,9 +4,10 @@ Cartograph is specified as thirteen specs, `000` to `012`. Each one covers a
 single capability: what it must do, why, the rules it must keep, and how to
 check that it's done.
 
-The specs name no framework, library, vendor or folder layout. Anyone can
-build the product from them with the stack of their choice; how this
-repository builds each one is recorded separately, next to the spec.
+The specs name no framework, library, vendor or folder layout that
+Cartograph is built with. Anyone can build the product from them with the
+stack of their choice; how this repository builds each one is recorded
+separately, next to the spec.
 
 ## How the documents fit together
 
@@ -159,6 +160,9 @@ them.
   spec with what it must cover, and each repository sets its value in its
   `plan.md`, with the reason.
 - **No stack names in a `spec.md`.** Product names stay only where the product
-  itself needs them: GitHub, TypeScript, JavaScript.
+  itself needs them: GitHub, TypeScript, JavaScript, and the frameworks and
+  file types Cartograph reads (`001`, `002`). Which frameworks it recognises
+  is a product decision, true for any stack; how it recognises them is the
+  plan's.
 
 The templates are in [`_template/`](_template/).

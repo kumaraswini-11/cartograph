@@ -180,6 +180,20 @@ function settingsOf(pkg: PackageInput): Settings | undefined {
 
     if (usesRouterModule(file.program)) return undefined
 
+    // Read only on the application `NestFactory` created. A call on anything
+    // else might still be the application, so it gives no routes rather
+    // than routes that could miss its prefix (plan D-06).
+    const applications = applicationNames(file)
+    const onApplication = (call: Node) => {
+      const object = (call.callee as Node).object as Node & { name?: string }
+      return object.type === "Identifier" && applications.has(object.name ?? "")
+    }
+    const settingCalls = [
+      ...memberCalls(file.program, "setGlobalPrefix"),
+      ...memberCalls(file.program, "enableVersioning"),
+    ]
+    if (!settingCalls.every(onApplication)) return undefined
+
     for (const call of memberCalls(file.program, "setGlobalPrefix")) {
       const [value, options] = argumentsOf(call)
       const prefix = literalValue(value)
@@ -328,10 +342,15 @@ function routesOf(
 
 /** A file that creates the application with `NestFactory` (FR-014). */
 function createsApplication(file: ParsedFile): boolean {
+  return factoryCalls(file).length > 0
+}
+
+/** The calls that create the application: `NestFactory.create(...)` and kin. */
+function factoryCalls(file: ParsedFile): Array<Node> {
   const imports = importedNames(file.program)
-  return ["create", "createMicroservice", "createApplicationContext"].some(
+  return ["create", "createMicroservice", "createApplicationContext"].flatMap(
     (name) =>
-      memberCalls(file.program, name).some((call) => {
+      memberCalls(file.program, name).filter((call) => {
         const object = (call.callee as Node).object as Node & { name?: string }
         const imported =
           object.type === "Identifier" && object.name !== undefined
@@ -343,6 +362,22 @@ function createsApplication(file: ParsedFile): boolean {
         )
       })
   )
+}
+
+/** The variables holding the application: `const app = await NestFactory.create(...)`. */
+function applicationNames(file: ParsedFile): Set<string> {
+  const starts = new Set(factoryCalls(file).map((call) => call.start))
+  const names = new Set<string>()
+  new Visitor({
+    VariableDeclarator(node) {
+      let init = node.init as Node | null
+      if (init?.type === "AwaitExpression") init = init.argument as Node
+      if (node.id.type === "Identifier" && init && starts.has(init.start)) {
+        names.add(node.id.name)
+      }
+    },
+  }).visit(file.program)
+  return names
 }
 
 export const nestjsAdapter: Adapter = {
