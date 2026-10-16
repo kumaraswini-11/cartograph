@@ -76,7 +76,7 @@ them as `catalog:`.
 
 ## Getting started
 
-Requires Node.js 22.12 or later and pnpm (the version is set by
+Requires Node.js 22.13 or later and pnpm (the version is set by
 `packageManager` in `package.json`).
 
 ```bash
