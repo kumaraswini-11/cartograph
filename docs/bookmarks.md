@@ -74,6 +74,33 @@ which lets it run those tools without asking. `.prettierignore` skips
 - ChatGPT chat on the web and mobile doesn't read the repository; skills
   reach it only through plugins.
 
+### TanStack skills, through TanStack Intent
+
+TanStack ships its own skills inside its npm packages
+(`node_modules/<package>/skills/`), versioned with each release, so they're
+not copied into `.claude/skills/`. [TanStack Intent](https://tanstack.com/intent/latest/docs/getting-started/quick-start-consumers)
+(`@tanstack/intent`, a root dev dependency) finds and loads them; the
+`intent-skills` block at the top of `AGENTS.md` tells agents to use it, and
+`intent.skills` in `package.json` allows only `@tanstack/*` packages.
+
+```bash
+# What's available, at the installed versions
+pnpm exec intent list
+
+# Load one skill's guidance before a change
+pnpm exec intent load @tanstack/start-client-core#start-core/server-functions
+
+# After adding or removing a TanStack package, rewrite the AGENTS.md block,
+# then format it (Intent writes the block unformatted)
+pnpm exec intent install && pnpm format
+
+# Skills that reference outdated documentation
+pnpm exec intent stale
+```
+
+An unofficial collection (`tanstack-skills/tanstack-skills`, which calls
+itself "UNOFFICIAL") is not used.
+
 ### Installed
 
 Skills for platforms Cartograph doesn't use (native mobile, other web
@@ -86,4 +113,6 @@ frameworks) are left out on purpose.
 - [Emil Kowalski's skills](https://github.com/emilkowalski/skills): motion and UI polish: `animate`, `animation-performance`, `animation-vocabulary`, `apple-design`, `ask-sonner`, `break-ui`, `emil-design-eng`, `find-animation-opportunities`, `improve-animations`, `mobile-native`, `pick-ui-library`, `prototype`, `review-animations`. Not installed: `animate-expo`, `write-swift` (native only).
 - [Clerk agent skills](https://github.com/clerk/skills): `clerk`, `clerk-setup`, `clerk-cli`, `clerk-tanstack-patterns`, `clerk-react-patterns`, `clerk-custom-ui`, `clerk-orgs`, `clerk-webhooks`, `clerk-testing`. Not installed: `clerk-backend-api`, which pre-approves unrestricted `Bash` while active (`clerk-cli` covers user and org management); and the Android, Swift, Expo, Next.js, Nuxt, Vue, Astro, React Router, Chrome extension and billing skills.
 - [Supabase agent skills](https://github.com/supabase/agent-skills) (MIT): `supabase`, `supabase-postgres-best-practices`. Install: `pnpm dlx skills@latest add supabase/agent-skills --skill '*' -a claude-code --copy`.
+- [Vercel Labs agent skills](https://github.com/vercel-labs/agent-skills) (MIT): `vercel-composition-patterns`, React composition (compound components, explicit variants, children over render props), for building the shared components AGENTS.md asks for. Not installed: `vercel-react-best-practices`, largely Next.js-specific; `web-design-guidelines`, covered by Jakub Krehel's skills. Install: `pnpm dlx skills@latest add vercel-labs/agent-skills --skill vercel-composition-patterns -a claude-code --copy`.
+- [Addy Osmani's web quality skills](https://github.com/addyosmani/web-quality-skills): `core-web-vitals` and `performance`, for the thresholds in spec `012`. Not installed: `accessibility` and `best-practices`, covered by Jakub Krehel's skills; `seo` and `web-quality-audit`, until there are public pages to tune. Install: `pnpm dlx skills@latest add addyosmani/web-quality-skills --skill core-web-vitals performance -a claude-code --copy`.
 - [JS Mastery Engineering Workflow](https://jsmastery.com/skills): catalog and docs for nine workflow skills (scope, audit, architect, develop, check, test, document, sync, debug). Not installed. Install: `pnpm dlx skills@latest add jsmastery-pro/skills -a claude-code --copy`.

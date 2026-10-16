@@ -44,6 +44,11 @@ foundation so far: the web app and its UI package.
 
 ## Stack
 
+The specs name no stack; any stack that provides the capabilities they ask
+for can build Cartograph. This is what this repository uses. The reasons, and
+the alternatives considered, are in
+[ADR 0001](docs/adr/0001-stack-and-repository-layout.md).
+
 In this repository now:
 
 - [TanStack Start](https://tanstack.com/start) and
@@ -62,6 +67,9 @@ Planned, not yet installed:
 - [CodeRabbit](https://www.coderabbit.ai) for pull-request review
 
 ## Layout
+
+A modular monolith in a monorepo: one deployable app, with its code split
+into packages that reach each other only through declared dependencies.
 
 ```text
 apps/
@@ -136,12 +144,24 @@ pnpm dlx skills@latest add <source> --skill <name> -a claude-code --copy -y
 pnpm dlx skills@latest update
 ```
 
+TanStack's own skills ship inside its packages and load through
+[TanStack Intent](https://tanstack.com/intent/latest/docs/getting-started/quick-start-consumers):
+`pnpm exec intent list`.
+
 Every command, the reason for each flag, and what's installed are in
 [docs/bookmarks.md](docs/bookmarks.md#agent-skills).
 
 ## References
 
+Start with [docs/specs/README.md](docs/specs/README.md): it says what to read
+first, whether you're building Cartograph your own way or working on this
+repository.
+
 - [Project doc](docs/project-doc.md): what Cartograph is and why each decision was made
+- [Glossary](CONTEXT.md): one meaning per term, used by the specs, the code and the interface
+- [Specs](docs/specs/README.md): the thirteen capabilities, in build order
+- [Decision records](docs/adr/): hard-to-reverse choices, with the trade-off behind each
+- [AGENTS.md](AGENTS.md): how to work in this repository: the rules for packages, the interface, rendering, performance and accessibility
 - [Bookmarks](docs/bookmarks.md): useful external references, and the installed agent skills
 
 ## License

@@ -21,6 +21,9 @@ catalogs:
     '@tanstack/eslint-config':
       specifier: 0.4.0
       version: 0.4.0
+    '@tanstack/intent':
+      specifier: 0.5.5
+      version: 0.5.5
     '@tanstack/react-devtools':
       specifier: 0.10.13
       version: 0.10.13
@@ -104,6 +107,9 @@ importers:
 
   .:
     devDependencies:
+      '@tanstack/intent':
+        specifier: 'catalog:'
+        version: 0.5.5
       prettier:
         specifier: 'catalog:'
         version: 3.9.9
@@ -1298,6 +1304,11 @@ packages:
   '@tanstack/history@1.162.5':
     resolution: {integrity: sha512-w1+YvwmTkwt5n8yUqEH3IWZ9DsmorCZW/EQ3KYHnqEgIkOZpH54NvW6/Epq3Dzb8H0ifIeYX8PExvrNLIH5FIA==}
     engines: {node: '>=20.19'}
+
+  '@tanstack/intent@0.5.5':
+    resolution: {integrity: sha512-Ei5RqUWgV96HrezTEyDbScy0wZN+17dNo59Am8/3ncv0YIaIxApkiX5LkM488wxe4a1Imdi09nhjFxblxwLMSQ==}
+    engines: {node: '>=20.12.0'}
+    hasBin: true
 
   '@tanstack/react-devtools@0.10.13':
     resolution: {integrity: sha512-r0cdB/14+st2Vxl/1Bodlyq4VC8pf9SykLQDYbGHDc1+V146WQo5B3KlYLkfyxD9Q/6+9NPRQHZyl8fvZVMdRA==}
@@ -4541,6 +4552,8 @@ snapshots:
       - typescript
 
   '@tanstack/history@1.162.5': {}
+
+  '@tanstack/intent@0.5.5': {}
 
   '@tanstack/react-devtools@0.10.13(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(csstype@3.2.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(solid-js@1.9.17)':
     dependencies:
