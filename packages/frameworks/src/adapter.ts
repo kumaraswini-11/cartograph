@@ -21,9 +21,9 @@ export type Description = {
   entryPoints: ReadonlySet<string>
   routes: ReadonlyArray<Route>
   /**
-   * Whether its routes were recovered exactly, none to recover included;
-   * false when its framework's routes can't be read from the code (spec
-   * 005, FR-012, plan D-02).
+   * Whether every route was recovered exactly, none to recover included;
+   * false when a route it found gives none, because some piece of it can't
+   * be read from the code (spec 005, FR-012, plan D-02).
    */
   routesRecovered: boolean
 }

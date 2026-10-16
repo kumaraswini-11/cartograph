@@ -169,7 +169,8 @@ describe("routes (FR-016, FR-017, AC-02, AC-07, AC-13)", () => {
       ),
     })
     expect(routes(result)).toEqual(["GET /dogs"])
-    expect(result.packages[0]?.routesRecovered).toBe(true)
+    // Two routes are left out, so they weren't all recovered (spec 005, D-02).
+    expect(result.packages[0]?.routesRecovered).toBe(false)
   })
 
   it("gives no routes when a RouterModule sets prefixes or an exclude has a pattern", () => {

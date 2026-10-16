@@ -24,7 +24,7 @@ const packageRecord = z.object({
   path: z.string(),
   /** The detected framework's taxonomy name; null when none matched (FR-004). */
   framework: z.string().nullable(),
-  /** Whether its routes were recovered exactly (spec 005, plan D-02). */
+  /** Whether every route was recovered exactly (spec 005, plan D-02). */
   routesRecovered: z.boolean(),
 })
 

@@ -119,10 +119,12 @@ describe("the routes (spec 005, FR-010, FR-012)", () => {
       "Express and React routes can't be recovered exactly."
     )
     expect(express).not.toContain("<table")
-    // Routes from one package, none from another: both said.
-    const mixed = render(input({ routesNotRecovered: ["Express"] }))
-    expect(mixed).toContain("<table")
-    expect(mixed).toContain("Express routes can't be recovered exactly.")
+    // Some routes, some left out: the table says so (plan D-06).
+    const some = render(input({ routesNotRecovered: ["Next.js"] }))
+    expect(some).toContain("<table")
+    expect(some).toContain(
+      "Next.js routes that can't be recovered exactly aren't listed."
+    )
   })
 })
 

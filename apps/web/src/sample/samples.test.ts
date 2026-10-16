@@ -32,6 +32,8 @@ describe("the samples' frameworks and routes (005 D-02, D-07)", () => {
       readSampleMap("node-express-boilerplate"),
     ])
     expect(taxonomy.frameworks).toEqual(["Next.js"])
+    // pages/api/auth/[...nextauth].ts is an endpoint with no route (002).
+    expect(taxonomy.routesNotRecovered).toEqual(["Next.js"])
     expect(taxonomy.routes.length).toBeGreaterThan(0)
     expect(nest.frameworks).toContain("NestJS")
     expect(nest.routes.length).toBeGreaterThan(0)

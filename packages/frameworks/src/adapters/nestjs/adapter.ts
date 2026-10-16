@@ -285,18 +285,23 @@ function controllerOf(decorator: Node) {
   return paths ? { paths, versions: undefined } : undefined
 }
 
-/** The routes one file's controllers declare (FR-016, FR-017). */
+/**
+ * The routes one file's controllers declare (FR-016, FR-017), and whether
+ * every one was read: a controller or a method whose path isn't a literal
+ * gives no route, so it leaves one out (spec 005, plan D-02).
+ */
 function routesOf(
   path: string,
   file: ParsedFile,
   settings: Settings
-): Array<Route> {
+): { routes: Array<Route>; complete: boolean } {
   const imports = importedNames(file.program)
   const fromCommon = (expression: Node) => {
     const imported = calleeOf(expression, imports)
     return imported?.source === COMMON ? imported.imported : undefined
   }
   const routes: Array<Route> = []
+  let complete = true
 
   for (const cls of classesOf(file.program)) {
     const controllerDecorator = cls.decorators?.find(
@@ -304,19 +309,23 @@ function routesOf(
     )
     if (!controllerDecorator) continue
     const controller = controllerOf(controllerDecorator.expression)
-    if (!controller) continue
+    if (!controller) {
+      complete = false
+      continue
+    }
 
     const members = (cls.body as Node).body as Array<Node & Decorated>
     for (const member of members) {
       if (member.type !== "MethodDefinition") continue
       const binding = bindingOf(member, fromCommon, file)
+      if (binding === null) complete = false
       if (!binding) continue
       for (const route of fullPaths(controller, binding, settings)) {
         routes.push({ ...route, file: path, line: binding.line })
       }
     }
   }
-  return routes
+  return { routes, complete }
 }
 
 /** A controller method's route: its HTTP method, paths, line and versions. */
@@ -329,14 +338,14 @@ type Binding = {
 
 /**
  * A method's route decorators (`@Get(path)`, `@Version(v)`), read only when
- * every argument is a literal; undefined for a method that isn't a route or
- * can't be read exactly.
+ * every argument is a literal; undefined for a method that isn't a route,
+ * null for one that can't be read exactly.
  */
 function bindingOf(
   member: Node & Decorated,
   fromCommon: (expression: Node) => string | undefined,
   file: ParsedFile
-): Binding | undefined {
+): Binding | null | undefined {
   let route: Omit<Binding, "versions"> | undefined
   let versions: Array<Version> | undefined
   for (const decorator of member.decorators ?? []) {
@@ -346,11 +355,11 @@ function bindingOf(
     if (method) {
       const [argument] = argumentsOf(decorator.expression)
       const paths = argument === undefined ? [""] : literalList(argument)
-      if (!paths) return undefined
+      if (!paths) return null
       route = { method, paths, line: file.lineOf(decorator.start) }
     } else if (name === "Version") {
       versions = versionsOf(argumentsOf(decorator.expression)[0])
-      if (!versions) return undefined
+      if (!versions) return null
     }
   }
   return route && { ...route, versions }
@@ -441,6 +450,9 @@ export const nestjsAdapter: Adapter = {
     const entryPoints = new Set<string>()
     const routes: Array<Route> = []
     const settings = settingsOf(pkg)
+    // Without readable settings it gives no routes rather than routes that
+    // could miss their prefix (plan D-06).
+    let routesRecovered = settings !== undefined
 
     for (const path of pkg.files) {
       const stem = stemOf(path)
@@ -454,16 +466,11 @@ export const nestjsAdapter: Adapter = {
       if (!file) continue
       if (createsApplication(file)) entryPoints.add(path)
       if (settings && !isTestFile(localPath(pkg, path))) {
-        routes.push(...routesOf(path, file, settings))
+        const found = routesOf(path, file, settings)
+        routes.push(...found.routes)
+        if (!found.complete) routesRecovered = false
       }
     }
-    // Without readable settings it gives no routes rather than routes
-    // that could miss their prefix (plan D-06).
-    return {
-      roles,
-      entryPoints,
-      routes,
-      routesRecovered: settings !== undefined,
-    }
+    return { roles, entryPoints, routes, routesRecovered }
   },
 }

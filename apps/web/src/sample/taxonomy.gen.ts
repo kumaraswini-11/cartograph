@@ -2662,5 +2662,7 @@ export const SAMPLE_MAP: MapInput = {
       "line": 8
     }
   ],
-  "routesNotRecovered": []
+  "routesNotRecovered": [
+    "Next.js"
+  ]
 }

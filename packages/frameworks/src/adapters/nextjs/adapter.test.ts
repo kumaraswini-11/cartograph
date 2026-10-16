@@ -103,6 +103,8 @@ describe("the pages folder (FR-010, FR-018, AC-12)", () => {
       ["pages/index.tsx", "Page routes", true],
     ])
     expect(result.routes).toEqual([])
+    // The endpoint is left out, so the routes weren't all recovered (spec 005).
+    expect(result.packages[0]?.routesRecovered).toBe(false)
   })
 })
 
@@ -131,14 +133,20 @@ describe("routes (FR-015, FR-017, AC-07, AC-10)", () => {
       file: "app/api/posts/route.ts",
       line: 1,
     })
+    expect(result.packages[0]?.routesRecovered).toBe(true)
   })
 
-  it("gives no route under an intercepting segment", () => {
-    const result = detected({
-      "package.json": NEXT,
-      "app/feed/(..)photo/route.ts": "export function GET() {}",
-    })
-    expect(result.routes).toEqual([])
+  it("gives no route under an intercepting segment, or with no method by name", () => {
+    for (const [path, source] of [
+      ["app/feed/(..)photo/route.ts", "export function GET() {}"],
+      ["app/api/route.ts", 'export * from "./handlers"'],
+    ] as const) {
+      const result = detected({ "package.json": NEXT, [path]: source })
+      expect(result.routes).toEqual([])
+      // An endpoint with no route: not all recovered (spec 005, plan D-02).
+      expect(result.packages[0]?.routesRecovered, path).toBe(false)
+      cleanUp()
+    }
   })
 
   it("leads every path with a literal base path", () => {
@@ -158,5 +166,6 @@ describe("routes (FR-015, FR-017, AC-07, AC-10)", () => {
       "app/api/route.ts": "export function GET() {}",
     })
     expect(result.routes).toEqual([])
+    expect(result.packages[0]?.routesRecovered).toBe(false)
   })
 })

@@ -50,18 +50,27 @@ function Wrapping({ text, at }: { text: string; at: RegExp }) {
  * The analysis's routes (spec 005, FR-010 to FR-012, plan D-06): method,
  * path and the file that declares it, by path then method, the file a
  * button that selects it. With none, why: the code has none, or a framework
- * detected can't have its routes recovered exactly, which is also said
- * under routes recovered from another package's framework.
+ * detected can't have its routes recovered exactly. With some, the routes
+ * left out are said under them, so the table never reads as complete when
+ * it isn't.
  */
 export function RoutesTable() {
   const { input } = useMapData()
   const headingId = useId()
   const { routes, routesNotRecovered } = input
   const { shown, toggle } = useShowAll(routes, SUMMARY_LIST_LENGTH)
-  const notRecovered =
+  const frameworks =
     routesNotRecovered.length === 0
       ? undefined
-      : `${frameworkList.format(routesNotRecovered)} routes can't be recovered exactly.`
+      : frameworkList.format(routesNotRecovered)
+  const note =
+    routes.length === 0
+      ? frameworks === undefined
+        ? "No routes in the code."
+        : `${frameworks} routes can't be recovered exactly.`
+      : frameworks === undefined
+        ? undefined
+        : `${frameworks} routes that can't be recovered exactly aren't listed.`
 
   return (
     <SidebarGroup>
@@ -108,10 +117,8 @@ export function RoutesTable() {
             </TableBody>
           </Table>
         )}
-        {(routes.length === 0 || notRecovered) && (
-          <p className="px-2 text-sm text-muted-foreground">
-            {notRecovered ?? "No routes in the code."}
-          </p>
+        {note !== undefined && (
+          <p className="px-2 text-sm text-muted-foreground">{note}</p>
         )}
         {toggle && <ShowAllButton {...toggle} count={routes.length} />}
       </SidebarGroupContent>
