@@ -8,6 +8,7 @@ import { SidebarProvider } from "@workspace/ui/components/shadcn-ui/sidebar"
 
 import { Summary } from "./summary"
 import { MapDataProvider } from "@/components/map/map-data"
+import { HoverProvider } from "@/components/map/map-hover"
 import { MapStateProvider } from "@/components/map/map-state"
 
 const DEPENDED = SUMMARY_LIST_LENGTH + 5
@@ -41,9 +42,11 @@ const render = (map: MapInput) =>
   renderToStaticMarkup(
     <MapDataProvider input={map}>
       <MapStateProvider>
-        <SidebarProvider>
-          <Summary />
-        </SidebarProvider>
+        <HoverProvider>
+          <SidebarProvider>
+            <Summary />
+          </SidebarProvider>
+        </HoverProvider>
       </MapStateProvider>
     </MapDataProvider>
   )

@@ -22,6 +22,11 @@ import {
 import { cn } from "@workspace/ui/lib/utils"
 
 import { useChooseFile } from "@/components/detail/use-choose-file"
+import {
+  MARKED,
+  useHoverHandlers,
+  useHovered,
+} from "@/components/map/map-hover"
 
 /** A list longer than this renders only the rows in view (plan D-06). */
 const LIST_VIRTUAL_FROM = 100
@@ -102,13 +107,17 @@ export function FileList({
  * never shrinks (any shrink, even a fraction of a pixel, would cut it) and
  * is cut only when it alone is wider than the row. A row narrower than 13rem
  * shows the name alone; the whole path shows on hover, and the button's name
- * always carries all of it, in the order shown.
+ * always carries all of it, in the order shown. Hovering or focusing it
+ * marks the file on the map, and a file hovered on the map is marked here
+ * (spec 004, FR-013).
  */
 function Row({
   row,
   ...props
 }: { row: FileRow } & React.ComponentProps<typeof SidebarMenuItem>) {
   const choose = useChooseFile()
+  const hover = useHoverHandlers(row.path)
+  const marked = useHovered((path) => path === row.path)
   const name = fileName(row.path)
   const folder = folderOf(row.path)
   return (
@@ -117,9 +126,12 @@ function Row({
         title={row.path}
         aria-label={[name, folder, row.mark].filter(Boolean).join(" ")}
         onClick={() => choose(row.path)}
+        {...hover}
+        data-marked={marked}
         // The count sits over the button's end: room is kept for it.
         className={cn(
           "@container font-mono text-path",
+          MARKED,
           row.count !== undefined && "pe-10"
         )}
       >

@@ -28,7 +28,7 @@ function, no request.
 | `packages/graph/src/boxes.ts`, `layout.ts`  | `panelOf` and `layoutMap` take the selected file: a panel lists it after its first `PANEL_ROW_LIMIT` rows when it's past them (FR-012), so the first rows never move.                                                                                                                                                                                                                           |
 | `packages/graph/src/limits.ts`              | `SUMMARY_LIST_LENGTH` = 10 and `REACH_OPEN_LEVELS` = 2, beside `003`'s limits.                                                                                                                                                                                                                                                                                                                  |
 | `apps/web/src/components/map/map-data.tsx`  | The map's derived data, built once per map input and shared by the rail, the map and the pane: boxes (`buildBoxes`) and the edge index. Today the drawing builds the boxes itself.                                                                                                                                                                                                              |
-| `apps/web/src/components/map/map-hover.ts`  | The hovered file, in a small store read with `useSyncExternalStore`: each row asks only whether it's the one hovered, so hovering re-renders two rows, not the map or the pane (FR-013).                                                                                                                                                                                                        |
+| `apps/web/src/components/map/map-hover.tsx` | The hovered file, in a small store read with `useSyncExternalStore`: each row asks only whether it's the one hovered, so hovering re-renders two rows, not the map or the pane (FR-013).                                                                                                                                                                                                        |
 | `apps/web/src/components/detail/`           | The pane's parts: `summary.tsx` (FR-001 to FR-005), `file-detail.tsx` (FR-007), `box-detail.tsx` (FR-010), `reach.tsx` (FR-014 to FR-016), `file-list.tsx`, the one list of file paths every part uses, and `fact-list.tsx`, the one list of facts (a `dl`) the summary, a file and a box use. `detail-pane.tsx` moves here from `components/map/` and chooses what to show from the selection. |
 | `apps/web/scripts/sample.ts`, `src/sample/` | The sample, generated again with the new fields.                                                                                                                                                                                                                                                                                                                                                |
 
@@ -101,10 +101,12 @@ type Levels = Array<Array<string>> // levels[0] is one edge away
   rows and a "Show all" for every list, which only moves the slow render to
   the click.
 - **D-07** Choosing a file in the pane selects it and opens its box when it's
-  closed (FR-011); the panel then lists it even past the row limit (FR-012),
-  after the first `PANEL_ROW_LIMIT` rows, so those never move. The map
-  brings it into view with `003`'s `bringIntoView`, which never zooms in.
-- **D-08** Hover marks both ways (FR-013) through `map-hover.ts`: the pane's
+  closed (FR-011; the map state's `openBox`, which never closes one); the
+  panel then lists it even past the row limit (FR-012), after the first
+  `PANEL_ROW_LIMIT` rows, so those never move: `layoutMap` takes the file,
+  and only one past the limit changes the layout. The map brings the box
+  into view as it does a panel just opened: a fit that only zooms out.
+- **D-08** Hover marks both ways (FR-013) through `map-hover.tsx`: the pane's
   rows set the hovered file on pointer enter and keyboard focus, and the
   map's rows do the same. On the map a hovered file's row is marked, or its
   box when the box is closed; in the pane every row with that path is

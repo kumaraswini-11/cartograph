@@ -62,10 +62,14 @@ export const edgeEndKey = (e: EdgeEnd) =>
 export function layoutMap(
   map: BoxMap,
   fileEdges: ReadonlyArray<MapEdge>,
-  open: ReadonlySet<string> = new Set()
+  open: ReadonlySet<string> = new Set(),
+  /** A file its open panel lists even past the row limit (spec 004, FR-012). */
+  pinned?: string
 ): Layout {
   const panels = new Map(
-    map.boxes.filter((b) => open.has(b.id)).map((b) => [b.id, panelOf(b)])
+    map.boxes
+      .filter((b) => open.has(b.id))
+      .map((b) => [b.id, panelOf(b, pinned)])
   )
   const endOf = (file: string): EdgeEnd | undefined => {
     const box = map.boxOf.get(file)

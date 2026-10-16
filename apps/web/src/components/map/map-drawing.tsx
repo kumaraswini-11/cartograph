@@ -20,6 +20,8 @@ import {
 import type { Edge } from "@xyflow/react"
 import { MaximizeIcon, MinusIcon, PlusIcon } from "lucide-react"
 import {
+  PANEL_ROW_LIMIT,
+  edgeEndKey,
   fullStrength,
   isBoxStrong,
   isRowStrong,
@@ -27,6 +29,7 @@ import {
   panelCounts,
   roleCounts,
 } from "@workspace/graph"
+import type { Selection } from "@workspace/graph"
 import { fileName } from "@workspace/parser/paths"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
 import { ButtonGroup } from "@workspace/ui/components/shadcn-ui/button-group"
@@ -42,6 +45,14 @@ const ANIMATION_MS = 200
 const FIT_PADDING = 0.1
 
 /**
+ * React Flow turns pointer events off for a node that's neither draggable
+ * nor selectable, so a mouse click would reach the pane behind it; a node's
+ * own style comes last and wins. Its buttons handle every click (FR-007,
+ * FR-010; spec 003 plan, stack notes).
+ */
+const NODE_STYLE: React.CSSProperties = { pointerEvents: "all" }
+
+/**
  * An edge's opacity: full with nothing selected, where a grey edge keeps 3:1
  * against the page (WCAG 1.4.11: 4.7:1 light, 7.6:1 dark); low when a
  * selection leaves it out. Those are background then: the selection's own
@@ -49,6 +60,12 @@ const FIT_PADDING = 0.1
  * clearing the selection brings every edge back (spec 003 plan D-13).
  */
 const EDGE_OPACITY = { plain: 1, dimmed: 0.15 }
+
+/** A selection as one comparable value. */
+const selectionKey = (selection: Selection | null) =>
+  selection === null
+    ? null
+    : edgeEndKey({ box: selection.box, row: selection.file })
 
 /** Whether the system asks for reduced motion (FR-020). */
 function useReducedMotion(): boolean {
@@ -72,9 +89,17 @@ function Drawing() {
   const reducedMotion = useReducedMotion()
   const duration = reducedMotion ? 0 : ANIMATION_MS
 
+  // A selected file past its panel's row limit is listed anyway (spec 004,
+  // FR-012); any other selection leaves the layout as it is.
+  const pinned = useMemo(() => {
+    const file = selection?.file
+    if (selection === null || file === undefined) return undefined
+    const files = boxMap.byId.get(selection.box)?.files ?? []
+    return files.indexOf(file) >= PANEL_ROW_LIMIT ? file : undefined
+  }, [boxMap, selection])
   const layout = useMemo(
-    () => layoutMap(boxMap, input.edges, open),
-    [boxMap, input.edges, open]
+    () => layoutMap(boxMap, input.edges, open, pinned),
+    [boxMap, input.edges, open, pinned]
   )
   const strength = useMemo(
     () => (selection ? fullStrength(layout, selection) : null),
@@ -116,13 +141,17 @@ function Drawing() {
   // that had the focus takes it, so the keyboard keeps its place (FR-023).
   const [focusTarget, setFocusTarget] = useState<string | null>(null)
 
-  // Opening a panel refits so it's visible, only ever zooming out (FR-011,
-  // C-03): read after the new layout is drawn, never before.
-  const opened = useRef<ReadonlySet<string>>(open)
+  // A panel just opened, or the box of a file chosen in the pane (spec 004,
+  // FR-011), is brought into view, only ever zooming out (FR-011, C-03):
+  // read after the new layout is drawn, never before.
+  const shown = useRef({ open, selected: selectionKey(selection) })
   useEffect(() => {
-    const added = [...open].filter((id) => !opened.current.has(id))
-    opened.current = open
-    const id = added.at(0)
+    const added = [...open].find((id) => !shown.current.open.has(id))
+    const selected = selectionKey(selection)
+    const moved =
+      selected !== shown.current.selected ? selection?.box : undefined
+    shown.current = { open, selected }
+    const id = added ?? moved
     if (id === undefined) return
     const frame = requestAnimationFrame(() => {
       if (inView(id)) return
@@ -134,7 +163,7 @@ function Drawing() {
       })
     })
     return () => cancelAnimationFrame(frame)
-  }, [open, flow, inView, duration])
+  }, [open, selection, flow, inView, duration])
 
   /** Keyboard focus brings a box into view (FR-023). */
   const bringIntoView = useCallback(
@@ -170,6 +199,7 @@ function Drawing() {
         selectable: false,
         connectable: false,
         focusable: false,
+        style: NODE_STYLE,
       }
       const selected =
         selection?.box === placed.id && selection.file === undefined
@@ -182,7 +212,7 @@ function Drawing() {
         onOpen: () => {
           setFocusTarget(placed.id)
           actions.select({ box: placed.id })
-          if (!open.has(placed.id)) actions.toggleOpen(placed.id)
+          actions.openBox(placed.id)
         },
         onFocused: () => bringIntoView(placed.id),
       }
@@ -232,7 +262,6 @@ function Drawing() {
     strength,
     matches,
     selection,
-    open,
     actions,
     bringIntoView,
     fileRole,

@@ -191,6 +191,12 @@ type Box = {
 
 - React Flow renders a node only when it has a size; the layout supplies
   every node's width and height, so nothing waits on measuring.
+- React Flow turns pointer events off for a node that's neither draggable
+  nor selectable, so a mouse click falls through to the pane; each node sets
+  `pointerEvents: "all"` in its own style, which React Flow applies last.
+  Found on 2026-10-17 with real mouse events: the earlier headless checks
+  clicked through the page's script, which pointer events don't stop, so
+  the browser checks now press and move the mouse.
 - React Flow's `fitView` with `maxZoom` set to the current zoom fits only
   outward (FR-011); its duration is 0 when the system asks for reduced
   motion (FR-020).

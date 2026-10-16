@@ -154,15 +154,27 @@ export function buildBoxes(
 
 /**
  * An open box's panel (FR-007, FR-008): the files it shows as rows, up to
- * `PANEL_ROW_LIMIT`, how many more it holds, and its size.
+ * `PANEL_ROW_LIMIT`, how many more it holds, and its size. A `pinned` file
+ * of the box past the limit (the selected one) is listed after those rows,
+ * so they never move (spec 004, FR-012, plan D-07).
  */
-export function panelOf(box: Box): {
+export function panelOf(
+  box: Box,
+  pinned?: string
+): {
   rows: Array<string>
   more: number
   width: number
   height: number
 } {
   const rows = box.files.slice(0, PANEL_ROW_LIMIT)
+  if (
+    pinned !== undefined &&
+    !rows.includes(pinned) &&
+    box.files.includes(pinned)
+  ) {
+    rows.push(pinned)
+  }
   const more = box.files.length - rows.length
   // The header: the label, then a badge per count, with room kept for the
   // role-match badge at its widest, so choosing a role never changes the

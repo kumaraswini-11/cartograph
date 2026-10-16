@@ -131,3 +131,30 @@ describe("the root box", () => {
     for (const node of layout.boxes) expect(Number.isFinite(node.x)).toBe(true)
   })
 })
+
+describe("a pinned file (spec 004, FR-012)", () => {
+  const past = `util/m${PANEL_ROW_LIMIT + 1}.ts`
+
+  it("lists the file after the first rows, which don't move", () => {
+    const plain = layoutMap(map, edges, new Set(["util"]))
+    const pinned = layoutMap(map, edges, new Set(["util"]), past)
+    const before = plain.boxes.find((b) => b.id === "util")
+    const after = pinned.boxes.find((b) => b.id === "util")
+    expect(after?.rows.slice(0, PANEL_ROW_LIMIT)).toEqual(before?.rows)
+    expect(after?.rows.at(-1)).toBe(past)
+    expect(after?.more).toBe((before?.more ?? 0) - 1)
+  })
+
+  it("ends the file's edges on its own row, not the more row", () => {
+    const pinned = layoutMap(map, edges, new Set(["util"]), past)
+    expect(pinned.edges.some((e) => e.to.row === past)).toBe(true)
+    expect(pinned.edges.some((e) => e.to.row === MORE)).toBe(false)
+  })
+
+  it("changes nothing for a file already in view, or outside the box", () => {
+    const plain = layoutMap(map, edges, new Set(["util"]))
+    for (const path of ["util/m00.ts", "lib/a.ts"]) {
+      expect(layoutMap(map, edges, new Set(["util"]), path)).toEqual(plain)
+    }
+  })
+})

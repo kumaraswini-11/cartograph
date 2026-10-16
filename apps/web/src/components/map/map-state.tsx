@@ -19,6 +19,8 @@ type MapActions = {
   chooseRole: (role: string | null) => void
   select: (selection: Selection | null) => void
   toggleOpen: (box: string) => void
+  /** Opens a box, leaving it open if it already is (spec 004, FR-011). */
+  openBox: (box: string) => void
 }
 
 // Two contexts: a component that only acts (a row that selects its file)
@@ -47,6 +49,10 @@ export function MapStateProvider({ children }: { children: React.ReactNode }) {
           else next.add(box)
           return next
         }),
+      openBox: (box) =>
+        setOpen((current) =>
+          current.has(box) ? current : new Set(current).add(box)
+        ),
     }),
     []
   )

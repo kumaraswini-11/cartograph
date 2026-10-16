@@ -55,7 +55,7 @@ when long; a box's roles with their counts.
 
 ## T04 — Moving between pane and map
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T03
 **Covers:** FR-011 to FR-013, AC-02, AC-09
 
@@ -65,9 +65,9 @@ box when closed.
 
 **Done when:**
 
-- [ ] A file in a closed box, past the row limit, chosen in the pane, is
+- [x] A file in a closed box, past the row limit, chosen in the pane, is
       selected and listed in its panel; hovering marks without a request.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T05 — Blast radius and dependency chain
 

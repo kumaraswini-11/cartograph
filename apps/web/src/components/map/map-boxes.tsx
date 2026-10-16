@@ -15,6 +15,12 @@ import {
 } from "@workspace/ui/components/shadcn-ui/item"
 import { cn } from "@workspace/ui/lib/utils"
 
+import { useMapData } from "@/components/map/map-data"
+import {
+  MARKED,
+  useHoverHandlers,
+  useHovered,
+} from "@/components/map/map-hover"
 import { TierSwatch } from "@/components/map/tier"
 
 /** A file row as the map shows it. */
@@ -98,10 +104,13 @@ function useFocusOnMount(focus: boolean) {
 /**
  * A closed box: its label, opened by Enter, Space or a click (FR-007). The
  * selection is marked as current (`aria-current`), not pressed: selecting
- * isn't a toggle.
+ * isn't a toggle. A file hovered in the pane marks the closed box that holds
+ * it (spec 004, FR-013).
  */
-export const BoxView = memo(function Box({ data }: NodeProps<BoxElement>) {
+export const BoxView = memo(function Box({ id, data }: NodeProps<BoxElement>) {
   const ref = useFocusOnMount(data.focusOnMount)
+  const { boxMap } = useMapData()
+  const marked = useHovered((path) => boxMap.boxOf.get(path) === id)
   return (
     <>
       <EdgeHandles />
@@ -112,8 +121,10 @@ export const BoxView = memo(function Box({ data }: NodeProps<BoxElement>) {
         onFocus={data.onFocused}
         aria-current={data.selected || undefined}
         aria-label={`${data.label}, ${countOf(data.files, "file", "files")}. Open`}
+        data-marked={marked}
         className={cn(
           "size-full justify-start px-4 font-mono text-path font-normal aria-[current=true]:border-map-selection aria-[current=true]:ring-2 aria-[current=true]:ring-map-selection",
+          MARKED,
           !data.strong && DIMMED
         )}
       >
@@ -153,8 +164,12 @@ export const PanelView = memo(function Panel({
           aria-expanded="true"
           // The visible label and counts, in their order, then the action.
           aria-label={`${[data.label, ...badges].join(", ")}. Close`}
+          // Only a bottom border, the divider: a Button's fill stops inside
+          // its border, so a border all round left a 1px gap between the
+          // header's fill and the card, odd at the rounded corners. Flush,
+          // the card's own rounding clips the fill.
           className={cn(
-            "size-full justify-start gap-2 rounded-none border-b-border px-4 font-normal focus-visible:ring-inset",
+            "size-full justify-start gap-2 rounded-none border-0 border-b border-border px-4 font-normal focus-visible:ring-inset",
             !data.strong && DIMMED
           )}
         >
@@ -175,36 +190,12 @@ export const PanelView = memo(function Panel({
       </div>
       <ItemGroup className="gap-0 has-data-[size=xs]:gap-0">
         {data.rows.map((row) => (
-          <div
+          <PanelRow
             key={row.path}
-            role="listitem"
-            className="relative"
-            style={{ height: ROW_HEIGHT }}
-          >
-            <EdgeHandles id={row.path} />
-            <Item
-              size="xs"
-              render={<button type="button" />}
-              onClick={() => data.onSelectRow(row.path)}
-              onFocus={data.onFocused}
-              aria-current={row.selected || undefined}
-              title={row.path}
-              className={cn(
-                "size-full rounded-none px-4 py-0 focus-visible:ring-inset aria-[current=true]:ring-2 aria-[current=true]:ring-map-selection aria-[current=true]:ring-inset",
-                !row.strong && DIMMED
-              )}
-            >
-              <ItemMedia>
-                <TierSwatch
-                  tier={row.tier}
-                  className={cn(!row.strong && "opacity-40")}
-                />
-              </ItemMedia>
-              <ItemTitle className="font-mono text-path font-normal">
-                {row.name}
-              </ItemTitle>
-            </Item>
-          </div>
+            row={row}
+            onSelect={data.onSelectRow}
+            onFocused={data.onFocused}
+          />
         ))}
         {data.more > 0 && (
           <div
@@ -224,3 +215,55 @@ export const PanelView = memo(function Panel({
     </Card>
   )
 })
+
+/**
+ * A file in an open panel: selected by Enter, Space or a click, and marked
+ * while it's hovered here or in the pane (spec 004, FR-013).
+ */
+function PanelRow({
+  row,
+  onSelect,
+  onFocused,
+}: {
+  row: RowView
+  onSelect: (path: string) => void
+  onFocused: () => void
+}) {
+  const hover = useHoverHandlers(row.path)
+  const marked = useHovered((path) => path === row.path)
+  return (
+    <div role="listitem" className="relative" style={{ height: ROW_HEIGHT }}>
+      <EdgeHandles id={row.path} />
+      <Item
+        size="xs"
+        render={<button type="button" />}
+        onClick={() => onSelect(row.path)}
+        onPointerEnter={hover.onPointerEnter}
+        onPointerLeave={hover.onPointerLeave}
+        onFocus={() => {
+          hover.onFocus()
+          onFocused()
+        }}
+        onBlur={hover.onBlur}
+        aria-current={row.selected || undefined}
+        data-marked={marked}
+        title={row.path}
+        className={cn(
+          "size-full rounded-none px-4 py-0 focus-visible:ring-inset aria-[current=true]:ring-2 aria-[current=true]:ring-map-selection aria-[current=true]:ring-inset",
+          MARKED,
+          !row.strong && DIMMED
+        )}
+      >
+        <ItemMedia>
+          <TierSwatch
+            tier={row.tier}
+            className={cn(!row.strong && "opacity-40")}
+          />
+        </ItemMedia>
+        <ItemTitle className="font-mono text-path font-normal">
+          {row.name}
+        </ItemTitle>
+      </Item>
+    </div>
+  )
+}
