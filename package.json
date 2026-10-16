@@ -9,7 +9,8 @@
     "lint": "turbo lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "test": "turbo test"
   },
   "devDependencies": {
     "@tanstack/intent": "catalog:",
