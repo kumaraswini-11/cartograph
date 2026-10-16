@@ -24,11 +24,21 @@ export type MapInput = {
   taxonomy: Array<TaxonomyEntry>
   /** Resolved imports over resolved and unresolved; null with none (`001`). */
   coverage: number | null
+  /**
+   * The frameworks detected, each once, in the order their packages were
+   * found; empty when no adapter matched (`002` FR-004).
+   */
+  frameworks: Array<string>
+  /** Imports found, and those resolved to a file in the repository (`001`). */
+  imports: { seen: number; resolved: number }
+  /** Routes found (`002`). */
+  routes: number
 }
 
 /**
  * The map's input, read from both results unchanged (spec 003, C-02): every
- * parsed file with its role, every edge, the taxonomy and the coverage.
+ * parsed file with its role, every edge, the taxonomy and the coverage, and
+ * the summary's frameworks and counts (spec 004, FR-001).
  */
 export function toMapInput(
   source: { repository: string; commit: string },
@@ -58,5 +68,17 @@ export function toMapInput(
     })),
     taxonomy: detection.taxonomy,
     coverage: parsed.coverage.figure,
+    frameworks: [
+      ...new Set(
+        detection.packages.flatMap((p) =>
+          p.framework === null ? [] : [p.framework]
+        )
+      ),
+    ],
+    imports: {
+      seen: Object.values(parsed.coverage.imports).reduce((a, b) => a + b, 0),
+      resolved: parsed.coverage.imports.resolved,
+    },
+    routes: detection.routes.length,
   }
 }

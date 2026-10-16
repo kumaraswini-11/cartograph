@@ -5,7 +5,7 @@
 
 ## T01 — The walk, the summary's lists and the new map input
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** FR-002, FR-003, FR-010, FR-017, FR-018, C-02, C-03, C-05, AC-03,
 AC-06, AC-10 to AC-12
@@ -16,10 +16,10 @@ imports and routes; the sample generated again.
 
 **Done when:**
 
-- [ ] The walk meets AC-06, AC-10, AC-11 and AC-12 on small fixtures, and
+- [x] The walk meets AC-06, AC-10, AC-11 and AC-12 on small fixtures, and
       each sample file's fan-in and fan-out equal its lists (AC-03).
-- [ ] The sample carries the new fields, and its size is checked.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] The sample carries the new fields, and its size is checked.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T02 — The summary
 
