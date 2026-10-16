@@ -28,8 +28,8 @@ Paste a public TypeScript or JavaScript repository and get a map of it: folders
 as boxes, imports as lines between them. Every box and every line comes from
 parsing the real code; nothing on the map is guessed.
 
-The project is being built as a monorepo. This repository holds the
-foundation so far: the web app and its UI package.
+Cartograph is being built as a monorepo. This repository holds the web
+app, its UI package, the parser and framework detection so far.
 
 ## Features (planned)
 
@@ -76,7 +76,13 @@ apps/
   web/          the TanStack Start app
 packages/
   ui/           shared UI: shadcn components, the theme (globals.css), cn
+  parser/       a directory on disk in; files, imports, edges and coverage out
+  frameworks/   each package's framework, file roles, entry points and routes
+  golden/       dev-only: downloads the golden repositories the tests pin
 ```
+
+Each package has a README: what it is, why it's a package of its own, and
+how to use it.
 
 Dependency versions shared between packages are defined once, in the
 [catalog](https://pnpm.io/catalogs) in `pnpm-workspace.yaml`; packages refer to
@@ -120,29 +126,8 @@ the Vercel project is in
 
 ## Adding UI components
 
-Components are written to `packages/ui/src/components/shadcn-ui`, which holds
-registry output only. From the repository root, run the shadcn CLI installed in
-the UI package (the version pinned in the catalog):
-
-```bash
-pnpm --filter @workspace/ui exec shadcn add [COMPONENT]
-```
-
-Running it from the app's folder, as
-[shadcn's monorepo guide](https://ui.shadcn.com/docs/monorepo) shows, writes
-the same files with the latest CLI. Use this form for blocks: their
-page-specific parts belong in `apps/web`, which the UI package can't see.
-
-```bash
-cd apps/web
-pnpm dlx shadcn@latest add [COMPONENT]
-```
-
-Then import them from the UI package:
-
-```tsx
-import { Button } from "@workspace/ui/components/shadcn-ui/button"
-```
+With the shadcn CLI, registry first: the steps are in
+[packages/ui/README.md](packages/ui/README.md#adding-components).
 
 ## Agent skills
 

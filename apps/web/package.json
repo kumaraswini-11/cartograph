@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "private": true,
+  "description": "Cartograph's deployable app: TanStack Start, rendered on the server, deployed to Vercel through Nitro.",
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",

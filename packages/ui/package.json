@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
+  "description": "Cartograph's shared interface: shadcn/ui components on Base UI, the Tailwind theme and the cn helper.",
   "scripts": {
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
