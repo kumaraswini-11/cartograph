@@ -85,6 +85,9 @@ columns and never move them.
   choice wins over the system and survives a reload, with no flash of the
   other palette.
 
+- **FR-022** Until the map is drawn, the interface shall hold the map's
+  column at its final size, so nothing else on the page moves when it appears.
+
 ## Constraints
 
 - **C-01** Folding is the rule the map rests on, solved per repository, never
@@ -102,6 +105,12 @@ columns and never move them.
 - **C-05** Both palettes are real palettes, not one inverted. _Why:_ the
   project doc requires it. _Looks fine until:_ dark mode's direction colours
   can't be told apart.
+
+- **C-06** Space for the map is reserved before it's drawn. _Why:_ whenever the
+  map appears later than the rest of the page, holding its space is what keeps
+  the page still, and a page that moves fails the layout-shift threshold of
+  `012`. _Looks fine until:_ a
+  fast machine, where the map appears before anyone notices the shift.
 
 ## Edge cases
 
@@ -133,6 +142,7 @@ columns and never move them.
 | AC-14 | Given a selected file, when the map is read, then it, its edges and its neighbours are at full strength and everything else is dimmed                          | FR-013         | browser     |
 | AC-15 | Given the map, when its colours are checked, then edges in and out differ, each tier has its own colour, everything else is greyscale, and paths are monospace | FR-018, FR-019 | browser     |
 | AC-16 | Given the system set to reduce motion, when a panel opens, then nothing animates                                                                               | FR-020         | browser     |
+| AC-17 | Given a slow network and processor profile, when the map page loads, then the rail and the detail pane don't move as the map appears                           | FR-022, C-06   | browser     |
 
 ## Out of scope
 

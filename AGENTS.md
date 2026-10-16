@@ -21,14 +21,67 @@ importing it by its package name, never by a relative path into it.
 
 ## Rules
 
+### Repository
+
 - `spec.md` files name no framework, library or vendor. How this repository
   builds a spec goes in its `plan.md`.
 - Every dependency's version lives in the pnpm catalog (`pnpm-workspace.yaml`);
   packages write `catalog:`.
-- `packages/ui/src/components/shadcn-ui` holds shadcn registry output only.
-  Add components with the shadcn CLI (see the README); adjust them at the call
-  site with `className`.
 - Agent skills install with `-a claude-code --copy` (see `docs/bookmarks.md`).
+- A deliberate departure from official guidance or a vendored skill is
+  recorded, with its reason, in the spec's `plan.md` or in `docs/adr/`.
+
+### Packages
+
+- A package does one job and knows nothing it doesn't need: the parser and the
+  graph arithmetic import no framework, interface or storage code, so they can
+  be reused and tested on their own.
+- Shared code goes in a package once a second package needs it; code one
+  package needs stays in that package.
+- One source for each concern: a rule, a type or a helper is defined once and
+  imported, never copied.
+
+### Interface
+
+- **Registry first.** Before writing any UI, check the shadcn registry
+  (`shadcn search`, `shadcn docs`). If it has the component, install it (if it's
+  missing) and use it; never hand-build one the registry has.
+- `packages/ui/src/components/shadcn-ui` holds registry output only. Add
+  components with the shadcn CLI (see the README); adjust them at the call
+  site with `className`, never by editing the file.
+- **Shared compositions, by the rule of three.** When the same composition of
+  shadcn components appears a third time, make one component of it: shared
+  ones in `packages/ui/src/components`, beside `shadcn-ui`; ones a single
+  feature uses in `apps/web/src/components/<feature>/`. Keep it thin: a few
+  props, and `children` or slots for the cases it doesn't cover. Don't wrap a
+  component only to rename it.
+- Components present data they're given; data comes from route loaders and
+  server functions, never from inside a presentational component.
+- Use semantic tokens (`bg-background`, `text-muted-foreground`), never raw
+  colours, and semantic HTML elements before `div`s.
+
+### Rendering (TanStack Start)
+
+- Pages render on the server by default. Set a route's `ssr` to `false` or
+  `'data-only'` only when it can't render on the server, and say why in a
+  comment.
+- Read and change data through `createServerFn`; keep secrets and
+  server-only code behind `createServerOnlyFn`. Code is isomorphic by default,
+  so nothing server-only goes in a module the browser also loads.
+- Browser-only UI (anything that needs `window` or measures itself in the
+  browser, as the map's drawing may) renders inside `<ClientOnly>`, with a
+  fallback of the same size so the page doesn't shift.
+
+### Performance and accessibility
+
+- Pages meet the thresholds in spec `012`: Core Web Vitals (largest
+  contentful paint, interaction to next paint, cumulative layout shift) and
+  WCAG 2.2 AA.
+- Nothing shifts after the first paint: reserve space for late content, and
+  load fonts so text doesn't jump.
+- For interface work, use the installed skills: `better-accessibility`,
+  `better-layout`, `better-typography`, `better-ui`, `emil-design-eng`, and
+  `interface-review` before a change is done.
 
 ## Before saying a change is done
 

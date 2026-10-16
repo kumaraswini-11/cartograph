@@ -157,6 +157,7 @@ repository.
 - [Glossary](CONTEXT.md): one meaning per term, used by the specs, the code and the interface
 - [Specs](docs/specs/README.md): the thirteen capabilities, in build order
 - [Decision records](docs/adr/): hard-to-reverse choices, with the trade-off behind each
+- [AGENTS.md](AGENTS.md): how to work in this repository: the rules for packages, the interface, rendering, performance and accessibility
 - [Bookmarks](docs/bookmarks.md): useful external references, and the installed agent skills
 
 ## License

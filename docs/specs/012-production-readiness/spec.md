@@ -48,6 +48,15 @@ what a public application needs before anyone else uses it.
 - **FR-008** Before release, each ship criterion in `docs/project-doc.md` shall
   be checked as its row below says, and the result recorded.
 
+### Performance and accessibility
+
+- **FR-009** Every page shall meet, at the 75th percentile of page loads, a
+  largest contentful paint within `LCP_MAX`, an interaction to next paint
+  within `INP_MAX` and a cumulative layout shift of at most `CLS_MAX`.
+- **FR-010** Every page shall meet WCAG 2.2 at level AA.
+- **FR-011** Every page shall be usable with the keyboard alone, with focus
+  visible at every step.
+
 ## Constraints
 
 - **C-01** No repository content leaves through telemetry. _Why:_ the content
@@ -61,6 +70,11 @@ what a public application needs before anyone else uses it.
   models cost money per request. _Looks fine until:_ one organization re-runs a
   large repository in a loop.
 
+- **C-04** Speed and accessibility are measured, never assumed. _Why:_ the
+  people this is for open large repositories, often on ordinary laptops.
+  _Looks fine until:_ every check runs on a fast developer machine with a small
+  repository.
+
 ## Edge cases
 
 - An error thrown inside error reporting → logged on the server only, never a
@@ -72,20 +86,23 @@ what a public application needs before anyone else uses it.
 
 The first six rows are the ship criteria of `docs/project-doc.md`.
 
-| ID    | Given / When / Then                                                                                                                                       | Covers               | Verified by |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ----------- |
-| AC-01 | Given a known repository, when five files are checked by hand, then each one's imports match what the parser claims                                       | FR-008               | terminal    |
-| AC-02 | Given an analysis, when its coverage is read, then it states what was skipped and why, and the figure is believable                                       | FR-008               | browser     |
-| AC-03 | Given a member of a second organization, when the first organization's records are queried, then none come back                                           | FR-008               | test        |
-| AC-04 | Given the storage schema, when every table is checked, then each enforces row-level access: all of them                                                   | FR-008               | test        |
-| AC-05 | Given the evaluation (`011`), when it runs, then groundedness meets `GROUNDED_REQUIRED` for explanations                                                  | FR-008               | terminal    |
-| AC-06 | Given a chat answer, when it's shown, then its lookups appear before it                                                                                   | FR-008               | browser     |
-| AC-07 | Given an error thrown on the server and one in the browser, when they occur, then both are reported with the release                                      | FR-001               | browser     |
-| AC-08 | Given the product events of one session, when they're inspected, then none holds source, explanation text or an email address                             | FR-003               | test        |
-| AC-09 | Given the production address, when its headers are checked, then each header in FR-004 is present and the policy has no wildcard sources                  | FR-004, C-02, FR-005 | terminal    |
-| AC-10 | Given an organization at `RUN_LIMIT`, when it starts another run, then it's refused with the time it can start                                            | FR-006               | test        |
-| AC-11 | Given one session that signs in, submits an analysis, explains a file and asks a question, when its events are listed, then each event in FR-002 is there | FR-002               | test        |
-| AC-12 | Given an organization at `MODEL_CALL_LIMIT`, when it asks for an explanation, then it's refused with the time it resumes                                  | FR-007               | test        |
+| ID    | Given / When / Then                                                                                                                                                                                      | Covers               | Verified by |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ----------- |
+| AC-01 | Given a known repository, when five files are checked by hand, then each one's imports match what the parser claims                                                                                      | FR-008               | terminal    |
+| AC-02 | Given an analysis, when its coverage is read, then it states what was skipped and why, and the figure is believable                                                                                      | FR-008               | browser     |
+| AC-03 | Given a member of a second organization, when the first organization's records are queried, then none come back                                                                                          | FR-008               | test        |
+| AC-04 | Given the storage schema, when every table is checked, then each enforces row-level access: all of them                                                                                                  | FR-008               | test        |
+| AC-05 | Given the evaluation (`011`), when it runs, then groundedness meets `GROUNDED_REQUIRED` for explanations                                                                                                 | FR-008               | terminal    |
+| AC-06 | Given a chat answer, when it's shown, then its lookups appear before it                                                                                                                                  | FR-008               | browser     |
+| AC-07 | Given an error thrown on the server and one in the browser, when they occur, then both are reported with the release                                                                                     | FR-001               | browser     |
+| AC-08 | Given the product events of one session, when they're inspected, then none holds source, explanation text or an email address                                                                            | FR-003               | test        |
+| AC-09 | Given the production address, when its headers are checked, then each header in FR-004 is present and the policy has no wildcard sources                                                                 | FR-004, C-02, FR-005 | terminal    |
+| AC-10 | Given an organization at `RUN_LIMIT`, when it starts another run, then it's refused with the time it can start                                                                                           | FR-006               | test        |
+| AC-11 | Given one session that signs in, submits an analysis, explains a file and asks a question, when its events are listed, then each event in FR-002 is there                                                | FR-002               | test        |
+| AC-12 | Given an organization at `MODEL_CALL_LIMIT`, when it asks for an explanation, then it's refused with the time it resumes                                                                                 | FR-007               | test        |
+| AC-13 | Given the production address and the map of a repository at `MAX_FILES`, when page loads are measured on a mid-range mobile profile, then LCP, INP and CLS are within `LCP_MAX`, `INP_MAX` and `CLS_MAX` | FR-009, C-04         | terminal    |
+| AC-14 | Given every page, when an automated WCAG 2.2 AA audit runs, then it reports no violation                                                                                                                 | FR-010               | test        |
+| AC-15 | Given every page, when it's used with the keyboard alone, then every action can be reached and the focus is always visible                                                                               | FR-011               | browser     |
 
 ## Out of scope
 
@@ -99,3 +116,6 @@ The first six rows are the ship criteria of `docs/project-doc.md`.
   proposed 300 calls per day.
 - [NEEDS CLARIFICATION] Is a cookie or consent notice needed for product
   analytics in the regions served?
+- [NEEDS CLARIFICATION] `LCP_MAX` = 2.5 s, `INP_MAX` = 200 ms and `CLS_MAX` =
+  0.1 are the "good" thresholds of Core Web Vitals; confirm, and choose the
+  measuring profile.
