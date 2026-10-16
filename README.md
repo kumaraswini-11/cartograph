@@ -16,7 +16,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
 [![CodeRabbit](https://img.shields.io/badge/CodeRabbit-FF570A?style=for-the-badge&logo=coderabbit&logoColor=white)](https://www.coderabbit.ai)
 
-> The name comes from **cartography**, the craft of making maps: French _carte_ (map, ultimately from Greek _khartēs_) and _-graphie_ (from Greek _graphein_, to write or draw). A **cartographer** is the person who makes them.
+> The name comes from **cartography**, the craft of making maps: French _carte_ (map, ultimately from Greek _khartÄ“s_) and _-graphie_ (from Greek _graphein_, to write or draw). A **cartographer** is the person who makes them.
 >
 > A cartographer surveys unknown ground and turns it into a map people can trust. Cartograph does that for a codebase you didn't write.
 
@@ -88,15 +88,17 @@ The app runs at <http://localhost:3000>.
 
 ## Scripts
 
-Run from the repository root; Turborepo runs each across the workspace.
+Run from the repository root. Turborepo runs `dev`, `build`, `lint` and
+`typecheck` in each package; Prettier runs once over the whole repository.
 
-| Script           | What it does                                           |
-| ---------------- | ------------------------------------------------------ |
-| `pnpm dev`       | Starts the app in development mode                     |
-| `pnpm build`     | Builds the app                                         |
-| `pnpm lint`      | Lints every package                                    |
-| `pnpm typecheck` | Type-checks every package                              |
-| `pnpm format`    | Formats every package's TypeScript files with Prettier |
+| Script              | What it does                                             |
+| ------------------- | -------------------------------------------------------- |
+| `pnpm dev`          | Starts the app in development mode                       |
+| `pnpm build`        | Builds the app                                           |
+| `pnpm lint`         | Lints every package                                      |
+| `pnpm typecheck`    | Type-checks every package                                |
+| `pnpm format`       | Formats every file in the repository with Prettier       |
+| `pnpm format:check` | Checks formatting without writing (this is what CI runs) |
 
 ## Adding UI components
 
