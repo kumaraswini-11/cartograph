@@ -7,9 +7,15 @@ import {
   useState,
 } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
+import { ChevronDownIcon } from "lucide-react"
 import { fileName, folderOf } from "@workspace/parser/paths"
 import { Badge } from "@workspace/ui/components/shadcn-ui/badge"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@workspace/ui/components/shadcn-ui/collapsible"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -51,53 +57,93 @@ export type FileRow = { path: string; count?: number; mark?: string }
  * The detail pane's one list of files (spec 004, plan D-05), used by the
  * summary, a file's neighbours and each level of a walk: a heading with the
  * full count (FR-004), a row per file that selects it on the map (FR-011),
- * and, with `limit`, the first rows and "Show all N" for the rest.
+ * and, with `limit`, the first rows and "Show all N" for the rest. With
+ * `defaultOpen`, the heading opens and closes the list (FR-016): shadcn's
+ * collapsible sidebar group, its trigger inside the heading.
  */
 export function FileList({
   heading,
   rows,
   limit,
   empty,
+  headingLevel = "h3",
+  defaultOpen,
 }: {
   heading: string
   rows: ReadonlyArray<FileRow>
   limit?: number
   /** What the list says when it has no rows. */
   empty: string
+  headingLevel?: "h3" | "h4"
+  /** Set to make the list open and close by its heading. */
+  defaultOpen?: boolean
 }) {
   const headingId = useId()
   const [showAll, setShowAll] = useState(false)
   const shown = limit === undefined || showAll ? rows : rows.slice(0, limit)
+  const Heading = headingLevel
+  const label = (
+    <>
+      {heading} <span className="ms-auto tabular-nums">{rows.length}</span>
+    </>
+  )
 
+  const content = (
+    <SidebarGroupContent>
+      {rows.length === 0 ? (
+        <p className="px-2 text-sm text-muted-foreground">{empty}</p>
+      ) : shown.length > LIST_VIRTUAL_FROM ? (
+        <VirtualRows rows={shown} labelledBy={headingId} />
+      ) : (
+        <SidebarMenu aria-labelledby={headingId}>
+          {shown.map((row) => (
+            <Row key={row.path} row={row} />
+          ))}
+        </SidebarMenu>
+      )}
+      {limit !== undefined && rows.length > limit && (
+        <Button
+          variant="link"
+          size="sm"
+          aria-expanded={showAll}
+          onClick={() => setShowAll(!showAll)}
+        >
+          {showAll ? "Show fewer" : `Show all ${rows.length}`}
+        </Button>
+      )}
+    </SidebarGroupContent>
+  )
+
+  if (defaultOpen === undefined) {
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel
+          id={headingId}
+          render={<Heading />}
+          className="gap-2"
+        >
+          {label}
+        </SidebarGroupLabel>
+        {content}
+      </SidebarGroup>
+    )
+  }
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel id={headingId} render={<h3 />} className="gap-2">
-        {heading} <span className="ms-auto tabular-nums">{rows.length}</span>
-      </SidebarGroupLabel>
-      <SidebarGroupContent>
-        {rows.length === 0 ? (
-          <p className="px-2 text-sm text-muted-foreground">{empty}</p>
-        ) : shown.length > LIST_VIRTUAL_FROM ? (
-          <VirtualRows rows={shown} labelledBy={headingId} />
-        ) : (
-          <SidebarMenu aria-labelledby={headingId}>
-            {shown.map((row) => (
-              <Row key={row.path} row={row} />
-            ))}
-          </SidebarMenu>
-        )}
-        {limit !== undefined && rows.length > limit && (
-          <Button
-            variant="link"
-            size="sm"
-            aria-expanded={showAll}
-            onClick={() => setShowAll(!showAll)}
+    <Collapsible defaultOpen={defaultOpen} className="group/collapsible">
+      <SidebarGroup>
+        <Heading>
+          <SidebarGroupLabel
+            id={headingId}
+            render={<CollapsibleTrigger />}
+            className="w-full gap-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           >
-            {showAll ? "Show fewer" : `Show all ${rows.length}`}
-          </Button>
-        )}
-      </SidebarGroupContent>
-    </SidebarGroup>
+            {label}
+            <ChevronDownIcon className="transition-transform group-data-open/collapsible:rotate-180 motion-reduce:transition-none" />
+          </SidebarGroupLabel>
+        </Heading>
+        <CollapsibleContent>{content}</CollapsibleContent>
+      </SidebarGroup>
+    </Collapsible>
   )
 }
 

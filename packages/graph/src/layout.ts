@@ -71,12 +71,13 @@ export function layoutMap(
       .filter((b) => open.has(b.id))
       .map((b) => [b.id, panelOf(b, pinned)])
   )
+  // Every file shown as a row, for a lookup per edge end, not a scan.
+  const rowFiles = new Set([...panels.values()].flatMap((panel) => panel.rows))
   const endOf = (file: string): EdgeEnd | undefined => {
     const box = map.boxOf.get(file)
     if (box === undefined) return undefined
-    const panel = panels.get(box)
-    if (!panel) return { box }
-    return { box, row: panel.rows.includes(file) ? file : MORE }
+    if (!panels.has(box)) return { box }
+    return { box, row: rowFiles.has(file) ? file : MORE }
   }
 
   const edges = new Map<string, LaidOutEdge>()

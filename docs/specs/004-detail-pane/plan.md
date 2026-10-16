@@ -127,6 +127,19 @@ type Levels = Array<Array<string>> // levels[0] is one edge away
   reaching for the map; the focus then moves to the summary's first heading,
   a visible one, rather than falling to the page (WCAG 2.4.3, 2.4.7). A role's tier dot, now on the rail, the map and
   the pane, is one `TierSwatch` (the rule of three).
+- **D-12** Every change of the map's state (selection, open boxes, role)
+  and of the pane's reach is a React transition (`startTransition`): on a
+  large repository the map and the pane take longer than a frame to redraw,
+  so React paints the click first and renders the rest in slices the
+  browser can interrupt (`012`: interaction to next paint). The file view
+  isn't remounted per file, so the reach toggle and tabs stay mounted.
+  Measured on a generated repository of `MAX_FILES` files, one of them
+  imported by all the others, with the processor slowed 4× (min / median
+  of five runs, ms): choosing that file 48 / 120 (1,568 before), its blast
+  radius of 4,999 files 120 / 184 (536 before), a file deep in that list,
+  whose dependents run 49 steps, 160 / 216 (728 before), dependency chain
+  16 / 40. The list keeps 11 rows in the page and says 4,999 to a screen
+  reader.
 
 ## Layout values
 

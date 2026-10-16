@@ -1,3 +1,4 @@
+import type { Direction } from "@workspace/graph"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -5,6 +6,7 @@ import {
 
 import { FactList } from "@/components/detail/fact-list"
 import { FileList } from "@/components/detail/file-list"
+import { Reach } from "@/components/detail/reach"
 import { useMapData } from "@/components/map/map-data"
 import { TierSwatch } from "@/components/map/tier"
 
@@ -13,7 +15,16 @@ import { TierSwatch } from "@/components/map/tier"
  * counts, then the full list of its dependencies and of its dependents. Each
  * count is its list's length (C-02): both come from the same edges (AC-03).
  */
-export function FileDetail({ path }: { path: string }) {
+export function FileDetail({
+  path,
+  reach,
+  onReach,
+}: {
+  path: string
+  /** Blast radius or dependency chain, as the pane keeps it (FR-014, FR-015). */
+  reach: Direction | null
+  onReach: (direction: Direction | null) => void
+}) {
   const { input, index, tierOf } = useMapData()
   const file = input.files.find((f) => f.path === path)
   if (!file) return null
@@ -53,6 +64,7 @@ export function FileDetail({ path }: { path: string }) {
         rows={dependents}
         empty="No file imports it."
       />
+      <Reach path={path} direction={reach} onDirection={onReach} />
     </>
   )
 }

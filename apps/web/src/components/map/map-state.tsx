@@ -1,4 +1,4 @@
-import { createContext, use, useMemo, useState } from "react"
+import { createContext, startTransition, use, useMemo, useState } from "react"
 import type { Selection } from "@workspace/graph"
 
 /**
@@ -38,20 +38,28 @@ export function MapStateProvider({ children }: { children: React.ReactNode }) {
     () => ({ role, selection, open }),
     [role, selection, open]
   )
+  // Each change is a transition: it redraws the map and the pane, which on a
+  // large repository takes longer than a frame, so React paints first and
+  // renders it in slices the browser can interrupt; a click never blocks
+  // the page (spec 012: interaction to next paint; React: startTransition).
   const actions = useMemo<MapActions>(
     () => ({
-      chooseRole,
-      select,
+      chooseRole: (next) => startTransition(() => chooseRole(next)),
+      select: (next) => startTransition(() => select(next)),
       toggleOpen: (box) =>
-        setOpen((current) => {
-          const next = new Set(current)
-          if (next.has(box)) next.delete(box)
-          else next.add(box)
-          return next
-        }),
+        startTransition(() =>
+          setOpen((current) => {
+            const next = new Set(current)
+            if (next.has(box)) next.delete(box)
+            else next.add(box)
+            return next
+          })
+        ),
       openBox: (box) =>
-        setOpen((current) =>
-          current.has(box) ? current : new Set(current).add(box)
+        startTransition(() =>
+          setOpen((current) =>
+            current.has(box) ? current : new Set(current).add(box)
+          )
         ),
     }),
     []

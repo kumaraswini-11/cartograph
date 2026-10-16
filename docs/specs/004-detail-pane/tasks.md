@@ -71,7 +71,7 @@ box when closed.
 
 ## T05 — Blast radius and dependency chain
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T03
 **Covers:** FR-014 to FR-016, FR-019, C-04, AC-05
 
@@ -81,9 +81,13 @@ across selections; every level with its count, the nearest
 
 **Done when:**
 
-- [ ] The lists appear with no loading state, and a long one stays under the
-      interaction threshold on a repository of `MAX_FILES` files.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] The lists appear with no loading state.
+- [x] On a repository of `MAX_FILES` files, with the processor slowed 4×,
+      choosing a file, its blast radius of 4,999 files and its dependency
+      chain stay under 200 ms at the median. One case is just over: a file
+      whose walk runs 49 steps, 216 ms at the median, 160 ms at best (plan
+      D-12).
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T06 — Acceptance
 

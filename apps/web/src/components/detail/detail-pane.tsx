@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react"
+import { startTransition, useEffect, useRef, useState } from "react"
 import { SparklesIcon, XIcon } from "lucide-react"
 import { ROOT_LABEL } from "@workspace/graph"
-import type { Selection } from "@workspace/graph"
+import type { Direction, Selection } from "@workspace/graph"
 import { fileName, folderOf } from "@workspace/parser/paths"
 import { EmptyState } from "@workspace/ui/components/empty-state"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
@@ -43,6 +43,8 @@ export function DetailPane() {
     actions,
   } = useMapState()
   const [tab, setTab] = useState<Tab>("structure")
+  // Blast radius or dependency chain, kept like the tab (plan D-04).
+  const [reach, setReach] = useState<Direction | null>(null)
 
   // Each selection is read from its top; the summary takes the focus when
   // the pane's own button cleared the selection.
@@ -79,6 +81,12 @@ export function DetailPane() {
               selection={selection}
               tab={tab}
               onTab={setTab}
+              reach={reach}
+              onReach={(direction) =>
+                // A long walk takes more than a frame to list: a transition,
+                // like the map state's, so the click paints first.
+                startTransition(() => setReach(direction))
+              }
               onClear={() => {
                 focusSummary.current = true
                 actions.select(null)
@@ -96,11 +104,15 @@ function SelectionDetail({
   selection,
   tab,
   onTab,
+  reach,
+  onReach,
   onClear,
 }: {
   selection: Selection
   tab: Tab
   onTab: (tab: Tab) => void
+  reach: Direction | null
+  onReach: (direction: Direction | null) => void
   onClear: () => void
 }) {
   const { boxMap } = useMapData()
@@ -152,9 +164,11 @@ function SelectionDetail({
         </SidebarGroup>
         <TabsContent value="structure">
           {selection.file !== undefined ? (
-            <FileDetail key={selection.file} path={selection.file} />
+            // Not remounted per file: the reach choice and its toggle stay
+            // as they are, and each walk's lists key themselves by file.
+            <FileDetail path={selection.file} reach={reach} onReach={onReach} />
           ) : (
-            <BoxDetail key={selection.box} id={selection.box} />
+            <BoxDetail id={selection.box} />
           )}
         </TabsContent>
         <TabsContent value="explanation">
