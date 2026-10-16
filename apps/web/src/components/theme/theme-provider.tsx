@@ -1,12 +1,7 @@
-// Theme provider from shadcn's TanStack Start dark-mode guide:
-// https://ui.shadcn.com/docs/dark-mode/tanstack-start
-// The inline script sets the light/dark class before the page paints, so a
-// reload never flashes the wrong theme. "system" follows the OS until the
-// user picks a theme; the choice is kept in localStorage.
 import { createContext, useContext, useEffect, useState } from "react"
 import { ScriptOnce } from "@tanstack/react-router"
 
-export type Theme = "dark" | "light" | "system"
+type Theme = "dark" | "light" | "system"
 
 type ThemeProviderProps = {
   children: React.ReactNode
@@ -26,7 +21,9 @@ function getThemeScript(storageKey: string, defaultTheme: Theme) {
   return `(function(){try{var t=localStorage.getItem(${key});if(t!=='light'&&t!=='dark'&&t!=='system'){t=${fallback}}var d=matchMedia('(prefers-color-scheme: dark)').matches;var r=t==='system'?(d?'dark':'light'):t;var e=document.documentElement;e.classList.add(r);e.style.colorScheme=r}catch(e){}})();`
 }
 
-// Undefined outside a provider, so useTheme can report the missing provider.
+// Differs from the shadcn guide (ui.shadcn.com/docs/dark-mode/tanstack-start):
+// no default value. With the guide's default, useContext never returns
+// undefined, so useTheme's "within a ThemeProvider" check could never fire.
 const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
   undefined
 )

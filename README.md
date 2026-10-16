@@ -76,7 +76,7 @@ them as `catalog:`.
 
 ## Getting started
 
-Requires Node.js 22.12 or later and pnpm (the version is set by
+Requires Node.js 24 and pnpm (the version is set by
 `packageManager` in `package.json`).
 
 ```bash
@@ -88,23 +88,36 @@ The app runs at <http://localhost:3000>.
 
 ## Scripts
 
-Run from the repository root; Turborepo runs each across the workspace.
+Run from the repository root. Turborepo runs `dev`, `build`, `lint` and
+`typecheck` in each package; Prettier runs once over the whole repository.
 
-| Script           | What it does                                           |
-| ---------------- | ------------------------------------------------------ |
-| `pnpm dev`       | Starts the app in development mode                     |
-| `pnpm build`     | Builds the app                                         |
-| `pnpm lint`      | Lints every package                                    |
-| `pnpm typecheck` | Type-checks every package                              |
-| `pnpm format`    | Formats every package's TypeScript files with Prettier |
+| Script              | What it does                                             |
+| ------------------- | -------------------------------------------------------- |
+| `pnpm dev`          | Starts the app in development mode                       |
+| `pnpm build`        | Builds the app                                           |
+| `pnpm lint`         | Lints every package                                      |
+| `pnpm typecheck`    | Type-checks every package                                |
+| `pnpm format`       | Formats every file in the repository with Prettier       |
+| `pnpm format:check` | Checks formatting without writing (this is what CI runs) |
 
 ## Adding UI components
 
-Add shadcn components from the root; they're written to
-`packages/ui/src/components/shadcn-ui`, which holds registry output only:
+Components are written to `packages/ui/src/components/shadcn-ui`, which holds
+registry output only. From the repository root, run the shadcn CLI installed in
+the UI package (the version pinned in the catalog):
 
 ```bash
-pnpm dlx shadcn@latest add button -c apps/web
+pnpm --filter @workspace/ui exec shadcn add [COMPONENT]
+```
+
+Running it from the app's folder, as
+[shadcn's monorepo guide](https://ui.shadcn.com/docs/monorepo) shows, writes
+the same files with the latest CLI. Use this form for blocks: their
+page-specific parts belong in `apps/web`, which the UI package can't see.
+
+```bash
+cd apps/web
+pnpm dlx shadcn@latest add [COMPONENT]
 ```
 
 Then import them from the UI package:

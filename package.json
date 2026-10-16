@@ -7,7 +7,7 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "turbo format",
+    "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "turbo typecheck"
   },
@@ -19,6 +19,6 @@
   },
   "packageManager": "pnpm@11.25.0",
   "engines": {
-    "node": ">=22.12.0"
+    "node": "24.x"
   }
 }

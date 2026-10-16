@@ -5,11 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "vite dev --port 3000",
-    "generate-routes": "tsr generate",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint",
-    "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -28,7 +26,6 @@
     "@tanstack/eslint-config": "catalog:",
     "@tanstack/react-devtools": "catalog:",
     "@tanstack/react-router-devtools": "catalog:",
-    "@tanstack/router-cli": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
