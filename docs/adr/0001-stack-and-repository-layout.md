@@ -25,7 +25,9 @@ Three rules from the specs shape the choice:
 ### Repository: a modular monolith in a monorepo
 
 One deployable application, with its code split into packages that can only
-reach each other through declared dependencies.
+reach each other through declared dependencies: a modular monolith, the
+pattern Shopify describes in
+[Deconstructing the Monolith](https://shopify.engineering/deconstructing-monolith-designing-software-maximizes-developer-productivity).
 
 ```text
 apps/

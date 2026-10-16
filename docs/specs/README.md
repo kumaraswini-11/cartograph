@@ -10,15 +10,15 @@ repository builds each one is recorded separately, next to the spec.
 
 ## How the documents fit together
 
-| Document                       | What it holds                                                                        | Tied to this repository's stack? |
-| ------------------------------ | ------------------------------------------------------------------------------------ | -------------------------------- |
-| `docs/project-doc.md`          | What Cartograph is, who it's for, the rule everything rests on, scope, ship criteria | No                               |
-| `CONTEXT.md`                   | The glossary: one meaning per term                                                   | No                               |
-| `docs/specs/NNN-name/spec.md`  | One capability: requirements, constraints, acceptance criteria                       | No                               |
-| `docs/specs/NNN-name/plan.md`  | How this repository builds it: modules, data shapes, stack notes, test seams         | Yes                              |
-| `docs/specs/NNN-name/tasks.md` | The build as ordered slices, each with its status                                    | Yes                              |
-| `docs/adr/`                    | Decisions that are hard to reverse, with the trade-off behind each                   | Yes                              |
-| `AGENTS.md`                    | How to work in this repository                                                       | Yes                              |
+| Document                       | What it holds                                                                                                                                                                 | Tied to this repository's stack? |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| `docs/project-doc.md`          | What Cartograph is, who it's for, the rule everything rests on, scope, ship criteria                                                                                          | No                               |
+| `CONTEXT.md`                   | The glossary: one meaning per term, a [ubiquitous language](https://martinfowler.com/bliki/UbiquitousLanguage.html)                                                           | No                               |
+| `docs/specs/NNN-name/spec.md`  | One capability: requirements, constraints, acceptance criteria                                                                                                                | No                               |
+| `docs/specs/NNN-name/plan.md`  | How this repository builds it: modules, data shapes, stack notes, test seams                                                                                                  | Yes                              |
+| `docs/specs/NNN-name/tasks.md` | The build as ordered slices, each with its status                                                                                                                             | Yes                              |
+| `docs/adr/`                    | [Architecture decision records](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions): decisions that are hard to reverse, with the trade-off behind each | Yes                              |
+| `AGENTS.md`                    | How to work in this repository                                                                                                                                                | Yes                              |
 
 ## Where to start
 
@@ -77,16 +77,20 @@ the recommended one; any order that respects the dependencies works.
 
 The order follows three rules, each a known practice:
 
-1. **Riskiest part first.** Cartograph's bet is that a map parsed from real
-   code is correct and readable. If that fails, nothing else matters. So
-   milestones M1 and M2 prove the parser and the map before anything else is
-   built. They need no account, no database and no network.
+1. **Riskiest part first** (risk-driven, as in Barry Boehm's
+   [spiral model](https://en.wikipedia.org/wiki/Spiral_model)). Cartograph's
+   bet is that a map parsed from real code is correct and readable. If that
+   fails, nothing else matters. So milestones M1 and M2 prove the parser and
+   the map before anything else is built. They need no account, no database
+   and no network.
 2. **Infrastructure arrives with its first user** (deciding and building at
-   "the last responsible moment"). Sign-in and storage are well understood
+   [the last responsible moment](https://blog.codinghorror.com/the-last-responsible-moment/),
+   from Mary and Tom Poppendieck's _Lean Software Development_). Sign-in and storage are well understood
    and supplied by mature services, so they carry little risk. Their first
    real user is "an analysis belongs to an organization", in `008`. Built
    earlier, they would sit idle while the product was still uncertain.
-3. **A walking skeleton from day one.** `000` puts an empty application into
+3. **A [walking skeleton](https://wiki.c2.com/?WalkingSkeleton) from day
+   one** (Alistair Cockburn's term). `000` puts an empty application into
    production behind automated checks, so deployment problems surface on the
    first day rather than the last. The platform is chosen in `000`; each
    piece is built when its first user arrives.
@@ -101,10 +105,15 @@ first: they depend only on `000`.
 
 ## One spec at a time
 
-Build only what the current spec asks for. Later specs are drafts written
-ahead to show where the product is going, not commitments: each is resolved
-again when its turn comes, with what the earlier specs taught, and changes if
-it needs to. Code is never written ahead for a spec that hasn't started.
+Build only what the current spec asks for: **YAGNI**, "You Aren't Gonna
+Need It" ([Martin Fowler](https://martinfowler.com/bliki/Yagni.html)). Code is
+never written ahead for a spec that hasn't started.
+
+Later specs are drafts written ahead to show where the product is going, not
+commitments. Each is resolved again when its turn comes, with what the earlier
+specs taught, and changes if it needs to: the whole path is planned roughly
+and each step in detail only when it's reached
+([rolling-wave planning](https://en.wikipedia.org/wiki/Rolling-wave_planning)).
 
 `000` is the one spec that looks ahead on purpose. It names the capabilities
 later specs need, so the platform chosen can provide them, and builds none of
@@ -140,7 +149,8 @@ them.
   the parser shall…", "If…, then the parser shall…".
 - **Constraints** (`C-NN`) give the reason, and the failure that would pass a
   casual check.
-- **Acceptance criteria** (`AC-NN`) are Given / When / Then, and each one names
+- **Acceptance criteria** (`AC-NN`) are
+  [Given / When / Then](https://martinfowler.com/bliki/GivenWhenThen.html), and each one names
   how it's verified: an automated test, a command and its numbers, or a person
   in a browser.
 - **Every threshold has a name and a value.** No "about" or "a few". A
