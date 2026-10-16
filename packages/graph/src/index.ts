@@ -12,6 +12,8 @@ export { fold, foldAt } from "./fold.ts"
 export type { Fold } from "./fold.ts"
 export { toMapInput } from "./input.ts"
 export type { MapEdge, MapFile, MapInput } from "./input.ts"
+export { cycles, insights, sentenceOf, sentenceText } from "./insights.ts"
+export type { Insight, SentencePart } from "./insights.ts"
 export { ROOT_LABEL, labels } from "./labels.ts"
 export {
   FOLD_MIN_FILES,
@@ -20,6 +22,8 @@ export {
   COVERAGE_PARTIAL_BELOW,
   SUMMARY_LIST_LENGTH,
   REACH_OPEN_LEVELS,
+  HEAVY_FAN_IN,
+  OVERSIZED_LINES,
   CHAR_WIDTH,
   BOX_PADDING,
   BOX_BORDER,

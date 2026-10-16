@@ -171,4 +171,31 @@ describe("the map input (C-02)", () => {
       repository.remove()
     }
   })
+
+  it("carries the routes, and the frameworks whose routes can't be recovered, each once (spec 005)", () => {
+    const repository = makeRepository({
+      "package.json": JSON.stringify({ workspaces: ["web", "api", "jobs"] }),
+      "web/package.json": JSON.stringify({ dependencies: { next: "1" } }),
+      "web/app/api/hello/route.ts": "export function GET() {}",
+      "api/package.json": JSON.stringify({ dependencies: { express: "1" } }),
+      "api/index.js": "export {}",
+      "jobs/package.json": JSON.stringify({ dependencies: { express: "1" } }),
+      "jobs/index.js": "export {}",
+    })
+    try {
+      const parsed = parseRepository(repository.directory)
+      if (isTooLarge(parsed)) throw new Error("too large")
+      const input = toMapInput(
+        { repository: "o/r", commit: "c" },
+        parsed,
+        detectFrameworks(repository.directory, parsed)
+      )
+      expect(input.routes.map((r) => [r.method, r.path])).toEqual([
+        ["GET", "/api/hello"],
+      ])
+      expect(input.routesNotRecovered).toEqual(["Express"])
+    } finally {
+      repository.remove()
+    }
+  })
 })

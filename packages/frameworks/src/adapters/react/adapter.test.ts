@@ -19,7 +19,9 @@ describe("React (FR-013, FR-014, FR-018)", () => {
         'import * as React from "react"\nexport const State = React.createContext(0)',
       "src/lib/format.ts": "",
     })
-    expect(result.packages).toEqual([{ path: "", framework: "React" }])
+    expect(result.packages).toEqual([
+      { path: "", framework: "React", routesRecovered: false },
+    ])
     expect(roles(result)).toEqual([
       ["src/components/button.tsx", "Components", false],
       ["src/components/useToggle.ts", "Hooks", false],
@@ -37,7 +39,9 @@ describe("React (FR-013, FR-014, FR-018)", () => {
       "package.json": manifest(["react", "next"]),
       "a.ts": "",
     })
-    expect(result.packages).toEqual([{ path: "", framework: "Next.js" }])
+    expect(result.packages).toEqual([
+      { path: "", framework: "Next.js", routesRecovered: true },
+    ])
   })
 })
 
@@ -51,9 +55,9 @@ describe("a repository of several frameworks (FR-001, FR-009, AC-11)", () => {
       "apps/api/src/cats.controller.ts": "",
     })
     expect(result.packages).toEqual([
-      { path: "", framework: null },
-      { path: "apps/api", framework: "NestJS" },
-      { path: "apps/web", framework: "Next.js" },
+      { path: "", framework: null, routesRecovered: true },
+      { path: "apps/api", framework: "NestJS", routesRecovered: true },
+      { path: "apps/web", framework: "Next.js", routesRecovered: true },
     ])
     expect(roles(result)).toEqual([
       ["apps/api/src/cats.controller.ts", "Controllers", false],

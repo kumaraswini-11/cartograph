@@ -189,6 +189,7 @@ export const nextjsAdapter: Adapter = {
     const entryPoints = new Set<string>()
     const routes: Array<Route> = []
     const prefix = basePath(pkg)
+    let routesRecovered = true
 
     for (const path of pkg.files) {
       const local = localPath(pkg, path)
@@ -204,17 +205,25 @@ export const nextjsAdapter: Adapter = {
         entryPoints.add(path)
       }
 
-      if (role !== "API endpoints" || !local.startsWith(folders.app)) continue
-      const pathOf = routePath(
-        local.slice(folders.app.length).split("/").slice(0, -1)
-      )
-      if (pathOf === undefined || prefix === undefined) continue
+      if (role !== "API endpoints") continue
+      // An endpoint that gives no route leaves one out: a `pages/api`
+      // handler (FR-018), an intercepting segment, a base path that isn't a
+      // literal, or no method exported by name (spec 005, plan D-02).
+      const pathOf = local.startsWith(folders.app)
+        ? routePath(local.slice(folders.app.length).split("/").slice(0, -1))
+        : undefined
+      if (pathOf === undefined || prefix === undefined) {
+        routesRecovered = false
+        continue
+      }
+      const methods = exportedMethods(pkg, path)
+      if (methods.length === 0) routesRecovered = false
       const full =
         prefix === "" ? pathOf : `${prefix}${pathOf === "/" ? "" : pathOf}`
-      for (const { method, line } of exportedMethods(pkg, path)) {
+      for (const { method, line } of methods) {
         routes.push({ method, path: full, file: path, line })
       }
     }
-    return { roles, entryPoints, routes }
+    return { roles, entryPoints, routes, routesRecovered }
   },
 }

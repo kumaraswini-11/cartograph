@@ -10,43 +10,53 @@
 
 import { Route as rootRouteImport } from "./routes/__root"
 import { Route as IndexRouteImport } from "./routes/index"
-import { Route as SampleRouteImport } from "./routes/sample"
+import { Route as SampleIndexRouteImport } from "./routes/sample.index"
+import { Route as SampleNameRouteImport } from "./routes/sample.$name"
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
   getParentRoute: () => rootRouteImport,
 } as any)
-const SampleRoute = SampleRouteImport.update({
-  id: "/sample",
-  path: "/sample",
+const SampleIndexRoute = SampleIndexRouteImport.update({
+  id: "/sample/",
+  path: "/sample/",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SampleNameRoute = SampleNameRouteImport.update({
+  id: "/sample/$name",
+  path: "/sample/$name",
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
-  "/sample": typeof SampleRoute
+  "/sample/$name": typeof SampleNameRoute
+  "/sample/": typeof SampleIndexRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
-  "/sample": typeof SampleRoute
+  "/sample/$name": typeof SampleNameRoute
+  "/sample": typeof SampleIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
-  "/sample": typeof SampleRoute
+  "/sample/$name": typeof SampleNameRoute
+  "/sample/": typeof SampleIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/" | "/sample"
+  fullPaths: "/" | "/sample/$name" | "/sample/"
   fileRoutesByTo: FileRoutesByTo
-  to: "/" | "/sample"
-  id: "__root__" | "/" | "/sample"
+  to: "/" | "/sample/$name" | "/sample"
+  id: "__root__" | "/" | "/sample/$name" | "/sample/"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  SampleRoute: typeof SampleRoute
+  SampleNameRoute: typeof SampleNameRoute
+  SampleIndexRoute: typeof SampleIndexRoute
 }
 
 declare module "@tanstack/react-router" {
@@ -58,11 +68,18 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/sample": {
-      id: "/sample"
+    "/sample/": {
+      id: "/sample/"
       path: "/sample"
-      fullPath: "/sample"
-      preLoaderRoute: typeof SampleRouteImport
+      fullPath: "/sample/"
+      preLoaderRoute: typeof SampleIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/sample/$name": {
+      id: "/sample/$name"
+      path: "/sample/$name"
+      fullPath: "/sample/$name"
+      preLoaderRoute: typeof SampleNameRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -70,7 +87,8 @@ declare module "@tanstack/react-router" {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  SampleRoute: SampleRoute,
+  SampleNameRoute: SampleNameRoute,
+  SampleIndexRoute: SampleIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

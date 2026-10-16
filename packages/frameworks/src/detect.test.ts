@@ -17,9 +17,9 @@ describe("packages (FR-001, FR-004)", () => {
       "packages/ui/src/deep/no-manifest/x.ts": "",
     })
     expect(result.packages).toEqual([
-      { path: "", framework: null },
-      { path: "client", framework: null },
-      { path: "packages/ui", framework: null },
+      { path: "", framework: null, routesRecovered: true },
+      { path: "client", framework: null, routesRecovered: true },
+      { path: "packages/ui", framework: null, routesRecovered: true },
     ])
     expect(result.files.map((f) => [f.path, f.package])).toEqual([
       ["client/src/app.ts", "client"],
@@ -31,7 +31,7 @@ describe("packages (FR-001, FR-004)", () => {
 
   it("records the repository itself even with no manifest", () => {
     expect(detected({ "a.ts": "" }).packages).toEqual([
-      { path: "", framework: null },
+      { path: "", framework: null, routesRecovered: true },
     ])
   })
 })

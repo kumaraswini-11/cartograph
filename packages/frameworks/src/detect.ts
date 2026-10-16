@@ -38,10 +38,13 @@ export function detectFrameworks(
     const adapter = adapterFor(declaredPackages(pkg.manifest))
     const framework = adapter.taxonomy?.framework ?? null
     if (framework !== null) frameworks.add(framework)
-    packages.push({ path: pkg.path, framework })
-
     const input = { ...pkg, syntax }
     const description = adapter.describe(input)
+    packages.push({
+      path: pkg.path,
+      framework,
+      routesRecovered: description.routesRecovered,
+    })
     const entryPoints = commonEntryPoints(input)
     const known = new Set(
       adapter.taxonomy ? rolesOf(adapter.taxonomy).map((r) => r.role) : []

@@ -36,7 +36,7 @@ describe("detect <directory> [--out <file>]", { timeout: 30_000 }, () => {
     repository = makeRepository({ "a.ts": "" })
     const out = join(repository.directory, "detection.json")
     expect(run(repository.directory, "--out", out).status).toBe(0)
-    expect(readDetection(out)).toMatchObject({ schemaVersion: 1 })
+    expect(readDetection(out)).toMatchObject({ schemaVersion: 2 })
   })
 
   it("prints its usage and exits 2 when called wrongly", () => {

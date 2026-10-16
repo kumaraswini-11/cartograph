@@ -4,6 +4,7 @@ import { buttonVariants } from "@workspace/ui/components/shadcn-ui/button"
 
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { SITE, seo, websiteJsonLd } from "@/lib/site"
+import { SAMPLES } from "@/sample/samples"
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,14 +27,23 @@ function Home() {
           A dependency map of any public TypeScript or JavaScript repository,
           drawn from the code itself.
         </p>
-        <p>
-          <Link
-            to="/sample"
-            className={buttonVariants({ variant: "link", className: "px-0" })}
-          >
-            Open the sample map
-          </Link>
-        </p>
+        <h2 className="font-medium">Sample maps</h2>
+        <ul className="flex flex-col">
+          {SAMPLES.map((sample) => (
+            <li key={sample.name}>
+              <Link
+                to="/sample/$name"
+                params={{ name: sample.name }}
+                className={buttonVariants({
+                  variant: "link",
+                  className: "px-0 font-mono",
+                })}
+              >
+                {sample.repository}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </main>
   )

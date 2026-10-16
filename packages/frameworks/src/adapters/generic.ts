@@ -7,5 +7,11 @@ import type { Adapter } from "../adapter.ts"
 export const genericAdapter: Adapter = {
   taxonomy: undefined,
   recognises: () => true,
-  describe: () => ({ roles: new Map(), entryPoints: new Set(), routes: [] }),
+  // No framework, so no routes to recover.
+  describe: () => ({
+    roles: new Map(),
+    entryPoints: new Set(),
+    routes: [],
+    routesRecovered: true,
+  }),
 }

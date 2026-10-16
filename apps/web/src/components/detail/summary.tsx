@@ -4,6 +4,7 @@ import {
   mostDependedOn,
   startingPoints,
 } from "@workspace/graph"
+import type { MapInput } from "@workspace/graph"
 import { Badge } from "@workspace/ui/components/shadcn-ui/badge"
 import {
   SidebarGroup,
@@ -15,15 +16,34 @@ import { FactList } from "@/components/detail/fact-list"
 import type { Fact } from "@/components/detail/fact-list"
 import { FileList } from "@/components/detail/file-list"
 import type { FileRow } from "@/components/detail/file-list"
+import { Insights } from "@/components/detail/insights"
+import { RoutesTable } from "@/components/detail/routes-table"
 import { useMapData } from "@/components/map/map-data"
 
 /** The summary's first heading, where the focus goes when a selection is cleared. */
 export const SUMMARY_HEADING = "summary-heading"
 
 /**
+ * The routes fact, read as the routes section reads (spec 005 plan D-06): with
+ * no adapter no route could be found, so none, not 0 (004 edge cases); with
+ * none recovered from a framework that can't recover them, not 0 either.
+ */
+function routeCount({
+  frameworks,
+  routes,
+  routesNotRecovered,
+}: MapInput): string | number {
+  if (frameworks.length === 0) return "None found"
+  if (routes.length === 0 && routesNotRecovered.length > 0)
+    return "Not recovered"
+  return routes.length
+}
+
+/**
  * The repository's summary (spec 004, FR-001 to FR-005): the detail pane's
  * resting state, not a placeholder (C-01), rendered on the server so the
- * first paint already says what the repository is.
+ * first paint already says what the repository is; then its routes and,
+ * closed, its insights (spec 005).
  */
 export function Summary() {
   const { input } = useMapData()
@@ -49,11 +69,7 @@ export function Summary() {
     { term: "Files", value: input.files.length },
     { term: "Imports", value: input.imports.seen },
     { term: "Resolved", value: input.imports.resolved },
-    // With no adapter, no route could be found: none, not 0 (edge cases).
-    {
-      term: "Routes",
-      value: input.frameworks.length === 0 ? "None found" : input.routes,
-    },
+    { term: "Routes", value: routeCount(input) },
     { term: "Unidentified files", value: unidentified },
   ]
 
@@ -93,6 +109,9 @@ export function Summary() {
         limit={SUMMARY_LIST_LENGTH}
         empty="Every file is imported by another."
       />
+      <RoutesTable />
+      {/* Last, and closed: never the first thing shown (spec 005, C-04). */}
+      <Insights />
     </>
   )
 }

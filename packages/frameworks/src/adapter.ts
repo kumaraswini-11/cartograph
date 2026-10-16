@@ -20,6 +20,12 @@ export type Description = {
   /** The files its framework loads without an import (FR-006). */
   entryPoints: ReadonlySet<string>
   routes: ReadonlyArray<Route>
+  /**
+   * Whether every route was recovered exactly, none to recover included;
+   * false when a route it found gives none, because some piece of it can't
+   * be read from the code (spec 005, FR-012, plan D-02).
+   */
+  routesRecovered: boolean
 }
 
 /**

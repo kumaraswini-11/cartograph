@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
-  "description": "The map's arithmetic: folding, labels, box sizes, layout, selection, role counts, and blast radius and dependency chain, as pure functions (docs/specs/003-dependency-map, 004-detail-pane).",
+  "description": "The map's arithmetic: folding, labels, box sizes, layout, selection, role counts, blast radius and dependency chain, and insights, as pure functions (docs/specs/003 to 005).",
   "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
