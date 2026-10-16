@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { Link, createFileRoute } from "@tanstack/react-router"
+
+import { Button } from "@workspace/ui/components/shadcn-ui/button"
 
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 
@@ -15,6 +17,15 @@ function Home() {
         <p>
           A dependency map of any public TypeScript or JavaScript repository,
           drawn from the code itself.
+        </p>
+        <p>
+          <Button
+            variant="link"
+            className="px-0"
+            render={<Link to="/sample" />}
+          >
+            Open the sample map
+          </Button>
         </p>
       </div>
     </main>

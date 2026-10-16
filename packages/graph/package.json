@@ -1,0 +1,28 @@
+{
+  "name": "@workspace/graph",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "sideEffects": false,
+  "description": "The map's arithmetic: folding, labels, box sizes, layout, selection and role counts, as pure functions (docs/specs/003-dependency-map).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "catalog:",
+    "@workspace/parser": "workspace:*"
+  },
+  "devDependencies": {
+    "@tanstack/eslint-config": "catalog:",
+    "@types/node": "catalog:",
+    "@workspace/frameworks": "workspace:*",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

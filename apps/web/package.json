@@ -10,14 +10,19 @@
     "preview": "vite preview",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sample": "node scripts/sample.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
     "@tanstack/react-virtual": "catalog:",
+    "@workspace/frameworks": "workspace:*",
+    "@workspace/graph": "workspace:*",
+    "@workspace/parser": "workspace:*",
     "@workspace/ui": "workspace:*",
+    "@xyflow/react": "catalog:",
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
@@ -33,6 +38,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "@workspace/golden": "workspace:*",
     "eslint": "catalog:",
     "nitro": "catalog:",
     "typescript": "catalog:",
