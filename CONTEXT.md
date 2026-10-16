@@ -43,6 +43,12 @@ _Avoid_: analyser, scanner
 A JavaScript or TypeScript source file the parser read.
 _Avoid_: module, node
 
+**Package**:
+The repository itself, or a workspace package it contains: a folder with its
+own manifest. Each file belongs to the innermost package that holds it, and
+each package has its own framework, or none.
+_Avoid_: project, app, module
+
 **Folder**:
 A directory of the repository, holding files; the unit the map groups by.
 _Avoid_: directory, module, package
@@ -96,7 +102,8 @@ _Avoid_: completeness, health, score
 ### Frameworks
 
 **Framework**:
-The conventions a repository follows that an adapter recognises, or none.
+The conventions a package follows that an adapter recognises, or none. A
+repository whose packages follow different frameworks has several.
 _Avoid_: stack, platform
 
 **Adapter**:
@@ -116,7 +123,9 @@ unidentified.
 _Avoid_: level, group
 
 **Taxonomy**:
-A framework's roles, in the fixed order the rail shows them.
+A framework's roles, in the fixed order the rail shows them. An analysis
+whose packages follow several frameworks merges their taxonomies, tier by
+tier.
 _Avoid_: categories, classification
 
 **Route**:

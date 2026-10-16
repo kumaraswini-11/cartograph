@@ -173,6 +173,11 @@ Pinned on 2026-10-16. Every unresolved import is a named gap:
 
 - Roles, entry points and routes → `002`.
 - Fetching a repository onto disk → `008`.
+- Files whose code sits inside another file type (`.vue`, `.svelte`,
+  `.astro`): their `<script>` parts are TypeScript or JavaScript, but reading
+  them is a parser change of its own, decided by a future spec before any
+  adapter for those frameworks (`002`). Until then those files aren't on
+  the map.
 
 ## Open questions
 
