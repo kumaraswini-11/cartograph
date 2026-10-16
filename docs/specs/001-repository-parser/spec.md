@@ -1,6 +1,6 @@
 # 001 — Repository parser
 
-**Status:** Draft
+**Status:** Approved
 **Milestone:** M1 Engine
 **Depends on:** 000-platform-requirements
 
@@ -22,15 +22,16 @@ with its reason, never dropped and never guessed.
 - **FR-001** The parser shall take a path to a directory and read only that
   directory; it shall fetch nothing over the network.
 - **FR-002** The parser shall treat every JavaScript and TypeScript source file
-  in the directory as a file, except those under excluded paths (dependencies,
+  in the directory as a file, except those under excluded paths (installed packages,
   build output, version-control metadata), which it shall record as excluded.
-- **FR-003** If a file exceeds `MAX_FILE_BYTES`, then the parser shall record it
+- **FR-003** If a file exceeds `MAX_FILE_BYTES` = 1 MB, then the parser shall record it
   as a skipped file with the reason "too large" and not read it.
 - **FR-004** If a file can't be parsed, then the parser shall record it as a
   skipped file with the parse error as its reason.
 - **FR-005** If the directory holds more than `MAX_FILES` files, then the
   parser shall stop and report the repository as too large, naming the count;
-  it shall not parse a subset.
+  it shall not parse a subset. `MAX_FILES` depends on the platform: the most
+  files a run can fetch and parse within `MAX_RUN_SECONDS` (`000`).
 
 ### Files and folders
 
@@ -53,8 +54,9 @@ with its reason, never dropped and never guessed.
   excluded (a path deliberately not parsed) or unresolved.
 - **FR-012** The parser shall resolve relative paths, index files, file
   extensions, path aliases declared in the repository's own TypeScript or
-  JavaScript configuration, and packages the repository itself contains to
-  the files they point at.
+  JavaScript configuration, and packages the repository itself contains
+  (workspace packages) to the files they point at. A workspace package
+  resolves to its source files, even when its manifest points at build output.
 - **FR-013** When an import is unresolved, the parser shall record a reason for
   it.
 - **FR-014** If an import uses a non-literal argument (a dynamic import or a
@@ -76,7 +78,7 @@ with its reason, never dropped and never guessed.
 - **FR-018** The parser shall report files found, files parsed and files
   skipped, with a reason for every skipped file.
 - **FR-019** The parser shall report every import by resolution, with counts
-  per reason for unresolved imports and up to `COVERAGE_EXAMPLES` examples of
+  per reason for unresolved imports and up to `COVERAGE_EXAMPLES` = 20 examples of
   each reason (file, line and the import as written).
 - **FR-020** The parser shall report a coverage figure: resolved imports as a
   share of resolved plus unresolved imports. External and excluded imports are
@@ -124,6 +126,10 @@ with its reason, never dropped and never guessed.
   never followed.
 - An import of a file that exists but sits under an excluded path → excluded,
   not unresolved.
+- A workspace package whose manifest points at build output that isn't in the
+  directory → resolved to the source file that output is built from, when the
+  package's own configuration maps one to the other; otherwise unresolved,
+  with the reason "points at build output".
 
 ## Acceptance criteria
 
@@ -138,7 +144,7 @@ with its reason, never dropped and never guessed.
 | AC-07 | Given a CommonJS repository, when the parser runs, then it draws edges from `require()` calls and the coverage figure has a non-zero denominator                                     | FR-009, FR-020     | terminal    |
 | AC-08 | Given a directory with more than `MAX_FILES` files, when the parser runs, then it reports the repository as too large and parses nothing                                             | FR-005             | test        |
 | AC-09 | Given the parser's source, when it is searched for framework, interface, storage or network code, then none is found                                                                 | C-01, C-02, FR-001 | test        |
-| AC-10 | Given a directory holding dependencies and build output, when the parser runs, then their files are recorded as excluded, not parsed                                                 | FR-002             | test        |
+| AC-10 | Given a directory holding installed packages and build output, when the parser runs, then their files are recorded as excluded, not parsed                                           | FR-002             | test        |
 | AC-11 | Given a file over `MAX_FILE_BYTES` and a file with a syntax error, when the parser runs, then both are skipped, with "too large" and the parse error as reasons                      | FR-003, FR-004     | test        |
 | AC-12 | Given an import written inside a string and inside a comment, when the parser runs, then neither is recorded as an import                                                            | FR-008             | test        |
 | AC-13 | Given a type-only import, and a file imported both as a type and as a value, when the parser runs, then the first edge is type-only and the second isn't                             | FR-010, FR-016     | test        |
@@ -148,10 +154,20 @@ with its reason, never dropped and never guessed.
 
 ## Golden data
 
-| Input                                              | Expected                                                       |
-| -------------------------------------------------- | -------------------------------------------------------------- |
-| [NEEDS CLARIFICATION] barrel-file repository @ sha | Pinned counts: files, edges, re-exports found and resolved     |
-| [NEEDS CLARIFICATION] CommonJS repository @ sha    | Pinned counts: files, edges, `require()` imports by resolution |
+The counts are recorded by the first run that passes the hand checks in
+`tasks.md`, then pinned here.
+
+| Input                                                            | Why                                                                  | Expected                                                                                                                          |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `date-fns/date-fns` @ `717ce0a807ea4c6b540d015b5c408723175b2838` | Barrel files: 1,785 JS/TS files, 1,241 of them `index` files (AC-03) | 1,785 files, all parsed; 5,333 edges; 757 re-exports, all resolved; coverage 99.6% (5,344 of 5,367)                               |
+| `expressjs/express` @ `a419aa7350389a275ab45fde2e849ed1f02449ef` | CommonJS `require()` (AC-07)                                         | 141 files, all parsed; 153 edges; 403 `require()` calls: 159 resolved, 241 external, 3 not a literal; coverage 98.1% (159 of 162) |
+
+Pinned on 2026-10-16. Every unresolved import is a named gap:
+
+- date-fns, 23: 17 "points at build output" (examples importing the published
+  package, whose `exports` name its built layout), 4 "not found" (tests of a
+  `dist/` that exists only after a build), 2 "not a literal".
+- express, 3: "not a literal" (`require(mod)` and similar).
 
 ## Out of scope
 
@@ -160,11 +176,6 @@ with its reason, never dropped and never guessed.
 
 ## Open questions
 
-- [NEEDS CLARIFICATION] `MAX_FILES`: proposed 5,000.
-- [NEEDS CLARIFICATION] `MAX_FILE_BYTES`: proposed 1 MB, which catches bundled
-  and generated files.
-- [NEEDS CLARIFICATION] `COVERAGE_EXAMPLES`: proposed 20 per reason.
-- [NEEDS CLARIFICATION] Golden repositories and commits for the two rows above.
-- [NEEDS CLARIFICATION] Packages the repository contains: does an import of one
-  of them resolve to its source files (proposed) or its built
-  output?
+None. Resolved 2026-10-16: `MAX_FILE_BYTES` = 1 MB and `COVERAGE_EXAMPLES` = 20;
+`MAX_FILES` is set in the plan; the golden repositories above; workspace
+packages resolve to their source files.
