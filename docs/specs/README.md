@@ -99,26 +99,42 @@ first table.
 A team that prefers to start with sign-in and storage can run `006` and `007`
 first: they depend only on `000`.
 
+## One spec at a time
+
+Build only what the current spec asks for. Later specs are drafts written
+ahead to show where the product is going, not commitments: each is resolved
+again when its turn comes, with what the earlier specs taught, and changes if
+it needs to. Code is never written ahead for a spec that hasn't started.
+
+`000` is the one spec that looks ahead on purpose. It names the capabilities
+later specs need, so the platform chosen can provide them, and builds none of
+them.
+
 ## Working through a spec
 
 1. **Resolve.** Every open question in the spec is answered, and new terms go
    into `CONTEXT.md`.
 2. **Spec.** `spec.md` is reviewed and marked Approved.
-3. **Plan.** `plan.md` records how this repository builds it.
+3. **Plan.** `plan.md` records how this repository builds it, including the
+   value it gives each platform-dependent threshold.
 4. **Tasks.** `tasks.md` breaks the build into slices, each one working end to
    end on its own.
 5. **Build.** One task at a time, tests first, at the seams the plan agreed.
 6. **Accept.** Every acceptance criterion passes, each checked the way its
    row says.
 7. **Review and merge.** The work is reviewed, committed on its own branch
-   and merged.
+   and merged, and `tasks.md` is marked Done.
 
 ## Conventions
 
 - **Folders** are named `NNN-kebab-case-name`. Numbers are never reused or
   renumbered.
-- **Status** is one of Draft, Approved, In progress or Done, at the top of
-  each `spec.md`.
+- **A spec's status** is Draft or Approved, at the top of `spec.md`.
+  Approved means its product decisions are settled; it says nothing about
+  this repository's build, so the specs stay true for anyone who builds from
+  them.
+- **The build's status** is Not started, In progress or Done, at the top of
+  `tasks.md`, beside each task's own status.
 - **Requirements** are numbered `FR-NNN` and written in
   [EARS](https://alistairmavin.com/ears/) form: "The parser shall…", "When…,
   the parser shall…", "If…, then the parser shall…".
@@ -127,7 +143,11 @@ first: they depend only on `000`.
 - **Acceptance criteria** (`AC-NN`) are Given / When / Then, and each one names
   how it's verified: an automated test, a command and its numbers, or a person
   in a browser.
-- **Every threshold has a name and a value.** No "about" or "a few".
+- **Every threshold has a name and a value.** No "about" or "a few". A
+  threshold that defines the product (`FOLD_TARGET`) has its value in the
+  spec. One that depends on the platform (`MAX_RUN_SECONDS`) is named in the
+  spec with what it must cover, and each repository sets its value in its
+  `plan.md`, with the reason.
 - **No stack names in a `spec.md`.** Product names stay only where the product
   itself needs them: GitHub, TypeScript, JavaScript.
 

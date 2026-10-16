@@ -1,6 +1,7 @@
 # NNN — Title: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
+**Build status:** Not started <!-- Not started, In progress or Done -->
 
 <!--
 Each task is a thin slice that works end to end on its own and fits one working

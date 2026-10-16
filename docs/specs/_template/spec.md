@@ -1,6 +1,6 @@
 # NNN — Title
 
-**Status:** Draft
+**Status:** Draft <!-- Draft or Approved; the build status is in tasks.md -->
 **Milestone:** Mn Name
 **Depends on:** NNN-name, NNN-name (or "none")
 

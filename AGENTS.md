@@ -109,7 +109,7 @@ Run the same checks as CI, from the repository root:
 
 ```bash
 pnpm format:check
-pnpm turbo run lint typecheck build
+pnpm turbo run lint typecheck test build
 pnpm audit
 ```
 
