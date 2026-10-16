@@ -5,7 +5,7 @@
 
 ## T01 — The insights
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** FR-001 to FR-007, C-01 to C-03, AC-01, AC-02, AC-04, AC-08 to
 AC-10
@@ -15,9 +15,9 @@ AC-10
 
 **Done when:**
 
-- [ ] The four kinds are found and ordered as the spec says, cycles
+- [x] The four kinds are found and ordered as the spec says, cycles
       iteratively, and every sentence matches FR-006 word for word.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T02 — Routes in the map input, and three samples
 

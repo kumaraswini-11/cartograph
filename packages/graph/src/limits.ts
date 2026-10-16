@@ -1,4 +1,4 @@
-// The map's named values, one source for each (specs 003 and 004, plans).
+// The map's named values, one source for each (specs 003 to 005, plans).
 
 /** The lowest folding threshold: a folder of fewer files folds (FR-004). */
 export const FOLD_MIN_FILES = 2
@@ -17,6 +17,12 @@ export const SUMMARY_LIST_LENGTH = 10
 
 /** The levels of a blast radius or dependency chain listed open (`004` FR-016). */
 export const REACH_OPEN_LEVELS = 2
+
+/** A file imported by at least this many is heavily imported (`005` FR-003). */
+export const HEAVY_FAN_IN = 15
+
+/** A file of at least this many lines is oversized (`005` FR-004). */
+export const OVERSIZED_LINES = 500
 
 /**
  * One monospace character at the label's size, in pixels (plan D-04): labels

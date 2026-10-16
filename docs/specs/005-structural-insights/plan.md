@@ -79,14 +79,18 @@ type PackageRecord = {
   sentence without knowing anything about it. _Rejected:_ the interface
   recognising "Express" by name, which `002` C-05 forbids.
 - **D-03** Cycles: the runtime edges' strongly connected groups, found with
-  Tarjan's algorithm written iteratively (C-03), then for each group one
-  cycle, the shortest through the group's first-sorting file (a breadth-first
-  search inside the group), listed from that file. A file that imports
-  itself is a cycle of one. _Why:_ a group of several files can hold
-  exponentially many cycles (Johnson's algorithm lists them all, in
-  exponential time); one cycle per group names every place the edges loop,
-  each once, with a bounded cost. Its sentence names the files on that
-  cycle. _Rejected:_ listing every elementary cycle; listing a group's files
+  Tarjan's algorithm written iteratively (C-03); in each group, the
+  shortest cycle through its first-sorting file, then through the next file
+  on no cycle named yet, until every file of the group is on one (each a
+  breadth-first search inside the group). Each cycle is listed from its
+  first-sorting file and named once; a file that imports itself is a cycle
+  of one. _Why:_ a group can hold exponentially many cycles (Johnson's
+  algorithm lists them all, in exponential time), so listing them all can't
+  be bounded; this names every file that's on a cycle with at most one
+  search per file. One cycle per group was tried first and hid a file: in
+  the NestJS golden repository, `article.entity.ts` loops with both
+  `comment.entity.ts` and `user.entity.ts`, and only the first loop was
+  named. _Rejected:_ every elementary cycle; one per group; a group's files
   in sorted order, which isn't a path someone can walk.
 - **D-04** A sentence is data: `sentenceOf` returns its parts, and the pane
   draws text as text and files as buttons that select them. The test joins
