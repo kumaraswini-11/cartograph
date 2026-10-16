@@ -57,10 +57,10 @@ In this repository now:
   Tailwind CSS 4
 - TypeScript 6, ESLint 10 (`@tanstack/eslint-config`), Prettier
 - [pnpm](https://pnpm.io) workspaces and [Turborepo](https://turborepo.com)
+- [React Flow](https://reactflow.dev) and [dagre](https://github.com/dagrejs/dagre) for the map and its layout
 
 Planned, not yet installed:
 
-- [React Flow](https://reactflow.dev) and [dagre](https://github.com/dagrejs/dagre) for the map and its layout
 - [Clerk](https://clerk.com) for sign-in and organizations
 - [Supabase](https://supabase.com) Postgres, with row-level security
 - [LangSmith](https://www.langchain.com/langsmith) for tracing AI calls

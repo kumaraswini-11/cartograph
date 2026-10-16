@@ -2,7 +2,10 @@ import { Link, useRouter } from "@tanstack/react-router"
 import type { ErrorComponentProps } from "@tanstack/react-router"
 import { TriangleAlertIcon } from "lucide-react"
 import { EmptyState } from "@workspace/ui/components/empty-state"
-import { Button } from "@workspace/ui/components/shadcn-ui/button"
+import {
+  Button,
+  buttonVariants,
+} from "@workspace/ui/components/shadcn-ui/button"
 
 /**
  * A page that failed to load or render: the router's default error page.
@@ -25,9 +28,9 @@ export function RouteError({ error }: ErrorComponentProps) {
       >
         <div className="flex gap-2">
           <Button onClick={() => void router.invalidate()}>Try again</Button>
-          <Button variant="outline" render={<Link to="/" />}>
+          <Link to="/" className={buttonVariants({ variant: "outline" })}>
             Go home
-          </Button>
+          </Link>
         </div>
       </EmptyState>
     </main>

@@ -203,6 +203,11 @@ function Drawing({ input }: { input: MapInput }) {
           }),
           onClose: () => {
             focusTarget.current = placed.id
+            // A closed box has no rows: a file selected in it becomes the
+            // box, or nothing would be one edge away from the selection.
+            if (selection?.box === placed.id && selection.file !== undefined) {
+              actions.select({ box: placed.id })
+            }
             actions.toggleOpen(placed.id)
           },
           onSelectRow: (path: string) =>

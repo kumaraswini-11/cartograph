@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router"
 
-import { Button } from "@workspace/ui/components/shadcn-ui/button"
+import { buttonVariants } from "@workspace/ui/components/shadcn-ui/button"
 
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { SITE, seo, websiteJsonLd } from "@/lib/site"
@@ -27,13 +27,12 @@ function Home() {
           drawn from the code itself.
         </p>
         <p>
-          <Button
-            variant="link"
-            className="px-0"
-            render={<Link to="/sample" />}
+          <Link
+            to="/sample"
+            className={buttonVariants({ variant: "link", className: "px-0" })}
           >
             Open the sample map
-          </Button>
+          </Link>
         </p>
       </div>
     </main>
