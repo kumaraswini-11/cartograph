@@ -30,7 +30,7 @@ code. Nothing on the map is guessed.
 ## Layout
 
 A modular monolith in a monorepo: one deployable app, `apps/web` (TanStack
-Start), and packages under `packages/` (`ui` today). Code goes in the package
+Start), and packages under `packages/` (`ui` and `parser` today). Code goes in the package
 that owns it; a package uses another only by declaring it as a dependency and
 importing it by its package name, never by a relative path into it.
 

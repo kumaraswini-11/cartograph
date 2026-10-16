@@ -56,6 +56,9 @@ the request limit `MAX_RUN_SECONDS`.
       `"runtime": "nodejs24.x"`.
 - [x] Turborepo caches `.output/**` and `.vercel/output/**`; both are ignored by
       git, Prettier and ESLint.
+- [x] The function runs on its own: copied to an empty folder outside the
+      repository, it renders the home page (React kept external with
+      `traceDeps`; the first deployment returned 500 without it).
 
 ## T04 — The Vercel project (you)
 

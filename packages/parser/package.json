@@ -1,0 +1,29 @@
+{
+  "name": "@workspace/parser",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Parses a directory of JavaScript and TypeScript into files, edges and coverage (docs/specs/001-repository-parser).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "parse": "node src/cli.ts",
+    "golden": "node scripts/golden.ts",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "oxc-parser": "catalog:",
+    "oxc-resolver": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@tanstack/eslint-config": "catalog:",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

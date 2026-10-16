@@ -18,7 +18,15 @@ const config = defineConfig({
     tanstackStart({ router: { quoteStyle: "double" } }),
     // Builds the server for the host (docs/adr/0002): the vercel preset on
     // Vercel, a Node.js server elsewhere.
-    nitro({ vercel: { functions: { maxDuration: MAX_RUN_SECONDS } } }),
+    nitro({
+      // React stays external and is copied into the server output, so one
+      // copy serves everything. Bundled, React is duplicated: the CommonJS
+      // use-sync-external-store shim (from Base UI and TanStack Router) still
+      // calls require("react") at runtime, which fails on Vercel with
+      // "Cannot find module 'react'".
+      traceDeps: ["react", "react-dom"],
+      vercel: { functions: { maxDuration: MAX_RUN_SECONDS } },
+    }),
     viteReact(),
   ],
 })
