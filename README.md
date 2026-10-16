@@ -29,7 +29,7 @@ as boxes, imports as lines between them. Every box and every line comes from
 parsing the real code; nothing on the map is guessed.
 
 Cartograph is being built as a monorepo. This repository holds the web
-app, its UI package, the parser and framework detection so far.
+app, its UI package, the parser, framework detection and the map so far.
 
 ## Features (planned)
 
@@ -57,10 +57,10 @@ In this repository now:
   Tailwind CSS 4
 - TypeScript 6, ESLint 10 (`@tanstack/eslint-config`), Prettier
 - [pnpm](https://pnpm.io) workspaces and [Turborepo](https://turborepo.com)
+- [React Flow](https://reactflow.dev) and [dagre](https://github.com/dagrejs/dagre) for the map and its layout
 
 Planned, not yet installed:
 
-- [React Flow](https://reactflow.dev) and [dagre](https://github.com/dagrejs/dagre) for the map and its layout
 - [Clerk](https://clerk.com) for sign-in and organizations
 - [Supabase](https://supabase.com) Postgres, with row-level security
 - [LangSmith](https://www.langchain.com/langsmith) for tracing AI calls
@@ -78,6 +78,7 @@ packages/
   ui/           shared UI: shadcn components, the theme (globals.css), cn
   parser/       a directory on disk in; files, imports, edges and coverage out
   frameworks/   each package's framework, file roles, entry points and routes
+  graph/        the map's arithmetic: folding, labels, layout, selection
   golden/       dev-only: downloads the golden repositories the tests pin
 ```
 

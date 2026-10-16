@@ -47,6 +47,12 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
   --font-sans: "Inter Variable", sans-serif;
+  --color-map-selection: var(--map-selection);
+  --color-map-edge-into: var(--map-edge-into);
+  --color-map-edge-out-of: var(--map-edge-out-of);
+  --color-tier-surface: var(--tier-surface);
+  --color-tier-layer: var(--tier-layer);
+  --color-tier-plumbing: var(--tier-plumbing);
 }
 
 :root {
@@ -82,6 +88,15 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* The map (spec 003, FR-018): one hue per meaning, each at least 15 degrees
+     from the others and from destructive, in sRGB, and at least 3:1 against
+     the background (WCAG 1.4.11; measured 4.4 to 5.0). */
+  --map-selection: oklch(0.56 0.15 260);
+  --map-edge-into: oklch(0.56 0.139 150);
+  --map-edge-out-of: oklch(0.56 0.119 60);
+  --tier-surface: oklch(0.56 0.15 320);
+  --tier-layer: oklch(0.56 0.086 200);
+  --tier-plumbing: oklch(0.56 0.104 95);
 }
 
 .dark {
@@ -116,6 +131,14 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  /* Its own palette, not the light one inverted (C-05): 7.3 to 9.1 against
+     the background and the card. */
+  --map-selection: oklch(0.74 0.121 260);
+  --map-edge-into: oklch(0.74 0.14 150);
+  --map-edge-out-of: oklch(0.74 0.14 60);
+  --tier-surface: oklch(0.74 0.14 320);
+  --tier-layer: oklch(0.74 0.113 200);
+  --tier-plumbing: oklch(0.74 0.137 95);
 }
 
 @layer base {

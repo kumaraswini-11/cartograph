@@ -16,7 +16,9 @@ const run = (...args: Array<string>) =>
 let repository: Repository | undefined
 afterEach(() => repository?.remove())
 
-describe("detect <directory> [--out <file>]", () => {
+// Each case starts a Node.js process; under a busy machine (the full CI
+// gate runs every package at once) that outlasts the default 5 s.
+describe("detect <directory> [--out <file>]", { timeout: 30_000 }, () => {
   it("prints each package, the roles in order, and the routes", () => {
     repository = makeRepository({
       "package.json": manifest(["next"]),

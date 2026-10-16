@@ -6,6 +6,8 @@
   "description": "Parses a directory of JavaScript and TypeScript into files, edges and coverage (docs/specs/001-repository-parser).",
   "exports": {
     ".": "./src/index.ts",
+    "./cli": "./src/cli-args.ts",
+    "./paths": "./src/paths.ts",
     "./syntax": "./src/syntax.ts",
     "./testing": "./src/testing.ts"
   },

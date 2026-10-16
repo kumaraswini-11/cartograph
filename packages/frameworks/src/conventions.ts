@@ -1,5 +1,7 @@
 import { posix } from "node:path"
 
+import { fileName, folderOf } from "@workspace/parser/paths"
+
 import type { PackageInput } from "./adapter.ts"
 import { namedFiles } from "./manifest.ts"
 import { localPath } from "./packages.ts"
@@ -15,13 +17,23 @@ const EXTENSIONS = [
   ".cjs",
 ]
 
+/** A file's name without its last extension: `users.controller.ts` → `users.controller`. */
+export function stemOf(path: string): string {
+  const name = fileName(path)
+  const dot = name.lastIndexOf(".")
+  return dot <= 0 ? name : name.slice(0, dot)
+}
+
+/** A hook's file name: `useCart`, `use-cart`. */
+export const isHookName = (stem: string) => /^use[A-Z-]/.test(stem)
+
 /** Configuration files a tool finds by name: `vite.config.ts`, `.eslintrc.cjs`. */
-export const isConfigFile = (name: string) =>
+export const isToolConfig = (name: string) =>
   /\.config\.[cm]?[jt]sx?$/.test(name) || /^\.[\w-]+rc\.[cm]?js$/.test(name)
 
 /** Test files a runner finds by name, or by a `__tests__` folder. */
 export const isTestFile = (path: string) =>
-  /[.-](test|spec)\.[cm]?[jt]sx?$/.test(posix.basename(path)) ||
+  /[.-](test|spec)\.[cm]?[jt]sx?$/.test(fileName(path)) ||
   path.split("/").includes("__tests__")
 
 /** The source files a manifest-named path can mean: as written, or its source. */
@@ -62,7 +74,7 @@ export function commonEntryPoints(pkg: PackageInput): Set<string> {
   }
   for (const file of pkg.files) {
     const local = localPath(pkg, file)
-    if (isConfigFile(posix.basename(local)) || isTestFile(local)) {
+    if (isToolConfig(fileName(local)) || isTestFile(local)) {
       entryPoints.add(file)
     }
   }
@@ -77,7 +89,7 @@ export function roleFromFolders(
   local: string,
   roles: Readonly<Record<string, string>>
 ): string | undefined {
-  const folders = posix.dirname(local).split("/").reverse()
+  const folders = folderOf(local).split("/").reverse()
   for (const folder of folders) {
     const role = roles[folder]
     if (role) return role

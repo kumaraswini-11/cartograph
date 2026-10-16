@@ -1,8 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { Link, createFileRoute } from "@tanstack/react-router"
+
+import { buttonVariants } from "@workspace/ui/components/shadcn-ui/button"
 
 import { ThemeToggle } from "@/components/theme/theme-toggle"
+import { SITE, seo, websiteJsonLd } from "@/lib/site"
 
-export const Route = createFileRoute("/")({ component: Home })
+export const Route = createFileRoute("/")({
+  head: () => ({
+    ...seo({ title: SITE.title, description: SITE.description, path: "/" }),
+    // The site's name for Google, on the home page only.
+    scripts: [websiteJsonLd()],
+  }),
+  component: Home,
+})
 
 function Home() {
   return (
@@ -15,6 +25,14 @@ function Home() {
         <p>
           A dependency map of any public TypeScript or JavaScript repository,
           drawn from the code itself.
+        </p>
+        <p>
+          <Link
+            to="/sample"
+            className={buttonVariants({ variant: "link", className: "px-0" })}
+          >
+            Open the sample map
+          </Link>
         </p>
       </div>
     </main>

@@ -7,8 +7,20 @@ import { nitro } from "nitro/vite"
 
 import { MAX_RUN_SECONDS } from "./src/lib/platform.ts"
 
+// Production's address for share and search tags (src/lib/site.ts). Vercel sets
+// it on every build, previews included, "to reliably generate links that point
+// to production such as OG-image URLs" (Vercel: system environment variables).
+const productionDomain = process.env.VERCEL_PROJECT_PRODUCTION_URL
+
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
+  define: productionDomain
+    ? {
+        "import.meta.env.VITE_SITE_URL": JSON.stringify(
+          `https://${productionDomain}`
+        ),
+      }
+    : {},
   plugins: [
     devtools(),
     tailwindcss(),

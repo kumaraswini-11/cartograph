@@ -3,13 +3,12 @@
 // the controller's and method's paths (spec 002, FR-011, FR-014, FR-016).
 // See https://docs.nestjs.com/controllers, /faq/global-prefix and
 // /techniques/versioning.
-import { posix } from "node:path"
 
 import { Visitor } from "oxc-parser"
 import type { Program } from "oxc-parser"
 
 import type { Adapter, PackageInput } from "../../adapter.ts"
-import { isTestFile } from "../../conventions.ts"
+import { isTestFile, stemOf } from "../../conventions.ts"
 import { localPath } from "../../packages.ts"
 import type { HttpMethod, Route } from "../../result.ts"
 import {
@@ -390,8 +389,7 @@ export const nestjsAdapter: Adapter = {
     const settings = settingsOf(pkg)
 
     for (const path of pkg.files) {
-      const name = posix.basename(path)
-      const stem = name.slice(0, name.length - posix.extname(name).length)
+      const stem = stemOf(path)
       const suffix = stem.includes(".")
         ? stem.slice(stem.lastIndexOf(".") + 1)
         : ""

@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto"
 import { readFileSync } from "node:fs"
-import { posix } from "node:path"
 
 import { extractImports } from "./extract.ts"
 import type { ExtractedImport } from "./extract.ts"
 import { measureCoverage } from "./coverage.ts"
+import { folderOf } from "./paths.ts"
 import { buildEdges, fanCounts } from "./graph.ts"
 import { COVERAGE_EXAMPLES, MAX_FILES, MAX_FILE_BYTES } from "./limits.ts"
 import { SCHEMA_VERSION } from "./result.ts"
@@ -29,12 +29,6 @@ export function countLines(text: string): number {
   if (text === "") return 0
   const breaks = text.split("\n").length - 1
   return text.endsWith("\n") ? breaks : breaks + 1
-}
-
-/** The directory that holds `path`, relative; "" for the root (FR-007). */
-export function folderOf(path: string): string {
-  const folder = posix.dirname(path)
-  return folder === "." ? "" : folder
 }
 
 /**

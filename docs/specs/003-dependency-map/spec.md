@@ -1,6 +1,6 @@
 # 003 — Dependency map
 
-**Status:** Draft
+**Status:** Approved
 **Milestone:** M2 Explorer
 **Depends on:** 001-repository-parser, 002-framework-detection
 
@@ -29,8 +29,8 @@ columns and never move them.
 - **FR-003** The map shall start with one box per folder, then fold deepest
   first: a folder holding fewer than the threshold of files merges into its
   parent, each depth computed fresh from the result of the depth below.
-- **FR-004** The map shall start the threshold at `FOLD_MIN_FILES` and raise it
-  by one until the map holds at most `FOLD_TARGET` boxes, stopping at the
+- **FR-004** The map shall start the threshold at `FOLD_MIN_FILES` = 2 and raise
+  it by one until the map holds at most `FOLD_TARGET` = 24 boxes, stopping at the
   lowest threshold that does.
 
 ### Boxes and panels
@@ -42,7 +42,7 @@ columns and never move them.
 - **FR-007** When a box is chosen, the map shall open it into a panel: a
   bordered box whose header shows the folder's name, its file count, its fan-in
   and its fan-out, and whose files appear as rows.
-- **FR-008** If a panel holds more than `PANEL_ROW_LIMIT` files, then it shall
+- **FR-008** If a panel holds more than `PANEL_ROW_LIMIT` = 12 files, then it shall
   show `PANEL_ROW_LIMIT` rows and say how many more there are.
 - **FR-009** Edges shall connect to the rows of an open panel.
 - **FR-010** When a panel's header is chosen, the map shall close it back into
@@ -57,6 +57,9 @@ columns and never move them.
   and its neighbours at full strength and dim everything else.
 - **FR-014** Selecting, opening, closing and dimming shall happen in the
   browser with no network request.
+- **FR-023** Every action on the map and the rail (selecting a box or a row,
+  opening and closing a panel, choosing a role) shall work from the keyboard
+  alone, with the focus always visible (`012` FR-011).
 
 ### The rail
 
@@ -68,7 +71,8 @@ columns and never move them.
 
 ### Coverage
 
-- **FR-017** While the coverage figure is below `COVERAGE_PARTIAL_BELOW`, the
+- **FR-017** While the coverage figure (`001` FR-020) is below
+  `COVERAGE_PARTIAL_BELOW` = 95%, the
   map shall show a banner naming the figure; collapsed, the banner stays one
   line that still names it.
 
@@ -124,37 +128,36 @@ columns and never move them.
 
 ## Acceptance criteria
 
-| ID    | Given / When / Then                                                                                                                                            | Covers         | Verified by |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ----------- |
-| AC-01 | Given a repository with more folders than `FOLD_TARGET`, when the map is built, then it holds at most `FOLD_TARGET` boxes, at the lowest threshold that does   | FR-003, FR-004 | test        |
-| AC-02 | Given the same map, when its boxes are counted, then every box holds more than one file                                                                        | FR-003         | test        |
-| AC-03 | Given the same map, when its edges are checked, then every edge ends on a box or row that exists                                                               | FR-009         | test        |
-| AC-04 | Given the same data built twice, when the layouts are compared, then they're identical                                                                         | FR-012         | test        |
-| AC-05 | Given a closed box, when it's clicked, then it opens into rows with the count in its header, edges reconnect, and clicking the header closes it                | FR-007..FR-010 | browser     |
-| AC-06 | Given a map, when a panel opens, then the view only zooms out and the panel is in view                                                                         | FR-011         | browser     |
-| AC-07 | Given a selected file, when the network panel is watched while selecting, opening and filtering, then no request is made                                       | FR-014         | browser     |
-| AC-08 | Given a role chosen on the rail, when the panels' match counts are added up, then they equal the rail's count, and nothing has been removed                    | FR-016, FR-015 | browser     |
-| AC-09 | Given dark chosen while the system is light, when the page reloads, then it renders dark from the first paint                                                  | FR-021         | browser     |
-| AC-10 | Given a coverage figure below `COVERAGE_PARTIAL_BELOW`, when the map loads, then the banner names the figure, also when collapsed                              | FR-017         | browser     |
-| AC-11 | Given any window width, when the interface loads, then it shows the rail, the map and the detail pane as three columns, and the pane is never an overlay       | FR-001, FR-002 | browser     |
-| AC-12 | Given two boxes, when one has more dependents, then it's taller, and a box's width follows its label only                                                      | FR-005         | test        |
-| AC-13 | Given folders with the same last segment, when labels are made, then each is the shortest unique form of its path                                              | FR-006         | test        |
-| AC-14 | Given a selected file, when the map is read, then it, its edges and its neighbours are at full strength and everything else is dimmed                          | FR-013         | browser     |
-| AC-15 | Given the map, when its colours are checked, then edges in and out differ, each tier has its own colour, everything else is greyscale, and paths are monospace | FR-018, FR-019 | browser     |
-| AC-16 | Given the system set to reduce motion, when a panel opens, then nothing animates                                                                               | FR-020         | browser     |
-| AC-17 | Given a slow network and processor profile, when the map page loads, then the rail and the detail pane don't move as the map appears                           | FR-022, C-06   | browser     |
+| ID    | Given / When / Then                                                                                                                                              | Covers         | Verified by |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ----------- |
+| AC-01 | Given a repository with more folders than `FOLD_TARGET`, when the map is built, then it holds at most `FOLD_TARGET` boxes, at the lowest threshold that does     | FR-003, FR-004 | test        |
+| AC-02 | Given the same map, when its boxes are counted, then every box holds more than one file                                                                          | FR-003         | test        |
+| AC-03 | Given the same map, when its edges are checked, then every edge ends on a box or row that exists                                                                 | FR-009         | test        |
+| AC-04 | Given the same data built twice, when the layouts are compared, then they're identical                                                                           | FR-012         | test        |
+| AC-05 | Given a closed box, when it's clicked, then it opens into rows with the count in its header, edges reconnect, and clicking the header closes it                  | FR-007..FR-010 | browser     |
+| AC-06 | Given a map, when a panel opens, then the view only zooms out and the panel is in view                                                                           | FR-011         | browser     |
+| AC-07 | Given a selected file, when the network panel is watched while selecting, opening and filtering, then no request is made                                         | FR-014         | browser     |
+| AC-08 | Given a role chosen on the rail, when the panels' match counts are added up, then they equal the rail's count, and nothing has been removed                      | FR-016, FR-015 | browser     |
+| AC-09 | Given dark chosen while the system is light, when the page reloads, then it renders dark from the first paint                                                    | FR-021         | browser     |
+| AC-10 | Given a coverage figure below `COVERAGE_PARTIAL_BELOW`, when the map loads, then the banner names the figure, also when collapsed                                | FR-017         | browser     |
+| AC-11 | Given any window width, when the interface loads, then it shows the rail, the map and the detail pane as three columns, and the pane is never an overlay         | FR-001, FR-002 | browser     |
+| AC-12 | Given two boxes, when one has more dependents, then it's taller, and a box's width follows its label only                                                        | FR-005         | test        |
+| AC-13 | Given folders with the same last segment, when labels are made, then each is the shortest unique form of its path                                                | FR-006         | test        |
+| AC-14 | Given a selected file, when the map is read, then it, its edges and its neighbours are at full strength and everything else is dimmed                            | FR-013         | browser     |
+| AC-15 | Given the map, when its colours are checked, then edges in and out differ, each tier has its own colour, everything else is greyscale, and paths are monospace   | FR-018, FR-019 | browser     |
+| AC-16 | Given the system set to reduce motion, when a panel opens, then nothing animates                                                                                 | FR-020         | browser     |
+| AC-17 | Given a slow network and processor profile, when the map page loads, then the rail and the detail pane don't move as the map appears                             | FR-022, C-06   | browser     |
+| AC-18 | Given the keyboard alone, when a box is reached, opened, a row selected, the panel closed and a role chosen, then each works and the focus is visible throughout | FR-023         | browser     |
 
 ## Out of scope
 
 - What the detail pane shows → `004`.
-- Reading stored analyses rather than a parser result → `008`.
+- Reading stored analyses rather than a parser result → `008`. Until then the
+  map shows one fixed sample analysis, chosen in the plan.
 
 ## Open questions
 
-- [NEEDS CLARIFICATION] `FOLD_MIN_FILES` = 2 and `FOLD_TARGET` = 24 come from
-  the earlier phase spec; confirm.
-- [NEEDS CLARIFICATION] `PANEL_ROW_LIMIT`: proposed 12.
-- [NEEDS CLARIFICATION] `COVERAGE_PARTIAL_BELOW`: proposed 95%.
-- [NEEDS CLARIFICATION] FR-021 offers light and dark only, as now built.
-  `docs/project-doc.md` still asks for three states (follow the system, force
-  light, force dark). Update the project doc, or restore the third state?
+None. Resolved 2026-10-16: `FOLD_MIN_FILES` = 2, `FOLD_TARGET` = 24,
+`PANEL_ROW_LIMIT` = 12 and `COVERAGE_PARTIAL_BELOW` = 95%; light and dark
+only, a first visit following the system (FR-021), with the project doc
+changed to match; keyboard access added from `012` (FR-023).

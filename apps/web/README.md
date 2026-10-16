@@ -6,22 +6,28 @@ on the server, deployed to Vercel through Nitro.
 ## Why a separate package
 
 It's the only deployable part (spec 000, C-01). Everything else is a package
-it depends on by name (`@workspace/ui` today), so the parser, detection and
-the interface stay reusable and testable without it.
+it depends on by name (`@workspace/ui`, `@workspace/graph` and the parser's
+and detection's contracts), so they stay reusable and testable without it.
 
 ## Use
 
 From the repository root:
 
-| Command                  | What it does                              |
-| ------------------------ | ----------------------------------------- |
-| `pnpm dev`               | Starts the app at <http://localhost:3000> |
-| `pnpm build`             | Builds it for Vercel (`.vercel/output`)   |
-| `pnpm --filter web test` | Runs its tests (Vitest)                   |
+| Command                      | What it does                                     |
+| ---------------------------- | ------------------------------------------------ |
+| `pnpm dev`                   | Starts the app at <http://localhost:3000>        |
+| `pnpm build`                 | Builds it for Vercel (`.vercel/output`)          |
+| `pnpm --filter web test`     | Runs its tests (Vitest)                          |
+| `pnpm --filter web og-image` | Redraws the share image, `public/og.png`         |
+| `pnpm --filter web sample`   | Rewrites the sample map, `src/sample/map.gen.ts` |
 
 Configuration is checked at start: a required value that is missing, blank
-or invalid stops the app, naming each one (`src/lib/config.ts`). Server-only code lives in
-`*.server.ts` files.
+or invalid stops the app, naming each one (`src/lib/config.ts`). Server-only
+code lives in `*.server.ts` files; server functions in `*.functions.ts`.
+
+`/sample` shows the map of one fixed repository until spec 008 stores real
+analyses. Not-found, error and loading pages are set once, in
+`src/router.tsx`. Search and share tags come from `src/lib/site.ts`.
 
 ## Status
 
@@ -31,5 +37,6 @@ production.
 ## Docs
 
 [Spec 000](../../docs/specs/000-platform-requirements/spec.md) ·
+[Spec 003](../../docs/specs/003-dependency-map/spec.md) ·
 [ADR 0002: hosting on Vercel with Nitro](../../docs/adr/0002-hosting-on-vercel-with-nitro.md) ·
 [AGENTS.md: Rendering](../../AGENTS.md#rendering-tanstack-start)

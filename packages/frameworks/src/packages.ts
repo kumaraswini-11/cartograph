@@ -1,5 +1,7 @@
 import { existsSync } from "node:fs"
-import { join, posix } from "node:path"
+import { join } from "node:path"
+
+import { byPath, folderOf } from "@workspace/parser/paths"
 
 import { readManifest } from "./manifest.ts"
 import type { Manifest } from "./manifest.ts"
@@ -13,11 +15,6 @@ export type Package = {
 /** A file's path relative to its package. */
 export const localPath = (pkg: { path: string }, file: string) =>
   pkg.path === "" ? file : file.slice(pkg.path.length + 1)
-
-const folderOf = (path: string) => {
-  const folder = posix.dirname(path)
-  return folder === "." ? "" : folder
-}
 
 /**
  * The repository's packages (spec 002, FR-001; plan D-03): the repository
@@ -38,29 +35,27 @@ export function findPackages(
     return known
   }
 
-  const byPath = new Map<string, Package>()
+  const packages = new Map<string, Package>()
   for (const file of files) {
     let folder = folderOf(file)
     while (folder !== "" && !check(folder)) folder = folderOf(folder)
-    let pkg = byPath.get(folder)
+    let pkg = packages.get(folder)
     if (!pkg) {
       pkg = {
         path: folder,
         manifest: readManifest(join(directory, folder, "package.json")),
         files: [],
       }
-      byPath.set(folder, pkg)
+      packages.set(folder, pkg)
     }
     pkg.files.push(file)
   }
-  if (!byPath.has("")) {
-    byPath.set("", {
+  if (!packages.has("")) {
+    packages.set("", {
       path: "",
       manifest: readManifest(join(directory, "package.json")),
       files: [],
     })
   }
-  return [...byPath.values()].sort((a, b) =>
-    a.path < b.path ? -1 : a.path > b.path ? 1 : 0
-  )
+  return [...packages.values()].sort(byPath)
 }
