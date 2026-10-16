@@ -187,7 +187,9 @@ file, a heavily imported file, an oversized file. Never a score or a verdict.
 _Avoid_: issue, finding, warning, problem
 
 **Unimported file**:
-A file with no dependents that is not an entry point.
+A file with no dependents that is not an entry point and has a role: one its
+framework's conventions identify, so that nothing reaches it is a fact, not a
+limit of what the parser sees.
 _Avoid_: orphan, dead file, unused file
 
 ### Organizations
