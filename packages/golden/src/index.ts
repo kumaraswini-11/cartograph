@@ -11,7 +11,7 @@ import {
   writeFileSync,
 } from "node:fs"
 import { join } from "node:path"
-import { exit, stdout } from "node:process"
+import process, { stdout } from "node:process"
 
 /** Counts by name, as a spec's golden data pins them. */
 export type Counts = Record<string, number | string>
@@ -45,7 +45,9 @@ export async function runGolden<TGolden extends GoldenRepository>(
     const heading = `${golden.repository} @ ${golden.commit.slice(0, 7)} (${done} in ${report.seconds.toFixed(1)} s)`
     stdout.write(`${[heading, ...report.lines].join("\n")}\n\n`)
   }
-  if (drift) exit(1)
+  // The status, not exit(): the drift report still on its way to a pipe is
+  // written in full before the process ends (Node.js: process.exit).
+  if (drift) process.exitCode = 1
 }
 
 /** `step`'s value, and how long it took in seconds. */
