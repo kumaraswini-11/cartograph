@@ -20,8 +20,37 @@ repository builds each one is recorded separately, next to the spec.
 | `docs/adr/`                    | Decisions that are hard to reverse, with the trade-off behind each                   | Yes                              |
 | `AGENTS.md`                    | How to work in this repository                                                       | Yes                              |
 
-To build Cartograph your own way, take the project doc, the glossary and the
-`spec.md` files, and write your own plans and tasks.
+## Where to start
+
+- **To build Cartograph your own way:** read `docs/project-doc.md`, then
+  `CONTEXT.md`, then the `spec.md` files in the order below, and write your own
+  plans and tasks. You never need this repository's plans, tasks or decision
+  records.
+- **To work on this repository:** read the README, then `AGENTS.md`, then the
+  `spec.md`, `plan.md` and `tasks.md` of the spec you're working on.
+
+`plan.md` and `tasks.md` are written when a spec's build starts, and a
+decision record when a hard-to-reverse choice is made, so the documents grow
+with the build rather than all existing up front.
+
+## Choosing a stack
+
+The specs ask for capabilities (`000-platform-requirements`), not products.
+Any stack that provides them can build Cartograph:
+
+- **Layout:** one package, or a monorepo of several. Either way it ships as one
+  deployable application (`000` C-01), and the parser must run standalone,
+  with no framework, interface or storage (`001` C-01).
+- **Interface:** any UI framework that renders on the server and draws the map
+  in the browser.
+- **Services:** any storage, identity, AI and tracing services that provide the
+  capabilities in `000`.
+
+This repository is a modular monolith in a monorepo: one deployable app in
+`apps/web`, with its code split into packages under `packages/`. It's built
+with TanStack Start, shadcn/ui on Base UI, Tailwind CSS, TypeScript, pnpm and
+Turborepo. The choices, the reasons and the alternatives are in
+[`docs/adr/0001-stack-and-repository-layout.md`](../adr/0001-stack-and-repository-layout.md).
 
 ## The specs
 
