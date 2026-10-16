@@ -43,6 +43,7 @@
     "@workspace/golden": "workspace:*",
     "eslint": "catalog:",
     "nitro": "catalog:",
+    "std-env": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

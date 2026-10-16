@@ -4,6 +4,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import viteReact from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
 import { nitro } from "nitro/vite"
+import { provider } from "std-env"
 
 import { MAX_RUN_SECONDS } from "./src/lib/platform.ts"
 
@@ -11,6 +12,15 @@ import { MAX_RUN_SECONDS } from "./src/lib/platform.ts"
 // it on every build, previews included, "to reliably generate links that point
 // to production such as OG-image URLs" (Vercel: system environment variables).
 const productionDomain = process.env.VERCEL_PROJECT_PRODUCTION_URL
+
+// A Vercel build is published, so it must not fall back to localhost: stop
+// it instead. Vercel is detected as Nitro detects it (std-env), so this holds
+// whenever the build is for Vercel. Local and CI builds keep the fallback.
+if (provider === "vercel" && !productionDomain) {
+  throw new Error(
+    "VERCEL_PROJECT_PRODUCTION_URL is missing: enable access to System Environment Variables in the Vercel project's settings."
+  )
+}
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },

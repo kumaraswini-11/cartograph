@@ -147,7 +147,9 @@ type Box = {
   config; TanStack Router keeps the deepest route's copy of each tag.
   Addresses are absolute, from `VERCEL_PROJECT_PRODUCTION_URL`, which Vercel
   sets on every build, previews included, and which `turbo.json` declares
-  so Strict Mode passes it to the build. The 1200 × 630 share image is drawn
+  so Strict Mode passes it to the build. A build for Vercel without it
+  stops rather than publish links to localhost; Vercel is detected as Nitro
+  detects it (`std-env`). The 1200 × 630 share image is drawn
   by `scripts/og-image.ts` and committed. Titles put the page first and
   the site's name after it, the home page the brand line (Google: title
   links). `twitter:url` isn't one of X's card tags; it carries the page's
