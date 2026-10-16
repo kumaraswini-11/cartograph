@@ -62,10 +62,22 @@ None.
   Vercel, or with `NITRO_PRESET=vercel`, it writes `.vercel/output/` with one
   function, `__server.func`, whose `.vc-config.json` holds
   `"maxDuration": 300` and `"runtime": "nodejs24.x"`.
+- **React must stay external** (`traceDeps: ["react", "react-dom"]` in
+  `nitro()`). Nitro bundles almost every dependency in production, but the
+  CommonJS `use-sync-external-store` shim, which Base UI and TanStack Router
+  use, still calls `require("react")` at runtime. Bundled, React wasn't in the
+  function, so the first deployment answered every page with a 500
+  (`Cannot find module 'react'`); a dependency listed in `traceDeps` is kept
+  external and copied into the function, so the bundle and the shim share one
+  React. Test the function from a folder outside the repository, or
+  `node_modules` hides a missing dependency.
 - **pnpm 11 on Vercel.** Vercel installs pnpm 6 to 10 on its own. It uses
   `packageManager` (`pnpm@11.25.0`) only through Corepack: set
   `ENABLE_EXPERIMENTAL_COREPACK=1` in the Vercel project's environment
-  variables.
+  variables, for every environment, previews included. `turbo.json` lists it
+  in `globalPassThroughEnv`: it changes the install, not the build output, so
+  it's declared without entering the cache key, which also silences
+  Turborepo's warning about Vercel variables it doesn't know.
 - **Node.js 24** comes from `engines` (`24.x`) on Vercel and from
   `.node-version` in CI.
 - **Monorepo on Vercel.** Root Directory `apps/web`; Vercel runs
