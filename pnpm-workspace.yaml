@@ -6,7 +6,6 @@ allowBuilds:
   esbuild: true
   lightningcss: true
   unrs-resolver: true
-  msw: false
 
 # Security floors for transitive dependencies, scoped to the vulnerable range.
 # Remove an entry once its parent package requires the fixed version itself.
