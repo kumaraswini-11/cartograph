@@ -69,7 +69,8 @@ importing it by its package name, never by a relative path into it.
   ones in `packages/ui/src/components`, beside `shadcn-ui`; ones a single
   feature uses in `apps/web/src/components/<feature>/`. Keep it thin: a few
   props, and `children` or slots for the cases it doesn't cover. Don't wrap a
-  component only to rename it.
+  component only to rename it. Follow the `vercel-composition-patterns` skill:
+  compound components and explicit variants rather than boolean props.
 - Components present data they're given; data comes from route loaders and
   server functions, never from inside a presentational component.
 - Use semantic tokens (`bg-background`, `text-muted-foreground`), never raw
@@ -99,7 +100,8 @@ importing it by its package name, never by a relative path into it.
   load fonts so text doesn't jump.
 - For interface work, use the installed skills: `better-accessibility`,
   `better-layout`, `better-typography`, `better-ui`, `emil-design-eng`, and
-  `interface-review` before a change is done.
+  `interface-review` before a change is done; for speed, `core-web-vitals` and
+  `performance`.
 
 ## Before saying a change is done
 
