@@ -157,6 +157,21 @@ type Box = {
   links). `twitter:url` isn't one of X's card tags; it carries the page's
   address anyway, since link checkers ask for it. The home description stays
   within three lines on mobile (at most 120 characters).
+- **D-13** Dimming keeps text readable (WCAG 2.2 AA), from the interface
+  review of 2026-10-17. Measured on the theme's tokens: 25% opacity left
+  dimmed labels at 1.8:1 (light) and 2.2:1 (dark), under 1.4.3's 4.5:1, and
+  plain edges at 60% at 2.3:1, under 1.4.11's 3:1. Dimmed boxes and rows
+  now take the muted text colour (4.7:1 light, 6.9:1 dark) and only the
+  decorative tier dot fades; plain edges are drawn at full opacity (4.7:1,
+  7.6:1). Edges a selection leaves out are drawn at 15%: while a selection
+  stands, its own edges carry the information, in their own colours at full
+  strength, and clearing it (Escape, or the pane's button) brings every edge
+  back; text is never dimmed that way. A selection is marked
+  `aria-current`, not `aria-pressed` (it isn't a toggle). What is strong
+  is decided by `isBoxStrong` and `isRowStrong` in `@workspace/graph`; a
+  panel's counts are worded once (`panelCounts`, `matchCount`, with
+  plurals) for the panel and for the room the layout keeps; the label size
+  is one token, `--text-path`, beside `CHAR_WIDTH`.
 
 ## Layout values
 

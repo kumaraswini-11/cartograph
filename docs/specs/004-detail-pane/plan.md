@@ -51,10 +51,14 @@ type Levels = Array<Array<string>> // levels[0] is one edge away
 ## Decisions
 
 - **D-01** The pane's parts live in `apps/web/src/components/detail/`, a
-  feature of their own (AGENTS.md: compositions a single feature uses), and
-  the pane takes the map input as a prop from the shell, so its parts present
-  data they're given. The selection and the open boxes stay in `003`'s map
-  state.
+  feature of their own (AGENTS.md: compositions a single feature uses). The
+  map input comes from the route's loader into one provider in the shell,
+  `MapDataProvider`, with what's derived from it (boxes, edge index, each
+  role's tier) built once, on first use; the pane, its parts and the map
+  read it there rather than through props three levels deep. The selection,
+  open boxes and role stay in `003`'s map state, whose actions are a
+  context of their own, so a component that only acts (a pane row) never
+  re-renders when the state changes.
 - **D-02** One walk (C-03): `walk` takes the edge index, a start, a direction
   and an optional depth; blast radius is `"dependents"`, dependency chain
   `"dependencies"`. Breadth first, so each file's level is its shortest
@@ -118,8 +122,8 @@ type Levels = Array<Array<string>> // levels[0] is one edge away
 - **D-11** A selection's header gives its name and where it is (a file's
   folder, a box's full path when its label is shorter), and a "Clear
   selection" button, so the pane leads back to the summary (FR-006) without
-  reaching for the map; the focus then moves to the pane's heading rather
-  than falling to the page. A role's tier dot, now on the rail, the map and
+  reaching for the map; the focus then moves to the summary's first heading,
+  a visible one, rather than falling to the page (WCAG 2.4.3, 2.4.7). A role's tier dot, now on the rail, the map and
   the pane, is one `TierSwatch` (the rule of three).
 
 ## Layout values

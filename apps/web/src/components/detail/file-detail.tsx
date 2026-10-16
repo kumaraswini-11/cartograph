@@ -14,11 +14,9 @@ import { TierSwatch } from "@/components/map/tier"
  * count is its list's length (C-02): both come from the same edges (AC-03).
  */
 export function FileDetail({ path }: { path: string }) {
-  const { input, index } = useMapData()
+  const { input, index, tierOf } = useMapData()
   const file = input.files.find((f) => f.path === path)
   if (!file) return null
-  const tier =
-    input.taxonomy.find((t) => t.role === file.role)?.tier ?? "unidentified"
   const dependencies = (index.dependencies.get(path) ?? []).map((p) => ({
     path: p,
   }))
@@ -35,7 +33,7 @@ export function FileDetail({ path }: { path: string }) {
               {
                 term: "Role",
                 value: file.role,
-                media: <TierSwatch tier={tier} />,
+                media: <TierSwatch tier={tierOf(file.role)} />,
               },
               { term: "Entry point", value: file.entryPoint ? "Yes" : "No" },
               { term: "Lines", value: file.lines },

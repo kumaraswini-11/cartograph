@@ -16,7 +16,11 @@ const MapDrawing = lazy(() => import("@/components/map/map-drawing"))
 export function MapView() {
   const { input } = useMapData()
   const placeholder = (
-    <Skeleton className="size-full rounded-none" aria-label="Loading the map" />
+    <Skeleton
+      role="status"
+      aria-label="Loading the map"
+      className="size-full rounded-none motion-reduce:animate-none"
+    />
   )
   if (input.files.length === 0) {
     return (

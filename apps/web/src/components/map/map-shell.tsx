@@ -5,8 +5,8 @@ import {
   SidebarProvider,
 } from "@workspace/ui/components/shadcn-ui/sidebar"
 
-import { CoverageBanner } from "@/components/map/coverage-banner"
 import { DetailPane } from "@/components/detail/detail-pane"
+import { CoverageBanner } from "@/components/map/coverage-banner"
 import { MapDataProvider } from "@/components/map/map-data"
 import { MapStateProvider } from "@/components/map/map-state"
 import { MapView } from "@/components/map/map-view"

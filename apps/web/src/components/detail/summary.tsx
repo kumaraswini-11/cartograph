@@ -17,6 +17,9 @@ import { FileList } from "@/components/detail/file-list"
 import type { FileRow } from "@/components/detail/file-list"
 import { useMapData } from "@/components/map/map-data"
 
+/** The summary's first heading, where the focus goes when a selection is cleared. */
+export const SUMMARY_HEADING = "summary-heading"
+
 /**
  * The repository's summary (spec 004, FR-001 to FR-005): the detail pane's
  * resting state, not a placeholder (C-01), rendered on the server so the
@@ -57,9 +60,11 @@ export function Summary() {
   return (
     <>
       <SidebarGroup>
-        <SidebarGroupLabel render={<h3 />}>Repository</SidebarGroupLabel>
+        <SidebarGroupLabel id={SUMMARY_HEADING} render={<h3 />} tabIndex={-1}>
+          Repository
+        </SidebarGroupLabel>
         <SidebarGroupContent className="flex flex-col gap-3 px-2">
-          <p className="font-mono text-[13px] break-all">{input.repository}</p>
+          <p className="font-mono text-path break-all">{input.repository}</p>
           <div className="flex flex-wrap gap-1">
             {input.frameworks.length === 0 ? (
               <span className="text-sm text-muted-foreground">

@@ -15,10 +15,9 @@ import { TierSwatch } from "@/components/map/tier"
  * to the box's files (C-02).
  */
 export function BoxDetail({ id }: { id: string }) {
-  const { input, boxMap } = useMapData()
-  const box = boxMap.boxes.find((b) => b.id === id)
+  const { input, boxMap, tierOf } = useMapData()
+  const box = boxMap.byId.get(id)
   if (!box) return null
-  const tierOf = new Map(input.taxonomy.map((t) => [t.role, t.tier]))
 
   return (
     <>
@@ -35,7 +34,7 @@ export function BoxDetail({ id }: { id: string }) {
               ({ role, files }) => ({
                 term: role,
                 value: files,
-                media: <TierSwatch tier={tierOf.get(role) ?? "unidentified"} />,
+                media: <TierSwatch tier={tierOf(role)} />,
               })
             )}
           />

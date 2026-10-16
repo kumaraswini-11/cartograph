@@ -1,11 +1,12 @@
 import { createContext, use, useMemo } from "react"
 import { buildBoxes, edgeIndex } from "@workspace/graph"
 import type { BoxMap, EdgeIndex, MapInput } from "@workspace/graph"
+import type { Tier } from "@workspace/frameworks/taxonomy"
 
 /**
- * The map's data (spec 004, plan): the loader's map input, its boxes and its
- * edge index, shared by the map and the detail pane. The boxes and the index
- * are built on first use, once per input: the server renders the summary,
+ * The map's data (spec 004, plan): the loader's map input, its boxes, its
+ * edge index and each role's tier, shared by the map and the detail pane.
+ * The derived parts are built on first use, once per input: the server renders the summary,
  * which needs neither, so it never pays for them. The data never changes
  * while the page is open, so reading it re-renders nothing; what changes
  * (selection, open boxes, role) is the map state's.
@@ -14,6 +15,8 @@ type MapData = {
   input: MapInput
   boxMap: BoxMap
   index: EdgeIndex
+  /** Each role's tier, from the taxonomy; a role not in it is Unidentified. */
+  tierOf: (role: string) => Tier
 }
 
 const MapDataContext = createContext<MapData | undefined>(undefined)
@@ -28,6 +31,7 @@ export function MapDataProvider({
   const value = useMemo<MapData>(() => {
     let boxMap: BoxMap | undefined
     let index: EdgeIndex | undefined
+    let tiers: Map<string, Tier> | undefined
     return {
       input,
       get boxMap() {
@@ -35,6 +39,10 @@ export function MapDataProvider({
       },
       get index() {
         return (index ??= edgeIndex(input.edges))
+      },
+      tierOf(role) {
+        tiers ??= new Map(input.taxonomy.map((t) => [t.role, t.tier]))
+        return tiers.get(role) ?? "unidentified"
       },
     }
   }, [input])

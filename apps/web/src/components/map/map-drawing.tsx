@@ -7,6 +7,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   useSyncExternalStore,
 } from "react"
 import {
@@ -18,7 +19,14 @@ import {
 } from "@xyflow/react"
 import type { Edge } from "@xyflow/react"
 import { MaximizeIcon, MinusIcon, PlusIcon } from "lucide-react"
-import { fullStrength, layoutMap, roleCounts } from "@workspace/graph"
+import {
+  fullStrength,
+  isBoxStrong,
+  isRowStrong,
+  layoutMap,
+  panelCounts,
+  roleCounts,
+} from "@workspace/graph"
 import { fileName } from "@workspace/parser/paths"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
 import { ButtonGroup } from "@workspace/ui/components/shadcn-ui/button-group"
@@ -30,6 +38,17 @@ import type { BoxElement, PanelElement } from "@/components/map/map-boxes"
 
 const ELEMENT_TYPES = { box: BoxView, panel: PanelView }
 const ANIMATION_MS = 200
+/** Room around what a fit shows, as a share of the view. */
+const FIT_PADDING = 0.1
+
+/**
+ * An edge's opacity: full with nothing selected, where a grey edge keeps 3:1
+ * against the page (WCAG 1.4.11: 4.7:1 light, 7.6:1 dark); low when a
+ * selection leaves it out. Those are background then: the selection's own
+ * edges carry the information, in their own colours at full strength, and
+ * clearing the selection brings every edge back (spec 003 plan D-13).
+ */
+const EDGE_OPACITY = { plain: 1, dimmed: 0.15 }
 
 /** Whether the system asks for reduced motion (FR-020). */
 function useReducedMotion(): boolean {
@@ -45,7 +64,7 @@ function useReducedMotion(): boolean {
 }
 
 function Drawing() {
-  const { input, boxMap } = useMapData()
+  const { input, boxMap, tierOf } = useMapData()
   const { state, actions } = useMapState()
   const { selection, role, open } = state
   const flow = useReactFlow()
@@ -69,15 +88,15 @@ function Drawing() {
     () => new Map(input.files.map((f) => [f.path, f.role])),
     [input.files]
   )
-  const tierOf = useMemo(
-    () => new Map(input.taxonomy.map((t) => [t.role, t.tier])),
-    [input.taxonomy]
+  const placedById = useMemo(
+    () => new Map(layout.boxes.map((placed) => [placed.id, placed])),
+    [layout.boxes]
   )
 
   /** Whether a box or panel is fully on screen. */
   const inView = useCallback(
     (id: string) => {
-      const placed = layout.boxes.find((b) => b.id === id)
+      const placed = placedById.get(id)
       const bounds = wrapper.current?.getBoundingClientRect()
       if (!placed || !bounds) return true
       const { x, y, zoom } = flow.getViewport()
@@ -90,15 +109,15 @@ function Drawing() {
         top + placed.height * zoom <= bounds.height
       )
     },
-    [flow, layout.boxes]
+    [flow, placedById]
   )
+
+  // A box and its panel are different elements: whichever replaces the one
+  // that had the focus takes it, so the keyboard keeps its place (FR-023).
+  const [focusTarget, setFocusTarget] = useState<string | null>(null)
 
   // Opening a panel refits so it's visible, only ever zooming out (FR-011,
   // C-03): read after the new layout is drawn, never before.
-  // A box and its panel are different elements: whichever replaces the one
-  // that had the focus takes it, so the keyboard keeps its place (FR-023).
-  const focusTarget = useRef<string | null>(null)
-
   const opened = useRef<ReadonlySet<string>>(open)
   useEffect(() => {
     const added = [...open].filter((id) => !opened.current.has(id))
@@ -110,7 +129,7 @@ function Drawing() {
       void flow.fitView({
         nodes: [{ id }],
         maxZoom: flow.getZoom(),
-        padding: 0.1,
+        padding: FIT_PADDING,
         duration,
       })
     })
@@ -121,7 +140,7 @@ function Drawing() {
   const bringIntoView = useCallback(
     (id: string) => {
       if (inView(id)) return
-      const placed = layout.boxes.find((b) => b.id === id)
+      const placed = placedById.get(id)
       if (!placed) return
       void flow.setCenter(
         placed.x + placed.width / 2,
@@ -132,17 +151,14 @@ function Drawing() {
         }
       )
     },
-    [flow, inView, layout.boxes, duration]
+    [flow, inView, placedById, duration]
   )
 
   const elements = useMemo(() => {
-    const boxStrong = (id: string) =>
-      (strength === null || strength.kept.has(id)) &&
-      (matches === null || (matches.get(id) ?? 0) > 0)
     // Tab order follows the picture: columns left to right, then top down.
     const ordered = [...layout.boxes].sort((a, b) => a.x - b.x || a.y - b.y)
     return ordered.map((placed): BoxElement | PanelElement => {
-      const box = boxMap.boxes.find((b) => b.id === placed.id)
+      const box = boxMap.byId.get(placed.id)
       const label = box?.label ?? placed.id
       const files = box?.files.length ?? 0
       const common = {
@@ -160,11 +176,11 @@ function Drawing() {
       const base = {
         label,
         files,
-        strong: boxStrong(placed.id),
+        strong: isBoxStrong(placed.id, strength, matches),
         selected,
-        focusOnMount: focusTarget.current === placed.id,
+        focusOnMount: focusTarget === placed.id,
         onOpen: () => {
-          focusTarget.current = placed.id
+          setFocusTarget(placed.id)
           actions.select({ box: placed.id })
           if (!open.has(placed.id)) actions.toggleOpen(placed.id)
         },
@@ -176,28 +192,28 @@ function Drawing() {
         type: "panel",
         data: {
           ...base,
-          // Inside an open panel, its rows carry the strength.
-          strong: strength === null || strength.kept.has(placed.id),
-          fanIn: box?.fanIn ?? 0,
-          fanOut: box?.fanOut ?? 0,
+          // Inside an open panel, its rows carry the role's strength.
+          strong: isBoxStrong(placed.id, strength, null),
+          counts: box ? panelCounts(box) : [],
           more: placed.more,
           matches: matches === null ? null : (matches.get(placed.id) ?? 0),
           rows: placed.rows.map((path) => {
             const fileRoleName = fileRole.get(path) ?? ""
-            const inSelection =
-              strength === null ||
-              strength.kept.has(`${placed.id}\0${path}`) ||
-              (selection?.box === placed.id && selection.file === undefined)
             return {
               path,
               name: fileName(path),
-              tier: tierOf.get(fileRoleName) ?? "unidentified",
-              strong: inSelection && (role === null || fileRoleName === role),
+              tier: tierOf(fileRoleName),
+              strong: isRowStrong(
+                { box: placed.id, file: path, role: fileRoleName },
+                strength,
+                selection,
+                role
+              ),
               selected: selection?.file === path,
             }
           }),
           onClose: () => {
-            focusTarget.current = placed.id
+            setFocusTarget(placed.id)
             // A closed box has no rows: a file selected in it becomes the
             // box, or nothing would be one edge away from the selection.
             if (selection?.box === placed.id && selection.file !== undefined) {
@@ -222,6 +238,7 @@ function Drawing() {
     fileRole,
     tierOf,
     role,
+    focusTarget,
   ])
 
   const edges = useMemo(
@@ -253,7 +270,10 @@ function Drawing() {
             stroke: color,
             strokeWidth: into || outOf ? 2 : 1,
             strokeDasharray: edge.typeOnly ? "4 3" : undefined,
-            opacity: strength === null ? 0.6 : into || outOf ? 1 : 0.12,
+            opacity:
+              strength === null || into || outOf
+                ? EDGE_OPACITY.plain
+                : EDGE_OPACITY.dimmed,
           },
         }
       }),
@@ -280,7 +300,7 @@ function Drawing() {
         edges={edges}
         nodeTypes={ELEMENT_TYPES}
         fitView
-        fitViewOptions={{ padding: 0.1, maxZoom: 1 }}
+        fitViewOptions={{ padding: FIT_PADDING, maxZoom: 1 }}
         minZoom={0.1}
         nodesDraggable={false}
         nodesConnectable={false}
@@ -314,7 +334,9 @@ function Drawing() {
               variant="outline"
               size="icon-sm"
               aria-label="Fit the map"
-              onClick={() => void flow.fitView({ padding: 0.1, duration })}
+              onClick={() =>
+                void flow.fitView({ padding: FIT_PADDING, duration })
+              }
             >
               <MaximizeIcon />
             </Button>

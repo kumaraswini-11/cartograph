@@ -21,6 +21,40 @@ const isSelected = (end: EdgeEnd, selection: Selection) =>
   (selection.file === undefined || end.row === selection.file)
 
 /**
+ * Whether a box stays at full strength (FR-013, FR-016): kept by the
+ * selection, if any, and holding a file in the role chosen on the rail, if
+ * any (`matches`, from `roleCounts`).
+ */
+export function isBoxStrong(
+  box: string,
+  strength: FullStrength | null,
+  matches: ReadonlyMap<string, number> | null
+): boolean {
+  return (
+    (strength === null || strength.kept.has(box)) &&
+    (matches === null || (matches.get(box) ?? 0) > 0)
+  )
+}
+
+/**
+ * Whether an open panel's row stays at full strength (FR-013, FR-016): kept
+ * by the selection (a selected box keeps all its rows), and in the role
+ * chosen on the rail.
+ */
+export function isRowStrong(
+  row: { box: string; file: string; role: string },
+  strength: FullStrength | null,
+  selection: Selection | null,
+  chosenRole: string | null
+): boolean {
+  const inSelection =
+    strength === null ||
+    strength.kept.has(edgeEndKey({ box: row.box, row: row.file })) ||
+    (selection?.box === row.box && selection.file === undefined)
+  return inSelection && (chosenRole === null || row.role === chosenRole)
+}
+
+/**
  * The selection, its edges and its neighbours (FR-013): everything one edge
  * away, in either direction. Everything else is dimmed.
  */

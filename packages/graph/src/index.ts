@@ -1,4 +1,12 @@
-export { boxHeight, buildBoxes, panelOf, textWidth } from "./boxes.ts"
+export {
+  boxHeight,
+  buildBoxes,
+  countOf,
+  matchCount,
+  panelCounts,
+  panelOf,
+  textWidth,
+} from "./boxes.ts"
 export type { Box, BoxEdge, BoxMap } from "./boxes.ts"
 export { fold, foldAt } from "./fold.ts"
 export type { Fold } from "./fold.ts"
@@ -27,6 +35,11 @@ export { MORE, edgeEndKey, layoutMap } from "./layout.ts"
 export type { EdgeEnd, LaidOutEdge, PlacedBox, Layout } from "./layout.ts"
 export { edgeIndex, walk } from "./reach.ts"
 export type { Direction, EdgeIndex, Levels } from "./reach.ts"
-export { fullStrength, roleCounts } from "./selection.ts"
+export {
+  fullStrength,
+  isBoxStrong,
+  isRowStrong,
+  roleCounts,
+} from "./selection.ts"
 export type { FullStrength, Selection } from "./selection.ts"
 export { mostDependedOn, rolesIn, startingPoints } from "./summary.ts"

@@ -68,7 +68,7 @@ describe("the summary (spec 004)", () => {
     // Most depended on shows its first rows; nothing starts reading here.
     expect(rows).toHaveLength(SUMMARY_LIST_LENGTH)
     expect(html).toContain(`Show all ${DEPENDED}`)
-    expect(html).toMatch(new RegExp(`Most depended on<span[^>]*>${DEPENDED}<`))
+    expect(html).toMatch(new RegExp(`Most depended on <span[^>]*>${DEPENDED}<`))
   })
 
   it("says no route was found when no framework was detected (edge cases)", () => {

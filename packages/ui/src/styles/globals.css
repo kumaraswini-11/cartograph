@@ -53,6 +53,9 @@
   --color-tier-surface: var(--tier-surface);
   --color-tier-layer: var(--tier-layer);
   --color-tier-plumbing: var(--tier-plumbing);
+  /* Paths and box labels (text-path). The map's box sizes are computed from
+     it (@workspace/graph, CHAR_WIDTH): change both together. */
+  --text-path: 0.8125rem;
 }
 
 :root {

@@ -49,10 +49,36 @@ export type BoxEdge = {
 export type BoxMap = {
   threshold: number
   boxes: Array<Box>
+  /** Each box by its id. */
+  byId: Map<string, Box>
   edges: Array<BoxEdge>
   /** Each file's box. */
   boxOf: Map<string, string>
 }
+
+const plural = new Intl.PluralRules("en")
+
+/** A count with its noun: `1 file`, `2 files`. */
+export const countOf = (count: number, one: string, other: string) =>
+  `${count} ${plural.select(count) === "one" ? one : other}`
+
+/**
+ * The counts a panel's header shows (FR-008), one source for the panel and
+ * the room the layout keeps for them: its files, then the files outside it
+ * with an edge in, and out.
+ */
+export function panelCounts(
+  box: Pick<Box, "files" | "fanIn" | "fanOut">
+): Array<string> {
+  return [
+    countOf(box.files.length, "file", "files"),
+    `in ${box.fanIn}`,
+    `out ${box.fanOut}`,
+  ]
+}
+
+/** How many of a box's files are in the role chosen on the rail (FR-016). */
+export const matchCount = (count: number) => `${count} matching`
 
 /** A label's width: monospace, so length times one character (D-04). */
 export const textWidth = (text: string) =>
@@ -101,23 +127,25 @@ export function buildBoxes(
     }
   }
 
+  const boxes = folds.map((f): Box => {
+    const label = names.get(f.folder) ?? f.folder
+    const fanIn = dependents.get(f.folder)?.size ?? 0
+    return {
+      id: f.folder,
+      label,
+      folders: f.folders,
+      files: f.files,
+      fanIn,
+      fanOut: dependencies.get(f.folder)?.size ?? 0,
+      width: textWidth(label),
+      height: boxHeight(fanIn),
+    }
+  })
   return {
     threshold,
     boxOf,
-    boxes: folds.map((f) => {
-      const label = names.get(f.folder) ?? f.folder
-      const fanIn = dependents.get(f.folder)?.size ?? 0
-      return {
-        id: f.folder,
-        label,
-        folders: f.folders,
-        files: f.files,
-        fanIn,
-        fanOut: dependencies.get(f.folder)?.size ?? 0,
-        width: textWidth(label),
-        height: boxHeight(fanIn),
-      }
-    }),
+    boxes,
+    byId: new Map(boxes.map((box) => [box.id, box])),
     edges: [...pairs.values()].sort(
       (a, b) => compareText(a.from, b.from) || compareText(a.to, b.to)
     ),
@@ -137,13 +165,9 @@ export function panelOf(box: Box): {
   const rows = box.files.slice(0, PANEL_ROW_LIMIT)
   const more = box.files.length - rows.length
   // The header: the label, then a badge per count, with room kept for the
-  // role-match badge so choosing a role never changes the layout.
-  const badges = [
-    `${box.files.length} files`,
-    `in ${box.fanIn}`,
-    `out ${box.fanOut}`,
-    `${box.files.length} match`,
-  ]
+  // role-match badge at its widest, so choosing a role never changes the
+  // layout.
+  const badges = [...panelCounts(box), matchCount(box.files.length)]
   const header =
     textWidth(box.label) +
     badges.reduce(

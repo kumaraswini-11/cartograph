@@ -20,7 +20,8 @@ export const REACH_OPEN_LEVELS = 2
 
 /**
  * One monospace character at the label's size, in pixels (plan D-04): labels
- * are set at 13px, whose monospace characters are 7.8px wide.
+ * are set at 13px (the theme's `--text-path`, packages/ui globals.css), whose
+ * monospace characters are 7.8px wide. Change both together.
  */
 export const CHAR_WIDTH = 8
 

@@ -67,8 +67,7 @@ export function FileList({
   return (
     <SidebarGroup>
       <SidebarGroupLabel id={headingId} render={<h3 />} className="gap-2">
-        {heading}
-        <span className="ms-auto tabular-nums">{rows.length}</span>
+        {heading} <span className="ms-auto tabular-nums">{rows.length}</span>
       </SidebarGroupLabel>
       <SidebarGroupContent>
         {rows.length === 0 ? (
@@ -120,7 +119,7 @@ function Row({
         onClick={() => choose(row.path)}
         // The count sits over the button's end: room is kept for it.
         className={cn(
-          "@container font-mono text-[13px]",
+          "@container font-mono text-path",
           row.count !== undefined && "pe-10"
         )}
       >
