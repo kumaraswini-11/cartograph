@@ -1,10 +1,8 @@
 // React: roles from the folders its repositories use, Hooks by name, Contexts by
 // `createContext`, and the file that mounts the application as entry point.
 // No routes (spec 002, FR-013, FR-014, FR-018).
-import { posix } from "node:path"
-
 import type { Adapter } from "../../adapter.ts"
-import { roleFromFolders } from "../../conventions.ts"
+import { isHookName, roleFromFolders, stemOf } from "../../conventions.ts"
 import { localPath } from "../../packages.ts"
 import { calls, importedNames } from "../../syntax.ts"
 import type { Node, ParsedFile } from "../../syntax.ts"
@@ -50,10 +48,10 @@ export const reactAdapter: Adapter = {
     const entryPoints = new Set<string>()
     for (const path of pkg.files) {
       const local = localPath(pkg, path)
-      const stem = posix.basename(local).replace(/\.[^.]+$/, "")
+      const stem = stemOf(local)
       const file = pkg.syntax(path)
       const role =
-        (/^use[A-Z-]/.test(stem) ? "Hooks" : undefined) ??
+        (isHookName(stem) ? "Hooks" : undefined) ??
         (file && callsFrom(file, "createContext", ["react"])
           ? "Contexts"
           : undefined) ??

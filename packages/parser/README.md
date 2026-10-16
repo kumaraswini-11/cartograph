@@ -25,9 +25,15 @@ if (!isTooLarge(result)) writeResult("result.json", result)
 | `pnpm --filter @workspace/parser golden`                | Parses the golden repositories and fails on drift from the pinned counts |
 | `pnpm --filter @workspace/parser test`                  | Runs its tests                                                           |
 
-Other entry points: `@workspace/parser/syntax` (how the parser reads syntax,
-shared with detection) and `@workspace/parser/testing` (a temporary
-repository for tests).
+Other entry points, each one source for its concern:
+
+- `@workspace/parser/paths`: how the result writes paths (compare, folder,
+  file name); pure, so the browser uses it too.
+- `@workspace/parser/syntax`: how the parser reads syntax, shared with
+  detection.
+- `@workspace/parser/cli`: the `<directory> [--out <file>]` arguments every
+  command over a directory takes.
+- `@workspace/parser/testing`: a temporary repository for tests.
 
 ## Status
 

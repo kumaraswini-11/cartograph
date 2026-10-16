@@ -1,12 +1,11 @@
 // Next.js: roles from the `app` and `pages` folders and its special files,
 // routes from route handlers (spec 002, FR-010, FR-014, FR-015). The file
 // conventions follow https://nextjs.org/docs/app/getting-started/project-structure.
-import { posix } from "node:path"
-
+import { fileName, folderOf } from "@workspace/parser/paths"
 import { Visitor } from "oxc-parser"
 
 import type { Adapter, PackageInput } from "../../adapter.ts"
-import { isConfigFile } from "../../conventions.ts"
+import { isHookName, isToolConfig, stemOf } from "../../conventions.ts"
 import { localPath } from "../../packages.ts"
 import { HTTP_METHODS } from "../../result.ts"
 import type { HttpMethod, Route } from "../../result.ts"
@@ -57,11 +56,6 @@ const LOADED = new Set([
 const METHODS: ReadonlySet<string> = new Set(HTTP_METHODS)
 const UTILITY_FOLDERS = new Set(["lib", "utils", "util", "helpers"])
 
-const stemOf = (path: string) => {
-  const name = posix.basename(path)
-  return name.slice(0, name.length - posix.extname(name).length)
-}
-
 /** Where the package keeps its routing folders: the root wins over `src`. */
 function layout(locals: ReadonlyArray<string>) {
   const atRoot = locals.some(
@@ -74,8 +68,7 @@ function layout(locals: ReadonlyArray<string>) {
 /** The role a file's position gives it, before its syntax is read. */
 function positionalRole(local: string, folders: ReturnType<typeof layout>) {
   const stem = stemOf(local)
-  const atBase =
-    posix.dirname(local) === (folders.base || ".").replace(/\/$/, "")
+  const atBase = folderOf(local) === folders.base.replace(/\/$/, "")
   if (atBase && (stem === "proxy" || stem === "middleware")) return "Proxy"
   if (
     atBase &&
@@ -83,7 +76,7 @@ function positionalRole(local: string, folders: ReturnType<typeof layout>) {
   ) {
     return "Instrumentation"
   }
-  if (isConfigFile(posix.basename(local))) return "Configuration"
+  if (isToolConfig(fileName(local))) return "Configuration"
 
   if (local.startsWith(folders.app)) {
     const segments = local.slice(folders.app.length).split("/").slice(0, -1)
@@ -104,12 +97,10 @@ function positionalRole(local: string, folders: ReturnType<typeof layout>) {
 /** A role from naming habits Next.js repositories share; not routing files. */
 function habitRole(local: string): string | undefined {
   // `_components` and `_lib`: private folders keep their habit's name.
-  const folders = posix
-    .dirname(local)
+  const folders = folderOf(local)
     .split("/")
     .map((f) => f.replace(/^_/, ""))
-  if (/^use[A-Z-]/.test(stemOf(local)) || folders.includes("hooks"))
-    return "Hooks"
+  if (isHookName(stemOf(local)) || folders.includes("hooks")) return "Hooks"
   if (folders.includes("components")) return "Components"
   if (folders.includes("config")) return "Configuration"
   if (folders.some((f) => UTILITY_FOLDERS.has(f))) return "Utilities"
@@ -209,7 +200,7 @@ export const nextjsAdapter: Adapter = {
         habitRole(local)
       if (!role) continue
       roles.set(path, role)
-      if (LOADED.has(role) || /^next\.config\./.test(posix.basename(local))) {
+      if (LOADED.has(role) || /^next\.config\./.test(fileName(local))) {
         entryPoints.add(path)
       }
 

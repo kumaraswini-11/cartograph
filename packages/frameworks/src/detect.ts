@@ -1,4 +1,5 @@
 import type { ParsedRepository } from "@workspace/parser"
+import { compareText } from "@workspace/parser/paths"
 
 import type { Adapter } from "./adapter.ts"
 import { ADAPTERS, genericAdapter } from "./adapters/index.ts"
@@ -9,8 +10,6 @@ import { DETECTION_SCHEMA_VERSION } from "./result.ts"
 import type { Detection, FileRole, PackageRecord, Route } from "./result.ts"
 import { createSyntax } from "./syntax.ts"
 import { UNIDENTIFIED, mergeTaxonomies } from "./taxonomy.ts"
-
-const byText = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0)
 
 /** The first adapter that recognises the package, or the generic one (FR-002, FR-003). */
 function adapterFor(declared: ReadonlySet<string>): Adapter {
@@ -80,12 +79,12 @@ export function detectFrameworks(
   return {
     schemaVersion: DETECTION_SCHEMA_VERSION,
     packages,
-    files: files.sort((a, b) => byText(a.path, b.path)),
+    files: files.sort((a, b) => compareText(a.path, b.path)),
     routes: routes.sort(
       (a, b) =>
-        byText(a.path, b.path) ||
-        byText(a.method, b.method) ||
-        byText(a.file, b.file)
+        compareText(a.path, b.path) ||
+        compareText(a.method, b.method) ||
+        compareText(a.file, b.file)
     ),
     taxonomy: mergeTaxonomies(frameworks).map((entry) => ({
       ...entry,

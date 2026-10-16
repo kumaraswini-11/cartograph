@@ -2,32 +2,15 @@
 // parses a directory, detects its frameworks, and prints each package, the
 // role counts in taxonomy order, the entry points and the routes (spec 002).
 import { resolve } from "node:path"
-import { argv, exit, stderr, stdout } from "node:process"
-import { parseArgs } from "node:util"
+import { exit, stdout } from "node:process"
 
 import { isTooLarge, parseRepository } from "@workspace/parser"
+import { directoryArgs } from "@workspace/parser/cli"
 
 import { detectFrameworks } from "./detect.ts"
 import { writeDetection } from "./result.ts"
 
-function usage(): never {
-  stderr.write("Usage: detect <directory> [--out <file>]\n")
-  exit(2)
-}
-
-let parsedArgs
-try {
-  parsedArgs = parseArgs({
-    args: argv.slice(2),
-    options: { out: { type: "string" } },
-    allowPositionals: true,
-  })
-} catch {
-  usage()
-}
-const { out } = parsedArgs.values
-const [directory, ...extra] = parsedArgs.positionals
-if (directory === undefined || extra.length > 0) usage()
+const { directory, out } = directoryArgs("detect")
 
 const root = resolve(directory)
 const parsed = parseRepository(root)

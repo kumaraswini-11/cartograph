@@ -2,37 +2,21 @@
 // directory, prints what it found (spec 001, FR-023) and optionally writes the
 // result. Runs with nothing else started.
 import { resolve } from "node:path"
-import { argv, exit, stderr, stdout } from "node:process"
-import { parseArgs } from "node:util"
+import { exit, stdout } from "node:process"
 
+import { directoryArgs } from "./cli-args.ts"
 import { parseRepository } from "./parse.ts"
+import { compareText } from "./paths.ts"
 import { isTooLarge, writeResult } from "./result.ts"
 
 function countBy<T>(items: ReadonlyArray<T>, key: (item: T) => string) {
   const counts = new Map<string, number>()
   for (const item of items)
     counts.set(key(item), (counts.get(key(item)) ?? 0) + 1)
-  return [...counts].sort(([a], [b]) => (a < b ? -1 : 1))
+  return [...counts].sort(([a], [b]) => compareText(a, b))
 }
 
-function usage(): never {
-  stderr.write("Usage: parse <directory> [--out <file>]\n")
-  exit(2)
-}
-
-let parsedArgs
-try {
-  parsedArgs = parseArgs({
-    args: argv.slice(2),
-    options: { out: { type: "string" } },
-    allowPositionals: true,
-  })
-} catch {
-  usage()
-}
-const { out } = parsedArgs.values
-const [directory, ...extra] = parsedArgs.positionals
-if (directory === undefined || extra.length > 0) usage()
+const { directory, out } = directoryArgs("parse")
 
 const result = parseRepository(resolve(directory))
 if (out !== undefined) writeResult(resolve(out), result)

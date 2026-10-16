@@ -1,6 +1,8 @@
 import { readdirSync, statSync } from "node:fs"
 import { join } from "node:path"
 
+import { byPath } from "./paths.ts"
+
 /** Extensions of the JavaScript and TypeScript files the parser reads. */
 export const SOURCE_EXTENSIONS = [
   ".ts",
@@ -82,11 +84,6 @@ export function isConfigFile(name: string): boolean {
 /** True when `name` ends in one of the source extensions. */
 export function isSourceFile(name: string): boolean {
   return SOURCE_EXTENSIONS.some((extension) => name.endsWith(extension))
-}
-
-/** Compares by code unit, never by locale, so order is the same everywhere. */
-export function byPath(a: { path: string }, b: { path: string }): number {
-  return a.path < b.path ? -1 : a.path > b.path ? 1 : 0
 }
 
 /**
