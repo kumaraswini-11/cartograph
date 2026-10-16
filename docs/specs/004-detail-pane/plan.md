@@ -74,10 +74,16 @@ type Levels = Array<Array<string>> // levels[0] is one edge away
   between toggle items.
 - **D-05** One file list (`file-list.tsx`) for the summary's two lists, a
   file's dependencies and dependents, and each reach level: five uses, past
-  the rule of three. Each row is an `Item` holding a `Button` with the path
-  in monospace; choosing it selects that file (FR-011), and hovering or
-  focusing it marks the file on the map (FR-013). Its props are the paths,
-  an optional length to show before "Show all N" (FR-004), and the heading.
+  the rule of three. The pane is a `Sidebar`, so a list is the Sidebar's own
+  menu, as the rail's is: a `SidebarMenu` (a real `ul`) of
+  `SidebarMenuButton` rows, a count in `SidebarMenuBadge` and a mark such as
+  "entry point" in a `Badge`. A row shows the file's name, then its folder
+  cut from its start, so the end that tells two `page.tsx` apart stays in
+  view; below 13rem, a container query leaves the name alone, and the
+  button's accessible name always carries the whole of it. Choosing a row
+  selects that file (FR-011), and hovering or focusing it marks the file on
+  the map (FR-013). Its props are the rows, an optional length to show
+  before "Show all N" (FR-004), the heading and the empty text.
 - **D-06** Long lists are virtualized with TanStack Virtual
   (`@tanstack/react-virtual`, already in the catalog): past
   `LIST_VIRTUAL_FROM` = 100 rows, a list renders only the rows in view.
@@ -112,17 +118,20 @@ type Levels = Array<Array<string>> // levels[0] is one edge away
 
 ## Layout values
 
-| Name                | Value | Use                                                          |
-| ------------------- | ----- | ------------------------------------------------------------ |
-| `LIST_VIRTUAL_FROM` | 100   | A list longer than this renders only its rows in view        |
-| Row height          | 28 px | `003`'s `ROW_HEIGHT`, so the virtualizer's estimate is exact |
+| Name                | Value | Use                                                                                              |
+| ------------------- | ----- | ------------------------------------------------------------------------------------------------ |
+| `LIST_VIRTUAL_FROM` | 100   | A list longer than this renders only its rows in view                                            |
+| Row height          | 32 px | A `SidebarMenuButton` (`h-8`) in a gapless `SidebarMenu`, so the virtualizer's estimate is exact |
 
 ## Stack notes
 
 - TanStack Virtual measures nothing on the server; a virtualized list
-  renders on the client only. Lists past `LIST_VIRTUAL_FROM` appear only for
-  a selection, which happens in the browser, so the server-rendered summary
-  is never virtualized and nothing shifts.
+  renders on the client only. A list grows past `LIST_VIRTUAL_FROM` only
+  after a selection or a "Show all", both in the browser, so the
+  server-rendered summary is never virtualized and nothing shifts.
+- Vitest resolves the app's `@/` imports from `tsconfig.json`, as Vite does
+  (`resolve.tsconfigPaths`), so a test can render a component that imports
+  others.
 - Base UI's `Tabs` and `ToggleGroup` are controlled with `value` and
   `onValueChange`; the pane holds both values, so a new selection never
   resets them.

@@ -23,7 +23,7 @@ imports and routes; the sample generated again.
 
 ## T02 — The summary
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T01
 **Covers:** FR-001 to FR-006, C-01, AC-01, AC-07, AC-13
 
@@ -33,9 +33,9 @@ the unidentified count; the shared file list and the derived-data provider.
 
 **Done when:**
 
-- [ ] `/sample` shows the summary in the server's HTML, and clearing a
+- [x] `/sample` shows the summary in the server's HTML, and clearing a
       selection returns to it.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T03 — A file or a box selected
 

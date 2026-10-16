@@ -18,17 +18,12 @@ import {
 } from "@xyflow/react"
 import type { Edge } from "@xyflow/react"
 import { MaximizeIcon, MinusIcon, PlusIcon } from "lucide-react"
-import {
-  buildBoxes,
-  fullStrength,
-  layoutMap,
-  roleCounts,
-} from "@workspace/graph"
-import type { MapInput } from "@workspace/graph"
+import { fullStrength, layoutMap, roleCounts } from "@workspace/graph"
 import { fileName } from "@workspace/parser/paths"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
 import { ButtonGroup } from "@workspace/ui/components/shadcn-ui/button-group"
 
+import { useMapData } from "@/components/map/map-data"
 import { useMapState } from "@/components/map/map-state"
 import { BoxView, PanelView } from "@/components/map/map-boxes"
 import type { BoxElement, PanelElement } from "@/components/map/map-boxes"
@@ -49,7 +44,8 @@ function useReducedMotion(): boolean {
   )
 }
 
-function Drawing({ input }: { input: MapInput }) {
+function Drawing() {
+  const { input, boxMap } = useMapData()
   const { state, actions } = useMapState()
   const { selection, role, open } = state
   const flow = useReactFlow()
@@ -57,7 +53,6 @@ function Drawing({ input }: { input: MapInput }) {
   const reducedMotion = useReducedMotion()
   const duration = reducedMotion ? 0 : ANIMATION_MS
 
-  const boxMap = useMemo(() => buildBoxes(input.files, input.edges), [input])
   const layout = useMemo(
     () => layoutMap(boxMap, input.edges, open),
     [boxMap, input.edges, open]
@@ -330,10 +325,10 @@ function Drawing({ input }: { input: MapInput }) {
   )
 }
 
-export default function MapDrawing({ input }: { input: MapInput }) {
+export default function MapDrawing() {
   return (
     <ReactFlowProvider>
-      <Drawing input={input} />
+      <Drawing />
     </ReactFlowProvider>
   )
 }
