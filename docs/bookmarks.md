@@ -74,6 +74,33 @@ which lets it run those tools without asking. `.prettierignore` skips
 - ChatGPT chat on the web and mobile doesn't read the repository; skills
   reach it only through plugins.
 
+### TanStack skills, through TanStack Intent
+
+TanStack ships its own skills inside its npm packages
+(`node_modules/<package>/skills/`), versioned with each release, so they're
+not copied into `.claude/skills/`. [TanStack Intent](https://tanstack.com/intent/latest/docs/getting-started/quick-start-consumers)
+(`@tanstack/intent`, a root dev dependency) finds and loads them; the
+`intent-skills` block at the top of `AGENTS.md` tells agents to use it, and
+`intent.skills` in `package.json` allows only `@tanstack/*` packages.
+
+```bash
+# What's available, at the installed versions
+pnpm exec intent list
+
+# Load one skill's guidance before a change
+pnpm exec intent load @tanstack/start-client-core#start-core/server-functions
+
+# After adding or removing a TanStack package, rewrite the AGENTS.md block,
+# then format it (Intent writes the block unformatted)
+pnpm exec intent install && pnpm format
+
+# Skills that reference outdated documentation
+pnpm exec intent stale
+```
+
+An unofficial collection (`tanstack-skills/tanstack-skills`, which calls
+itself "UNOFFICIAL") is not used.
+
 ### Installed
 
 Skills for platforms Cartograph doesn't use (native mobile, other web

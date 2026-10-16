@@ -144,6 +144,10 @@ pnpm dlx skills@latest add <source> --skill <name> -a claude-code --copy -y
 pnpm dlx skills@latest update
 ```
 
+TanStack's own skills ship inside its packages and load through
+[TanStack Intent](https://tanstack.com/intent/latest/docs/getting-started/quick-start-consumers):
+`pnpm exec intent list`.
+
 Every command, the reason for each flag, and what's installed are in
 [docs/bookmarks.md](docs/bookmarks.md#agent-skills).
 

@@ -1,3 +1,18 @@
+<!-- intent-skills:start -->
+
+## Skill Loading
+
+Use the repository’s installed Intent. If it is unavailable, report the missing dependency instead of downloading a replacement.
+Before editing files for a substantial task:
+
+- Run `pnpm exec intent list` from the workspace root to see available local skills.
+- If a listed skill matches the task, run `pnpm exec intent load <package>#<skill>` before changing files.
+- Use the loaded `SKILL.md` guidance while making the change.
+- Monorepos: when working across packages, run the skill check from the workspace root and prefer the local skill for the package being changed.
+- Multiple matches: prefer the most specific local skill for the package or concern you are changing; load additional skills only when the task spans multiple packages or concerns.
+
+<!-- intent-skills:end -->
+
 # Working in this repository
 
 Cartograph maps a public TypeScript or JavaScript repository from its parsed
@@ -68,6 +83,9 @@ importing it by its package name, never by a relative path into it.
 - Read and change data through `createServerFn`; keep secrets and
   server-only code behind `createServerOnlyFn`. Code is isomorphic by default,
   so nothing server-only goes in a module the browser also loads.
+- Load the matching TanStack skill first (`pnpm exec intent list`), for
+  example `start-core/server-functions`, `start-core/execution-model` or
+  `router-core/data-loading`.
 - Browser-only UI (anything that needs `window` or measures itself in the
   browser, as the map's drawing may) renders inside `<ClientOnly>`, with a
   fallback of the same size so the page doesn't shift.
