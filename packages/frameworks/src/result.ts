@@ -6,7 +6,7 @@ import { z } from "zod"
 
 import { TIERS } from "./taxonomy.ts"
 
-export const DETECTION_SCHEMA_VERSION = 1
+export const DETECTION_SCHEMA_VERSION = 2
 
 /** The methods a route can carry: one each, never "any" (FR-015, FR-016). */
 export const HTTP_METHODS = [
@@ -24,6 +24,8 @@ const packageRecord = z.object({
   path: z.string(),
   /** The detected framework's taxonomy name; null when none matched (FR-004). */
   framework: z.string().nullable(),
+  /** Whether its routes were recovered exactly (spec 005, plan D-02). */
+  routesRecovered: z.boolean(),
 })
 
 const fileRole = z.object({

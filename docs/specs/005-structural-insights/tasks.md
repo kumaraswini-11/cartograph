@@ -21,7 +21,7 @@ AC-10
 
 ## T02 — Routes in the map input, and three samples
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** FR-010, FR-012 (the data), D-02, D-07, AC-03
 
@@ -31,10 +31,10 @@ samples, `/sample/$name`, and the home page's links.
 
 **Done when:**
 
-- [ ] The NestJS and Express samples load at their addresses, and the sample
+- [x] The NestJS and Express samples load at their addresses, and the sample
       script prints the NestJS sample's cycle, walked by hand (AC-03).
-- [ ] The golden scripts show no drift.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] The golden scripts show no drift.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T03 — The pane's insights and routes
 

@@ -19,15 +19,16 @@ From the repository root:
 | `pnpm build`                 | Builds it: a Node.js server in `.output`, or `.vercel/output` on Vercel |
 | `pnpm --filter web test`     | Runs its tests (Vitest)                                                 |
 | `pnpm --filter web og-image` | Redraws the share image, `public/og.png`                                |
-| `pnpm --filter web sample`   | Rewrites the sample map, `src/sample/map.gen.ts`                        |
+| `pnpm --filter web sample`   | Rewrites the sample maps, `src/sample/*.gen.ts`                         |
 
 Configuration is checked at start: a required value that is missing, blank
 or invalid stops the app, naming each one (`src/lib/config.ts`). Server-only
 code lives in `*.server.ts` files; server functions in `*.functions.ts`.
 
-`/sample` shows the map of one fixed repository until spec 008 stores real
-analyses. Not-found, error and loading pages are set once, in
-`src/router.tsx`. Search and share tags come from `src/lib/site.ts`.
+`/sample/$name` shows the map of one of three fixed repositories
+(`src/sample/samples.ts`) until spec 008 stores real analyses. Not-found,
+error and loading pages are set once, in `src/router.tsx`. Search and share
+tags come from `src/lib/site.ts`.
 
 ## Status
 

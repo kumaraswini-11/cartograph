@@ -34,7 +34,13 @@ const input = (overrides: Partial<MapInput> = {}): MapInput => ({
   coverage: 1,
   frameworks: ["Next.js"],
   imports: { seen: 40, resolved: 30 },
-  routes: 6,
+  routes: Array.from({ length: 6 }, (_, i) => ({
+    method: "GET" as const,
+    path: `/r${i}`,
+    file: "app/route.ts",
+    line: i + 1,
+  })),
+  routesNotRecovered: [],
   ...overrides,
 })
 
@@ -75,8 +81,19 @@ describe("the summary (spec 004)", () => {
   })
 
   it("says no route was found when no framework was detected (edge cases)", () => {
-    const html = render(input({ frameworks: [], routes: 0 }))
+    const html = render(input({ frameworks: [], routes: [] }))
     expect(html).toContain("No framework detected")
     expect(html).toContain("None found")
+  })
+
+  it("says routes weren't recovered, not 0, for a framework that can't (spec 005 D-06)", () => {
+    const html = render(
+      input({
+        frameworks: ["Express"],
+        routes: [],
+        routesNotRecovered: ["Express"],
+      })
+    )
+    expect(html).toContain("Not recovered")
   })
 })

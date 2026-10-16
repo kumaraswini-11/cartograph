@@ -46,7 +46,9 @@ describe("roles (FR-011)", () => {
         'import { Injectable } from "./decorators"\n@Injectable()\nexport class Own {}',
       "src/users/users.controller.spec.ts": "",
     })
-    expect(result.packages).toEqual([{ path: "", framework: "NestJS" }])
+    expect(result.packages).toEqual([
+      { path: "", framework: "NestJS", routesRecovered: true },
+    ])
     expect(roles(result)).toEqual([
       ["src/app.module.ts", "Modules", false],
       ["src/auth/jwt.guard.ts", "Guards", false],
@@ -149,6 +151,8 @@ describe("routes (FR-016, FR-017, AC-02, AC-07, AC-13)", () => {
       ),
     })
     expect(result.routes).toEqual([])
+    // The table then says why it's empty (spec 005, FR-012).
+    expect(result.packages[0]?.routesRecovered).toBe(false)
   })
 
   it("gives no route for a path built from a variable (AC-07)", () => {
@@ -165,6 +169,7 @@ describe("routes (FR-016, FR-017, AC-02, AC-07, AC-13)", () => {
       ),
     })
     expect(routes(result)).toEqual(["GET /dogs"])
+    expect(result.packages[0]?.routesRecovered).toBe(true)
   })
 
   it("gives no routes when a RouterModule sets prefixes or an exclude has a pattern", () => {

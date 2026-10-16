@@ -1,4 +1,4 @@
-import type { Detection, TaxonomyEntry } from "@workspace/frameworks"
+import type { Detection, Route, TaxonomyEntry } from "@workspace/frameworks"
 import type { ParsedRepository } from "@workspace/parser"
 
 export type MapFile = {
@@ -31,14 +31,20 @@ export type MapInput = {
   frameworks: Array<string>
   /** Imports found, and those resolved to a file in the repository (`001`). */
   imports: { seen: number; resolved: number }
-  /** Routes found (`002`). */
-  routes: number
+  /** The routes recovered, by path then method (`002`, spec 005 FR-010). */
+  routes: Array<Route>
+  /**
+   * Frameworks detected whose routes can't be recovered exactly, each once:
+   * why a routes table may be empty (spec 005, FR-012).
+   */
+  routesNotRecovered: Array<string>
 }
 
 /**
  * The map's input, read from both results unchanged (spec 003, C-02): every
  * parsed file with its role, every edge, the taxonomy and the coverage, and
- * the summary's frameworks and counts (spec 004, FR-001).
+ * the summary's frameworks and counts (spec 004, FR-001), and the routes
+ * (spec 005).
  */
 export function toMapInput(
   source: { repository: string; commit: string },
@@ -79,6 +85,13 @@ export function toMapInput(
       seen: Object.values(parsed.coverage.imports).reduce((a, b) => a + b, 0),
       resolved: parsed.coverage.imports.resolved,
     },
-    routes: detection.routes.length,
+    routes: detection.routes,
+    routesNotRecovered: [
+      ...new Set(
+        detection.packages.flatMap((p) =>
+          p.framework === null || p.routesRecovered ? [] : [p.framework]
+        )
+      ),
+    ],
   }
 }

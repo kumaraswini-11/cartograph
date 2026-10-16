@@ -23,7 +23,9 @@ describe("Express (FR-012, FR-018, AC-05)", () => {
       "src/config/config.js": "",
       "src/utils/catchAsync.js": "",
     })
-    expect(result.packages).toEqual([{ path: "", framework: "Express" }])
+    expect(result.packages).toEqual([
+      { path: "", framework: "Express", routesRecovered: false },
+    ])
     expect(roles(result)).toEqual([
       ["src/app.js", "Unidentified", false],
       ["src/config/config.js", "Configuration", false],
@@ -46,6 +48,8 @@ describe("Express (FR-012, FR-018, AC-05)", () => {
       "package.json": manifest(["express", "@nestjs/core"]),
       "a.ts": "",
     })
-    expect(result.packages).toEqual([{ path: "", framework: "NestJS" }])
+    expect(result.packages).toEqual([
+      { path: "", framework: "NestJS", routesRecovered: true },
+    ])
   })
 })

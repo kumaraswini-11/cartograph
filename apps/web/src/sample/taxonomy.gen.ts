@@ -2612,5 +2612,55 @@ export const SAMPLE_MAP: MapInput = {
     "seen": 518,
     "resolved": 270
   },
-  "routes": 8
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/og",
+      "file": "app/api/og/route.tsx",
+      "line": 15
+    },
+    {
+      "method": "GET",
+      "path": "/api/posts",
+      "file": "app/api/posts/route.ts",
+      "line": 14
+    },
+    {
+      "method": "POST",
+      "path": "/api/posts",
+      "file": "app/api/posts/route.ts",
+      "line": 41
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/posts/[postId]",
+      "file": "app/api/posts/[postId]/route.ts",
+      "line": 14
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/posts/[postId]",
+      "file": "app/api/posts/[postId]/route.ts",
+      "line": 44
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/users/[userId]",
+      "file": "app/api/users/[userId]/route.ts",
+      "line": 14
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/stripe",
+      "file": "app/api/users/stripe/route.ts",
+      "line": 12
+    },
+    {
+      "method": "POST",
+      "path": "/api/webhooks/stripe",
+      "file": "app/api/webhooks/stripe/route.ts",
+      "line": 8
+    }
+  ],
+  "routesNotRecovered": []
 }

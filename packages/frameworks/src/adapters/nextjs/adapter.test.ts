@@ -27,7 +27,9 @@ describe("the app folder (FR-010, FR-014, AC-01, AC-08)", () => {
       "instrumentation.ts": "",
       "next.config.ts": "export default {}",
     })
-    expect(result.packages).toEqual([{ path: "", framework: "Next.js" }])
+    expect(result.packages).toEqual([
+      { path: "", framework: "Next.js", routesRecovered: true },
+    ])
     expect(roles(result)).toEqual([
       ["app/(shop)/cart/page.tsx", "Page routes", true],
       ["app/@modal/default.tsx", "Loading and error UI", true],

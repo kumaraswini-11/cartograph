@@ -215,6 +215,6 @@ export const nextjsAdapter: Adapter = {
         routes.push({ method, path: full, file: path, line })
       }
     }
-    return { roles, entryPoints, routes }
+    return { roles, entryPoints, routes, routesRecovered: true }
   },
 }

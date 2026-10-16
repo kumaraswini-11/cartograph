@@ -37,6 +37,7 @@ export const expressAdapter: Adapter = {
         entryPoints.add(path)
       }
     }
-    return { roles, entryPoints, routes: [] }
+    // Assembled at runtime from routers and variables (spec 002, C-06).
+    return { roles, entryPoints, routes: [], routesRecovered: false }
   },
 }

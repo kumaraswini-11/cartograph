@@ -64,6 +64,7 @@ export const reactAdapter: Adapter = {
           callsFrom(file, "render", ["react-dom"]))
       if (mounts) entryPoints.add(path)
     }
-    return { roles, entryPoints, routes: [] }
+    // A client router's routes are configuration, not syntax.
+    return { roles, entryPoints, routes: [], routesRecovered: false }
   },
 }

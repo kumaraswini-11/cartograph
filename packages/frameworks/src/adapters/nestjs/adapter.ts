@@ -457,6 +457,13 @@ export const nestjsAdapter: Adapter = {
         routes.push(...routesOf(path, file, settings))
       }
     }
-    return { roles, entryPoints, routes }
+    // Without readable settings it gives no routes rather than routes
+    // that could miss their prefix (plan D-06).
+    return {
+      roles,
+      entryPoints,
+      routes,
+      routesRecovered: settings !== undefined,
+    }
   },
 }
