@@ -34,7 +34,7 @@ export type ResolverInput = {
   configs: ReadonlyArray<string>
 }
 
-/** A bare specifier that names an npm package: `react`, `@scope/pkg/sub`. */
+/** A bare specifier that names an npm package: `lodash`, `@scope/pkg/sub`. */
 const PACKAGE_NAME = /^(@[a-z0-9][\w.-]*\/)?[a-z0-9][\w.-]*(\/.*)?$/i
 
 const isRelative = (s: string) =>

@@ -62,7 +62,7 @@ the request limit `MAX_RUN_SECONDS`.
 
 ## T04 — The Vercel project (you)
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T03, merged to `main`
 **Covers:** FR-001, FR-008, FR-010, AC-01, AC-03, AC-06
 
@@ -71,18 +71,22 @@ your Vercel account.
 
 **Done when:**
 
-- [ ] At [vercel.com/new](https://vercel.com/new), the GitHub repository is
+- [x] At [vercel.com/new](https://vercel.com/new), the GitHub repository is
       imported on the Hobby plan, with **Root Directory** `apps/web` and the
       other build settings left as Vercel detects them.
-- [ ] Under **Settings → Environment Variables**,
+- [x] Under **Settings → Environment Variables**,
       `ENABLE_EXPERIMENTAL_COREPACK` = `1` for all environments, so Vercel
       installs with pnpm 11 (`packageManager`). Then redeploy.
-- [ ] The build log shows pnpm 11.25.0 and Node.js 24.
-- [ ] AC-01: the production address renders the home page.
-- [ ] AC-03: a pull request gets its own preview address, which renders.
-- [ ] AC-06: the deployment's function shows a maximum duration of 300 s
+- [x] The build log shows pnpm 11.25.0 and Node.js 24.
+- [x] AC-01: the production address renders the home page.
+- [x] AC-03: a pull request gets its own preview address, which renders.
+- [x] AC-06: the deployment's function shows a maximum duration of 300 s
       (the deployment's **Functions** view, or `.vc-config.json` in the build
       output).
+
+**Checked (2026-10-16):** production returns 200 with the home page; pull
+request #7 got its own preview deployment; the server function's
+`.vc-config.json` sets `maxDuration` 300 on `nodejs24.x`.
 
 ## T05 — Block a merge when a check fails (you)
 

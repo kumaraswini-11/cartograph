@@ -30,16 +30,19 @@ code. Nothing on the map is guessed.
 ## Layout
 
 A modular monolith in a monorepo: one deployable app, `apps/web` (TanStack
-Start), and packages under `packages/` (`ui` and `parser` today). Code goes in the package
-that owns it; a package uses another only by declaring it as a dependency and
-importing it by its package name, never by a relative path into it.
+Start), and packages under `packages/` (`ui`, `parser`, `frameworks` and
+`golden` today), each with a README. Code goes in the package that owns it;
+a package uses another only by declaring it as a dependency and importing it
+by its package name, never by a relative path into it.
 
 ## Rules
 
 ### Repository
 
-- `spec.md` files name no framework, library or vendor. How this repository
-  builds a spec goes in its `plan.md`.
+- `spec.md` files name no framework, library or vendor that Cartograph is
+  built with. How this repository builds a spec goes in its `plan.md`. What
+  the product itself reads or recognises is named: GitHub, TypeScript,
+  JavaScript, the frameworks `002` detects and the file types `001` reads.
 - Every dependency's version lives in the pnpm catalog (`pnpm-workspace.yaml`);
   packages write `catalog:`.
 - Agent skills install with `-a claude-code --copy` (see `docs/bookmarks.md`).
@@ -62,7 +65,7 @@ importing it by its package name, never by a relative path into it.
   (`shadcn search`, `shadcn docs`). If it has the component, install it (if it's
   missing) and use it; never hand-build one the registry has.
 - `packages/ui/src/components/shadcn-ui` holds registry output only. Add
-  components with the shadcn CLI (see the README); adjust them at the call
+  components with the shadcn CLI (see `packages/ui/README.md`); adjust them at the call
   site with `className`, never by editing the file.
 - **Shared compositions, by the
   [rule of three](<https://en.wikipedia.org/wiki/Rule_of_three_(computer_programming)>).**
