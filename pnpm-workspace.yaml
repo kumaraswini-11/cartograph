@@ -24,10 +24,6 @@ audit:
     # through the shadcn CLI's file globbing (packages/ui), which runs at dev
     # time on our own paths; no fixed version exists yet.
     - GHSA-vfj7-8cjw-p6xm
-    # esbuild: its built-in dev server can read arbitrary files on Windows.
-    # Pulled in by tsx (latest still requires esbuild 0.27); nothing here runs
-    # esbuild's dev server, as Vite serves the app.
-    - GHSA-g7r4-m6w7-qqqr
 
 # Every dependency's version is defined once, here, as an exact version, and
 # packages write "catalog:" instead of a version. strict: `pnpm add` may only
@@ -46,7 +42,6 @@ catalog:
   "@tanstack/react-router-devtools": 1.167.2
   "@tanstack/react-start": 1.169.1
   "@tanstack/react-virtual": 3.14.19
-  "@tanstack/router-cli": 1.167.40
   "@turbo/gen": 2.11.7
   "@types/node": 22.20.5
   "@types/react": 19.3.0
