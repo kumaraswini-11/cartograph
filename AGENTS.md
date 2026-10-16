@@ -64,8 +64,12 @@ importing it by its package name, never by a relative path into it.
 - `packages/ui/src/components/shadcn-ui` holds registry output only. Add
   components with the shadcn CLI (see the README); adjust them at the call
   site with `className`, never by editing the file.
-- **Shared compositions, by the rule of three.** When the same composition of
-  shadcn components appears a third time, make one component of it: shared
+- **Shared compositions, by the
+  [rule of three](<https://en.wikipedia.org/wiki/Rule_of_three_(computer_programming)>).**
+  When the same composition of shadcn components appears a third time, make
+  one component of it, not before: duplication is cheaper than the wrong
+  abstraction ([Sandi Metz](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction);
+  [AHA programming](https://kentcdodds.com/blog/aha-programming)). Shared
   ones in `packages/ui/src/components`, beside `shadcn-ui`; ones a single
   feature uses in `apps/web/src/components/<feature>/`. Keep it thin: a few
   props, and `children` or slots for the cases it doesn't cover. Don't wrap a
@@ -93,9 +97,10 @@ importing it by its package name, never by a relative path into it.
 
 ### Performance and accessibility
 
-- Pages meet the thresholds in spec `012`: Core Web Vitals (largest
-  contentful paint, interaction to next paint, cumulative layout shift) and
-  WCAG 2.2 AA.
+- Pages meet the thresholds in spec `012`:
+  [Core Web Vitals](https://web.dev/articles/vitals) (largest contentful
+  paint, interaction to next paint, cumulative layout shift) and
+  [WCAG 2.2](https://www.w3.org/TR/WCAG22/) AA.
 - Nothing shifts after the first paint: reserve space for late content, and
   load fonts so text doesn't jump.
 - For interface work, use the installed skills: `better-accessibility`,
@@ -109,7 +114,7 @@ Run the same checks as CI, from the repository root:
 
 ```bash
 pnpm format:check
-pnpm turbo run lint typecheck build
+pnpm turbo run lint typecheck test build
 pnpm audit
 ```
 

@@ -96,8 +96,9 @@ The app runs at <http://localhost:3000>.
 
 ## Scripts
 
-Run from the repository root. Turborepo runs `dev`, `build`, `lint` and
-`typecheck` in each package; Prettier runs once over the whole repository.
+Run from the repository root. Turborepo runs `dev`, `build`, `lint`,
+`typecheck` and `test` in each package; Prettier runs once over the whole
+repository.
 
 | Script              | What it does                                             |
 | ------------------- | -------------------------------------------------------- |
@@ -105,8 +106,17 @@ Run from the repository root. Turborepo runs `dev`, `build`, `lint` and
 | `pnpm build`        | Builds the app                                           |
 | `pnpm lint`         | Lints every package                                      |
 | `pnpm typecheck`    | Type-checks every package                                |
+| `pnpm test`         | Runs every package's tests (Vitest)                      |
 | `pnpm format`       | Formats every file in the repository with Prettier       |
 | `pnpm format:check` | Checks formatting without writing (this is what CI runs) |
+
+## Deploying
+
+The app is hosted on Vercel and built by Nitro
+([ADR 0002](docs/adr/0002-hosting-on-vercel-with-nitro.md)): every pull
+request gets a preview address, and `main` deploys to production. Setting up
+the Vercel project is in
+[spec 000's tasks](docs/specs/000-platform-requirements/tasks.md).
 
 ## Adding UI components
 

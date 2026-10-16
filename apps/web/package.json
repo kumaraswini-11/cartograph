@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@tailwindcss/vite": "catalog:",
@@ -19,7 +20,8 @@
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "tailwindcss": "catalog:"
+    "tailwindcss": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@tanstack/devtools-vite": "catalog:",
@@ -31,7 +33,9 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "eslint": "catalog:",
+    "nitro": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

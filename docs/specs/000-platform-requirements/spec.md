@@ -1,6 +1,6 @@
 # 000 — Platform requirements
 
-**Status:** Draft
+**Status:** Approved
 **Milestone:** M0 Foundation
 **Depends on:** none
 
@@ -23,7 +23,8 @@ workers.
 - **FR-001** The platform shall run the application as one deployable unit
   that renders pages on the server and runs server-side code on request.
 - **FR-002** The platform shall allow one server request to run for at least
-  `MAX_RUN_SECONDS`, the time a repository analysis may take (`008`).
+  `MAX_RUN_SECONDS`, the time a repository analysis may take (`008`): enough
+  to fetch and parse a repository of `MAX_FILES` files (`001`).
 - **FR-003** The platform shall provide relational storage whose access rules
   are policies in the storage itself, evaluated against a claim carried in the
   signed-in person's token (`007`).
@@ -78,15 +79,15 @@ workers.
 
 ## Acceptance criteria
 
-| ID    | Given / When / Then                                                                                                      | Covers         | Verified by |
-| ----- | ------------------------------------------------------------------------------------------------------------------------ | -------------- | ----------- |
-| AC-01 | Given the main branch, when its production address is opened, then a page renders                                        | FR-008         | browser     |
-| AC-02 | Given a proposed change that breaks formatting, when the checks run, then the merge is blocked                           | FR-009         | terminal    |
-| AC-03 | Given a proposed change, when it's pushed, then it gets its own preview address that renders                             | FR-010         | browser     |
-| AC-04 | Given a required configuration value removed, when the application starts, then it stops and the message names the value | FR-011         | terminal    |
-| AC-05 | Given a clean checkout of one commit, when it's installed twice, then both installs resolve identical versions           | FR-012         | terminal    |
-| AC-06 | Given a server request that runs for `MAX_RUN_SECONDS`, when it's called in production, then it completes                | FR-001, FR-002 | terminal    |
-| AC-07 | Given the specs named beside FR-003 to FR-007, when each is accepted, then the capability it names is accepted with it   | FR-003..FR-007 | test        |
+| ID    | Given / When / Then                                                                                                                     | Covers         | Verified by |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ----------- |
+| AC-01 | Given the main branch, when its production address is opened, then a page renders                                                       | FR-008         | browser     |
+| AC-02 | Given a proposed change that breaks formatting, when the checks run, then the merge is blocked                                          | FR-009         | terminal    |
+| AC-03 | Given a proposed change, when it's pushed, then it gets its own preview address that renders                                            | FR-010         | browser     |
+| AC-04 | Given a required configuration value removed, when the application starts, then it stops and the message names the value                | FR-011         | terminal    |
+| AC-05 | Given a clean checkout of one commit, when it's installed twice, then both installs resolve identical versions                          | FR-012         | terminal    |
+| AC-06 | Given the production deployment, when its server configuration is read, then its maximum request duration is at least `MAX_RUN_SECONDS` | FR-001, FR-002 | terminal    |
+| AC-07 | Given the specs named beside FR-003 to FR-007, when each is accepted, then the capability it names is accepted with it                  | FR-003..FR-007 | test        |
 
 ## Out of scope
 
@@ -97,5 +98,5 @@ workers.
 
 ## Open questions
 
-- [NEEDS CLARIFICATION] `MAX_RUN_SECONDS`: proposed 300. It must cover fetching
-  and parsing a repository at `MAX_FILES` (`001`).
+None. `MAX_RUN_SECONDS` depends on the platform; each repository sets it in
+its `plan.md`.

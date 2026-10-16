@@ -25,7 +25,9 @@ Three rules from the specs shape the choice:
 ### Repository: a modular monolith in a monorepo
 
 One deployable application, with its code split into packages that can only
-reach each other through declared dependencies.
+reach each other through declared dependencies: a modular monolith, the
+pattern Shopify describes in
+[Deconstructing the Monolith](https://shopify.engineering/deconstructing-monolith-designing-software-maximizes-developer-productivity).
 
 ```text
 apps/
@@ -69,13 +71,13 @@ every change (`000` FR-009).
 Each is confirmed, or replaced, in its spec's `plan.md` when that spec starts
 (`000` C-02).
 
-| Capability (`000`)                                  | Planned choice       | First spec |
-| --------------------------------------------------- | -------------------- | ---------- |
-| Sign-in, organizations, a token carrying the claim  | Clerk                | `006`      |
-| Storage with row-level policies and pushed changes  | Supabase (Postgres)  | `007`      |
-| Drawing and laying out the map                      | React Flow and dagre | `003`      |
-| Tracing model calls                                 | LangSmith            | `009`      |
-| Hosting with server rendering and preview addresses | Vercel               | `000`      |
+| Capability (`000`)                                  | Planned choice                                                                 | First spec |
+| --------------------------------------------------- | ------------------------------------------------------------------------------ | ---------- |
+| Sign-in, organizations, a token carrying the claim  | Clerk                                                                          | `006`      |
+| Storage with row-level policies and pushed changes  | Supabase (Postgres)                                                            | `007`      |
+| Drawing and laying out the map                      | React Flow and dagre                                                           | `003`      |
+| Tracing model calls                                 | LangSmith                                                                      | `009`      |
+| Hosting with server rendering and preview addresses | Vercel, with Nitro (decided: [ADR 0002](0002-hosting-on-vercel-with-nitro.md)) | `000`      |
 
 ## Alternatives considered
 
