@@ -10,10 +10,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@workspace/ui/components/shadcn-ui/sidebar"
-import { cn } from "@workspace/ui/lib/utils"
 
 import { useMapState } from "@/components/map/map-state"
-import { TIER_SWATCH } from "@/components/map/tier"
+import { TierSwatch } from "@/components/map/tier"
 
 /**
  * The rail (spec 003, FR-015, FR-016): the taxonomy in its fixed order, each
@@ -53,13 +52,7 @@ export function Rail({ taxonomy }: { taxonomy: ReadonlyArray<TaxonomyEntry> }) {
                       aria-pressed={chosen}
                       onClick={() => chooseRole(chosen ? null : entry.role)}
                     >
-                      <span
-                        aria-hidden="true"
-                        className={cn(
-                          "size-2.5 shrink-0 rounded-full",
-                          TIER_SWATCH[entry.tier]
-                        )}
-                      />
+                      <TierSwatch tier={entry.tier} className="size-2.5" />
                       <span>{entry.role}</span>
                     </SidebarMenuButton>
                     <SidebarMenuBadge className="tabular-nums">

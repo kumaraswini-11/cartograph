@@ -11,6 +11,8 @@ import {
   SidebarGroupLabel,
 } from "@workspace/ui/components/shadcn-ui/sidebar"
 
+import { FactList } from "@/components/detail/fact-list"
+import type { Fact } from "@/components/detail/fact-list"
 import { FileList } from "@/components/detail/file-list"
 import type { FileRow } from "@/components/detail/file-list"
 import { useMapData } from "@/components/map/map-data"
@@ -40,13 +42,16 @@ export function Summary() {
       })),
     [input.files]
   )
-  const counts: Array<[string, React.ReactNode]> = [
-    ["Files", input.files.length],
-    ["Imports", input.imports.seen],
-    ["Resolved", input.imports.resolved],
+  const counts: Array<Fact> = [
+    { term: "Files", value: input.files.length },
+    { term: "Imports", value: input.imports.seen },
+    { term: "Resolved", value: input.imports.resolved },
     // With no adapter, no route could be found: none, not 0 (edge cases).
-    ["Routes", input.frameworks.length === 0 ? "None found" : input.routes],
-    ["Unidentified files", unidentified],
+    {
+      term: "Routes",
+      value: input.frameworks.length === 0 ? "None found" : input.routes,
+    },
+    { term: "Unidentified files", value: unidentified },
   ]
 
   return (
@@ -68,14 +73,7 @@ export function Summary() {
               ))
             )}
           </div>
-          <dl className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
-            {counts.map(([term, value]) => (
-              <div key={term} className="contents">
-                <dt className="text-muted-foreground">{term}</dt>
-                <dd className="text-end tabular-nums">{value}</dd>
-              </div>
-            ))}
-          </dl>
+          <FactList facts={counts} />
         </SidebarGroupContent>
       </SidebarGroup>
       <FileList

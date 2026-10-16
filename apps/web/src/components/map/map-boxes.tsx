@@ -15,7 +15,7 @@ import {
 } from "@workspace/ui/components/shadcn-ui/item"
 import { cn } from "@workspace/ui/lib/utils"
 
-import { TIER_SWATCH } from "@/components/map/tier"
+import { TierSwatch } from "@/components/map/tier"
 
 /** A file row as the map shows it. */
 export type RowView = {
@@ -181,10 +181,7 @@ export const PanelView = memo(function Panel({
               )}
             >
               <ItemMedia>
-                <span
-                  aria-hidden="true"
-                  className={cn("size-2 rounded-full", TIER_SWATCH[row.tier])}
-                />
+                <TierSwatch tier={row.tier} />
               </ItemMedia>
               <ItemTitle className="font-mono text-[13px] font-normal">
                 {row.name}

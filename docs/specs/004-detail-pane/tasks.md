@@ -39,7 +39,7 @@ the unidentified count; the shared file list and the derived-data provider.
 
 ## T03 — A file or a box selected
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T02
 **Covers:** FR-007 to FR-010, AC-04, AC-08
 
@@ -49,9 +49,9 @@ when long; a box's roles with their counts.
 
 **Done when:**
 
-- [ ] Selecting files and boxes in turn keeps the open tab, and every count
+- [x] Selecting files and boxes in turn keeps the open tab, and every count
       equals its list.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T04 — Moving between pane and map
 
