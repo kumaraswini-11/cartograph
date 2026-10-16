@@ -185,8 +185,9 @@ and anything interactive. Green for incoming, amber for outgoing. Surfaces near
 white in light mode, near black in dark. Everything else derives from those —
 pick sensible values, keep them consistent, and don't ask about each one.
 
-**Dark and light, and the user's choice wins.** Three states: follow the system,
-force light, force dark. The choice survives a reload. Both palettes are real
+**Dark and light, and the user's choice wins.** A first visit follows the
+system; once someone picks light or dark, their choice wins and survives a
+reload. Both palettes are real
 palettes rather than one of them inverted.
 
 **Nothing moves on its own.** Motion happens because something was clicked. No
