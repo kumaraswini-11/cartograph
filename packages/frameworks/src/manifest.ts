@@ -1,22 +1,18 @@
-import { readFileSync } from "node:fs"
+import { isObject, readJsonc } from "@workspace/parser/json"
+import { SOURCE_EXTENSION_PATTERN } from "@workspace/parser/paths"
 
 /** A package manifest as read: a plain JSON object. */
 export type Manifest = { readonly [key: string]: unknown }
 
-/** The manifest at `path`, or undefined when it's missing or not JSON. */
+/**
+ * The manifest at `path`, or undefined when it's missing or not an object.
+ * Read as the parser reads it (`@workspace/parser/json`), so both packages
+ * agree on every manifest.
+ */
 export function readManifest(path: string): Manifest | undefined {
-  try {
-    const value: unknown = JSON.parse(readFileSync(path, "utf8"))
-    return typeof value === "object" && value !== null && !Array.isArray(value)
-      ? (value as Manifest)
-      : undefined
-  } catch {
-    return undefined
-  }
+  const value = readJsonc(path)
+  return isObject(value) ? value : undefined
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value)
 
 /** The packages a manifest declares, in any of its four lists (plan D-04). */
 export function declaredPackages(manifest: Manifest | undefined): Set<string> {
@@ -28,7 +24,7 @@ export function declaredPackages(manifest: Manifest | undefined): Set<string> {
     "optionalDependencies",
   ]) {
     const list = manifest?.[field]
-    if (isRecord(list)) for (const name of Object.keys(list)) declared.add(name)
+    if (isObject(list)) for (const name of Object.keys(list)) declared.add(name)
   }
   return declared
 }
@@ -37,12 +33,14 @@ export function declaredPackages(manifest: Manifest | undefined): Set<string> {
 function strings(value: unknown): Array<string> {
   if (typeof value === "string") return [value]
   if (Array.isArray(value)) return value.flatMap(strings)
-  if (isRecord(value)) return Object.values(value).flatMap(strings)
+  if (isObject(value)) return Object.values(value).flatMap(strings)
   return []
 }
 
 /** A source file path inside a script command: `node scripts/seed.js`. */
-const SCRIPT_FILE = /^(\.\/)?[\w@.-][\w@./-]*\.[cm]?[jt]sx?$/
+const SCRIPT_FILE = new RegExp(
+  `^(\\./)?[\\w@.-][\\w@./-]*${SOURCE_EXTENSION_PATTERN}$`
+)
 
 /**
  * The files a manifest names (spec 002, FR-007), relative to its package:
@@ -59,7 +57,7 @@ export function namedFiles(manifest: Manifest | undefined): Array<string> {
     ...strings(manifest.bin),
   ]
   const scripts = manifest.scripts
-  if (isRecord(scripts)) {
+  if (isObject(scripts)) {
     for (const command of Object.values(scripts)) {
       if (typeof command !== "string") continue
       for (const token of command.split(/[\s"'=]+|&&|\|\|?|;/)) {

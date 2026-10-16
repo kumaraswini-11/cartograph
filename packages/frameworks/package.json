@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "description": "Detects each package's framework, and gives files their roles, entry points and routes (docs/specs/002-framework-detection).",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
     "./taxonomy": "./src/taxonomy.ts"
@@ -21,9 +22,11 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@workspace/golden": "workspace:*",
-    "@tanstack/eslint-config": "catalog:",
     "@types/node": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/golden": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*",
     "eslint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

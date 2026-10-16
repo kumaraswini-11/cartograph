@@ -126,7 +126,7 @@ type Box = {
 - **D-10** One source for each concern. Paths are compared, split into
   folders and named by `@workspace/parser/paths` (pure, so the browser can
   use it), and the commands' `<directory> [--out <file>]` by
-  `@workspace/parser/cli`; the graph package declares `sideEffects: false`,
+  `@workspace/parser/command`; the graph package declares `sideEffects: false`,
   so a page that imports one value from it doesn't also load dagre.
 - **D-11** Not-found, error and pending pages, asked for by the user while
   the shell was built: the router's `defaultNotFoundComponent`,
@@ -144,15 +144,34 @@ type Box = {
   Graph; the home page adds `WebSite` structured data for Google's site
   name ([site names](https://developers.google.com/search/docs/appearance/site-names)).
   One helper, `seo()` in `src/lib/site.ts`, builds them from one site
-  config; TanStack Router keeps the deepest route's copy of each tag.
+  config; TanStack Router keeps the deepest route's copy of each tag. X reads
+  Open Graph for the rest, but its own title, description and image tags are
+  sent too: they cost a line each and some link checkers ask for them.
   Addresses are absolute, from `VERCEL_PROJECT_PRODUCTION_URL`, which Vercel
   sets on every build, previews included, and which `turbo.json` declares
-  so Strict Mode passes it to the build. The 1200 × 630 share image is drawn
+  so Strict Mode passes it to the build. A build for Vercel without it
+  stops rather than publish links to localhost; Vercel is detected as Nitro
+  detects it (`std-env`). The 1200 × 630 share image is drawn
   by `scripts/og-image.ts` and committed. Titles put the page first and
   the site's name after it, the home page the brand line (Google: title
   links). `twitter:url` isn't one of X's card tags; it carries the page's
   address anyway, since link checkers ask for it. The home description stays
   within three lines on mobile (at most 120 characters).
+- **D-13** Dimming keeps text readable (WCAG 2.2 AA), from the interface
+  review of 2026-10-17. Measured on the theme's tokens: 25% opacity left
+  dimmed labels at 1.8:1 (light) and 2.2:1 (dark), under 1.4.3's 4.5:1, and
+  plain edges at 60% at 2.3:1, under 1.4.11's 3:1. Dimmed boxes and rows
+  now take the muted text colour (4.7:1 light, 6.9:1 dark) and only the
+  decorative tier dot fades; plain edges are drawn at full opacity (4.7:1,
+  7.6:1). Edges a selection leaves out are drawn at 15%: while a selection
+  stands, its own edges carry the information, in their own colours at full
+  strength, and clearing it (Escape, or the pane's button) brings every edge
+  back; text is never dimmed that way. A selection is marked
+  `aria-current`, not `aria-pressed` (it isn't a toggle). What is strong
+  is decided by `isBoxStrong` and `isRowStrong` in `@workspace/graph`; a
+  panel's counts are worded once (`panelCounts`, `matchCount`, with
+  plurals) for the panel and for the room the layout keeps; the label size
+  is one token, `--text-path`, beside `CHAR_WIDTH`.
 
 ## Layout values
 
@@ -172,6 +191,12 @@ type Box = {
 
 - React Flow renders a node only when it has a size; the layout supplies
   every node's width and height, so nothing waits on measuring.
+- React Flow turns pointer events off for a node that's neither draggable
+  nor selectable, so a mouse click falls through to the pane; each node sets
+  `pointerEvents: "all"` in its own style, which React Flow applies last.
+  Found on 2026-10-17 with real mouse events: the earlier headless checks
+  clicked through the page's script, which pointer events don't stop, so
+  the browser checks now press and move the mouse.
 - React Flow's `fitView` with `maxZoom` set to the current zoom fits only
   outward (FR-011); its duration is 0 when the system asks for reduced
   motion (FR-020).
@@ -182,7 +207,9 @@ type Box = {
   when it never collapses: the page's own JavaScript is 36.7 KB gzipped, and
   React Flow with dagre (77.7 KB) loads with the map, after the shell.
 - TanStack Router reloads loader data when it's stale, by default at once;
-  the sample is fixed, so its route sets `staleTime: Infinity`.
+  the sample is fixed, so its route sets `staleTime: Infinity`, and
+  `preloadStaleTime: Infinity`, since a preload (hovering the link) has its
+  own staleness, 30 s by default.
 
 ## Testing
 

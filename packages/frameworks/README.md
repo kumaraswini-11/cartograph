@@ -40,11 +40,17 @@ with no parser or file system, so the interface can import it alone (C-02).
 
 Every framework says in its own way what a file is (Next.js: `app/shop/page.tsx`
 is a page; SvelteKit: `src/routes/shop/+page.svelte`), so each needs its own
-rules, written once. Adding one touches nothing else:
+rules, written once. Adding one touches only the adapters' folder:
 
 1. A new folder in `src/adapters/` with `taxonomy.ts` (its role names, by
-   tier) and `adapter.ts` (its rules), listed in `src/adapters/index.ts`.
-2. Its own spec, with a golden repository checked by hand.
+   tier) and `adapter.ts` (its rules).
+2. The adapter listed in `src/adapters/index.ts`, and its taxonomy in
+   `src/adapters/taxonomies.ts`, at the same place: the interface reads that
+   second list without loading any adapter (spec 002, C-02), and a test fails
+   when the two disagree.
+3. Its names added to `src/boundaries.test.ts`, so no other adapter can use
+   them (C-05).
+4. Its own spec, with a golden repository checked by hand.
 
 Without an adapter, a repository still gets its full map from the parser;
 its files take the roles of an adapter it does match (a TanStack Start app

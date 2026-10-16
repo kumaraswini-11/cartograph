@@ -1,8 +1,9 @@
 import { Suspense, lazy } from "react"
 import { ClientOnly } from "@tanstack/react-router"
-import type { MapInput } from "@workspace/graph"
 import { EmptyState } from "@workspace/ui/components/empty-state"
 import { Skeleton } from "@workspace/ui/components/shadcn-ui/skeleton"
+
+import { useMapData } from "@/components/map/map-data"
 
 // React Flow loads with the map, not with the page.
 const MapDrawing = lazy(() => import("@/components/map/map-drawing"))
@@ -12,9 +13,14 @@ const MapDrawing = lazy(() => import("@/components/map/map-drawing"))
  * grid before anything is drawn, and the placeholder fills it, so nothing
  * else on the page moves when the map appears.
  */
-export function MapView({ input }: { input: MapInput }) {
+export function MapView() {
+  const { input } = useMapData()
   const placeholder = (
-    <Skeleton className="size-full rounded-none" aria-label="Loading the map" />
+    <Skeleton
+      role="status"
+      aria-label="Loading the map"
+      className="size-full rounded-none motion-reduce:animate-none"
+    />
   )
   if (input.files.length === 0) {
     return (
@@ -28,7 +34,7 @@ export function MapView({ input }: { input: MapInput }) {
   return (
     <ClientOnly fallback={placeholder}>
       <Suspense fallback={placeholder}>
-        <MapDrawing input={input} />
+        <MapDrawing />
       </Suspense>
     </ClientOnly>
   )

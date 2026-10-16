@@ -28,11 +28,15 @@ if (!isTooLarge(result)) writeResult("result.json", result)
 Other entry points, each one source for its concern:
 
 - `@workspace/parser/paths`: how the result writes paths (compare, folder,
-  file name); pure, so the browser uses it too.
+  file name) and which files are source (extensions, a compiled file's
+  source); pure, so the browser uses it too.
+- `@workspace/parser/json`: reading configuration (JSON with comments),
+  telling an object apart, and writing and checking results; shared with
+  detection.
 - `@workspace/parser/syntax`: how the parser reads syntax, shared with
   detection.
-- `@workspace/parser/cli`: the `<directory> [--out <file>]` arguments every
-  command over a directory takes.
+- `@workspace/parser/command`: what every command over a directory shares:
+  its `<directory> [--out <file>]` arguments and its messages.
 - `@workspace/parser/testing`: a temporary repository for tests.
 
 ## Status

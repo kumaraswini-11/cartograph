@@ -3,6 +3,9 @@
   "ui": "tui",
   "globalPassThroughEnv": ["ENABLE_EXPERIMENTAL_COREPACK"],
   "tasks": {
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "env": ["VERCEL_PROJECT_PRODUCTION_URL"],
@@ -10,15 +13,15 @@
       "outputs": ["dist/**", ".output/**", ".vercel/output/**"]
     },
     "lint": {
-      "dependsOn": ["^lint"],
+      "dependsOn": ["transit"],
       "inputs": ["$TURBO_DEFAULT$", "!README.md"]
     },
     "typecheck": {
-      "dependsOn": ["^typecheck"],
+      "dependsOn": ["transit"],
       "inputs": ["$TURBO_DEFAULT$", "!README.md"]
     },
     "test": {
-      "dependsOn": ["^test"],
+      "dependsOn": ["transit"],
       "inputs": ["$TURBO_DEFAULT$", "!README.md"]
     },
     "dev": {

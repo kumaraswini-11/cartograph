@@ -15,4 +15,5 @@
 
 # Generated files: collapsed in GitHub diffs and left out of language stats
 apps/web/src/routeTree.gen.ts linguist-generated=true
+apps/web/src/sample/map.gen.ts linguist-generated=true
 pnpm-lock.yaml linguist-generated=true

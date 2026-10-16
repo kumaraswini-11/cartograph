@@ -1,4 +1,4 @@
-// The map's named values, one source for each (spec 003, plan).
+// The map's named values, one source for each (specs 003 and 004, plans).
 
 /** The lowest folding threshold: a folder of fewer files folds (FR-004). */
 export const FOLD_MIN_FILES = 2
@@ -12,9 +12,16 @@ export const PANEL_ROW_LIMIT = 12
 /** Below this coverage figure, the map shows a banner (FR-017). */
 export const COVERAGE_PARTIAL_BELOW = 0.95
 
+/** The files each of the summary's lists shows before "Show all" (`004` FR-004). */
+export const SUMMARY_LIST_LENGTH = 10
+
+/** The levels of a blast radius or dependency chain listed open (`004` FR-016). */
+export const REACH_OPEN_LEVELS = 2
+
 /**
  * One monospace character at the label's size, in pixels (plan D-04): labels
- * are set at 13px, whose monospace characters are 7.8px wide.
+ * are set at 13px (the theme's `--text-path`, packages/ui globals.css), whose
+ * monospace characters are 7.8px wide. Change both together.
  */
 export const CHAR_WIDTH = 8
 

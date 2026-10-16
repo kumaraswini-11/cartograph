@@ -4,9 +4,15 @@
 import { TAXONOMIES } from "./adapters/taxonomies.ts"
 
 export { TAXONOMIES }
+// A type only, gone once compiled: the rail reads detection's taxonomy
+// entries without loading detection's schema.
+export type { TaxonomyEntry } from "./result.ts"
 
-/** Reading order on the rail (FR-008, C-04). */
-export const TIERS = ["surface", "layer", "plumbing", "unidentified"] as const
+/** The tiers a framework's roles sit in, in reading order (FR-008). */
+export const ROLE_TIERS = ["surface", "layer", "plumbing"] as const
+
+/** Reading order on the rail (FR-008, C-04): the role tiers, then Unidentified. */
+export const TIERS = [...ROLE_TIERS, "unidentified"] as const
 export type Tier = (typeof TIERS)[number]
 
 /** One framework's roles by tier, each list in its reading order. */
@@ -18,6 +24,13 @@ export type Taxonomy = {
 }
 
 export type TaxonomyRole = { role: string; tier: Tier }
+
+/** One framework's roles with their tiers, in reading order. */
+export function rolesOf(taxonomy: Taxonomy): Array<TaxonomyRole> {
+  return ROLE_TIERS.flatMap((tier) =>
+    taxonomy[tier].map((role) => ({ role, tier }))
+  )
+}
 
 /** The role of a file no convention identified (FR-003, FR-005). */
 export const UNIDENTIFIED = "Unidentified"
@@ -33,7 +46,7 @@ export function mergeTaxonomies(
   const used = TAXONOMIES.filter((t) => frameworks.has(t.framework))
   const roles: Array<TaxonomyRole> = []
   const seen = new Set<string>()
-  for (const tier of ["surface", "layer", "plumbing"] as const) {
+  for (const tier of ROLE_TIERS) {
     for (const taxonomy of used) {
       for (const role of taxonomy[tier]) {
         if (seen.has(role)) continue

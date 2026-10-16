@@ -11,7 +11,9 @@ import { pageTitle, seo } from "@/lib/site"
  */
 export const Route = createFileRoute("/sample")({
   loader: () => getSampleMap(),
+  // The sample is fixed: loaded once, and a preload is kept as long.
   staleTime: Infinity,
+  preloadStaleTime: Infinity,
   head: ({ loaderData }) =>
     loaderData
       ? seo({

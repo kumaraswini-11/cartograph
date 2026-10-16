@@ -31,7 +31,8 @@ code. Nothing on the map is guessed.
 
 A modular monolith in a monorepo: one deployable app, `apps/web` (TanStack
 Start), and packages under `packages/` (`ui`, `parser`, `frameworks`,
-`graph` and `golden` today), each with a README. Code goes in the package that owns it;
+`graph` and `golden` today, and `typescript-config`, `eslint-config` and
+`vitest-config`, the settings every package shares), each with a README. Code goes in the package that owns it;
 a package uses another only by declaring it as a dependency and importing it
 by its package name, never by a relative path into it.
 

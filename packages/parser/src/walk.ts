@@ -1,19 +1,7 @@
 import { readdirSync, statSync } from "node:fs"
 import { join } from "node:path"
 
-import { byPath } from "./paths.ts"
-
-/** Extensions of the JavaScript and TypeScript files the parser reads. */
-export const SOURCE_EXTENSIONS = [
-  ".ts",
-  ".tsx",
-  ".mts",
-  ".cts",
-  ".js",
-  ".jsx",
-  ".mjs",
-  ".cjs",
-] as const
+import { byPath, compareText, isSourceFile } from "./paths.ts"
 
 /** Directories never parsed, by name, with the reason recorded for each. */
 const EXCLUDED_DIRECTORIES: ReadonlyMap<string, string> = new Map([
@@ -72,18 +60,18 @@ export type Walk =
 
 export type WalkOptions = { maxFiles: number }
 
+/** A project's TypeScript settings: `tsconfig.json`, `jsconfig.app.json`. */
+export function isTsConfig(name: string): boolean {
+  return /^(ts|js)config(\..+)?\.json$/.test(name)
+}
+
 /** Configuration files resolution reads (workspaces, tsconfig paths). */
 export function isConfigFile(name: string): boolean {
   return (
     name === "package.json" ||
     name === "pnpm-workspace.yaml" ||
-    /^(ts|js)config(\..+)?\.json$/.test(name)
+    isTsConfig(name)
   )
-}
-
-/** True when `name` ends in one of the source extensions. */
-export function isSourceFile(name: string): boolean {
-  return SOURCE_EXTENSIONS.some((extension) => name.endsWith(extension))
 }
 
 /**
@@ -133,6 +121,6 @@ export function walk(directory: string, options: WalkOptions): Walk {
   return {
     files: files.sort(byPath),
     excluded: excluded.sort(byPath),
-    configs: configs.sort(),
+    configs: configs.sort(compareText),
   }
 }

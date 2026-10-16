@@ -2,11 +2,10 @@
 // at its pinned commit, parses it, and prints its counts beside the ones
 // pinned in the spec's golden data (spec 001, T07). Exits 1 on any drift.
 // The network belongs to this script, never to the parser (C-01).
-import { exit, stdout } from "node:process"
-
-import { checkout, compareCounts } from "@workspace/golden"
+import { compareCounts, runGolden, timed } from "@workspace/golden"
 import type { Counts } from "@workspace/golden"
 
+import { percent, unresolvedLines } from "../src/command.ts"
 import { isTooLarge, parseRepository } from "../src/index.ts"
 import type { ParsedRepository } from "../src/index.ts"
 
@@ -82,33 +81,24 @@ function countsOf(result: ParsedRepository): Counts {
     "require() calls": of("require").length,
     "require() resolved": resolved(of("require")),
     edges: result.edges.length,
-    coverage:
-      coverage.figure === null
-        ? "none"
-        : `${(coverage.figure * 100).toFixed(1)}%`,
+    coverage: coverage.figure === null ? "none" : percent(coverage.figure),
   }
 }
 
-let drift = false
-for (const golden of GOLDEN) {
-  const directory = await checkout(golden.repository, golden.commit)
-  const started = performance.now()
-  const result = parseRepository(directory)
-  const seconds = (performance.now() - started) / 1000
+await runGolden(GOLDEN, "parsed", (golden, directory) => {
+  const [result, seconds] = timed(() => parseRepository(directory))
   if (isTooLarge(result)) throw new Error(`${golden.repository} is too large`)
-
-  const counts = countsOf(result)
-  const lines = [
-    `${golden.repository} @ ${golden.commit.slice(0, 7)} (parsed in ${seconds.toFixed(1)} s)`,
-  ]
-  const compared = compareCounts(counts, golden.pinned)
-  lines.push(...compared.lines)
-  drift ||= compared.drift
-  for (const group of result.coverage.unresolvedByReason) {
-    lines.push(`  unresolved, ${group.reason}: ${group.count}`)
-    for (const e of group.examples)
-      lines.push(`    ${e.file}:${e.line} ${e.specifier || "(not a literal)"}`)
+  const compared = compareCounts(countsOf(result), golden.pinned)
+  return {
+    seconds,
+    lines: [
+      ...compared.lines,
+      ...unresolvedLines(
+        result.coverage.unresolvedByReason,
+        "  ",
+        "unresolved, "
+      ),
+    ],
+    drift: compared.drift,
   }
-  stdout.write(lines.join("\n") + "\n\n")
-}
-if (drift) exit(1)
+})

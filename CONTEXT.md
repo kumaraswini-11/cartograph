@@ -162,12 +162,12 @@ A file one edge away from the selection, in either direction.
 _Avoid_: adjacent file, connection
 
 **Blast radius**:
-A file's dependents, followed transitively to `REACH_DEPTH` levels: what may
+A file's dependents, followed transitively through every level: what may
 break if it changes.
 _Avoid_: impact, ripple
 
 **Dependency chain**:
-A file's dependencies, followed transitively to `REACH_DEPTH` levels: what it
+A file's dependencies, followed transitively through every level: what it
 needs.
 _Avoid_: dependency tree, supply chain
 

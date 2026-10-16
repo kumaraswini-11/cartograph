@@ -4,7 +4,8 @@ import { dirname, join } from "node:path"
 import { parseSource } from "@workspace/parser/syntax"
 import { describe, expect, it } from "vitest"
 
-import { TAXONOMIES, TIERS, mergeTaxonomies } from "./taxonomy.ts"
+import { ADAPTERS } from "./adapters/index.ts"
+import { ROLE_TIERS, TAXONOMIES, TIERS, mergeTaxonomies } from "./taxonomy.ts"
 
 describe("taxonomies (FR-008, FR-009, AC-09)", () => {
   it("lists surface, then layer, then plumbing, then Unidentified", () => {
@@ -46,10 +47,16 @@ describe("taxonomies (FR-008, FR-009, AC-09)", () => {
     expect(mergeTaxonomies(frameworks)).toEqual(mergeTaxonomies(frameworks))
   })
 
+  it("lists each adapter's taxonomy, in the order adapters run (FR-002)", () => {
+    // Two lists, so the interface can read taxonomies without the adapters
+    // (C-02): an adapter added to one and not the other fails here.
+    expect(TAXONOMIES).toEqual(ADAPTERS.map((adapter) => adapter.taxonomy))
+  })
+
   it("never puts a role name in two tiers", () => {
     const tierOf = new Map<string, string>()
     for (const taxonomy of TAXONOMIES) {
-      for (const tier of ["surface", "layer", "plumbing"] as const) {
+      for (const tier of ROLE_TIERS) {
         for (const role of taxonomy[tier]) {
           expect(tierOf.get(role) ?? tier).toBe(tier)
           tierOf.set(role, tier)

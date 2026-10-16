@@ -1,0 +1,13 @@
+{
+  "name": "@workspace/eslint-config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Cartograph's ESLint settings, one source for every package: TanStack's rules, with the ones this repository leaves off.",
+  "exports": {
+    ".": "./index.js"
+  },
+  "dependencies": {
+    "@tanstack/eslint-config": "catalog:"
+  }
+}

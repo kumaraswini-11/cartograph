@@ -26,8 +26,8 @@ const edges = [
 ]
 const map = buildBoxes(files, edges)
 
-/** Every endpoint that exists in a layout: boxes, and rows of open panels. */
-function endpoints(layout: Layout): Set<string> {
+/** Every edge end that exists in a layout: boxes, and rows of open panels. */
+function ends(layout: Layout): Set<string> {
   const known = new Set<string>()
   for (const node of layout.boxes) {
     known.add(node.id)
@@ -44,7 +44,7 @@ describe("layout (FR-009, FR-012)", () => {
     "ends every edge on a box or row that exists, with %j open (AC-03)",
     (open: Array<string>) => {
       const layout = layoutMap(map, edges, new Set(open))
-      const known = endpoints(layout)
+      const known = ends(layout)
       for (const e of layout.edges) {
         expect(known.has(key(e.from))).toBe(true)
         expect(known.has(key(e.to))).toBe(true)
@@ -129,5 +129,32 @@ describe("the root box", () => {
     const layout = layoutMap(buildBoxes(rooted, rootEdges), rootEdges)
     expect(layout.boxes.map((n) => n.id)).toContain("")
     for (const node of layout.boxes) expect(Number.isFinite(node.x)).toBe(true)
+  })
+})
+
+describe("a pinned file (spec 004, FR-012)", () => {
+  const past = `util/m${PANEL_ROW_LIMIT + 1}.ts`
+
+  it("lists the file after the first rows, which don't move", () => {
+    const plain = layoutMap(map, edges, new Set(["util"]))
+    const pinned = layoutMap(map, edges, new Set(["util"]), past)
+    const before = plain.boxes.find((b) => b.id === "util")
+    const after = pinned.boxes.find((b) => b.id === "util")
+    expect(after?.rows.slice(0, PANEL_ROW_LIMIT)).toEqual(before?.rows)
+    expect(after?.rows.at(-1)).toBe(past)
+    expect(after?.more).toBe((before?.more ?? 0) - 1)
+  })
+
+  it("ends the file's edges on its own row, not the more row", () => {
+    const pinned = layoutMap(map, edges, new Set(["util"]), past)
+    expect(pinned.edges.some((e) => e.to.row === past)).toBe(true)
+    expect(pinned.edges.some((e) => e.to.row === MORE)).toBe(false)
+  })
+
+  it("changes nothing for a file already in view, or outside the box", () => {
+    const plain = layoutMap(map, edges, new Set(["util"]))
+    for (const path of ["util/m00.ts", "lib/a.ts"]) {
+      expect(layoutMap(map, edges, new Set(["util"]), path)).toEqual(plain)
+    }
   })
 })

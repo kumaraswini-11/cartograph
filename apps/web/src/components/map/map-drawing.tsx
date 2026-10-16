@@ -7,6 +7,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   useSyncExternalStore,
 } from "react"
 import {
@@ -19,22 +20,52 @@ import {
 import type { Edge } from "@xyflow/react"
 import { MaximizeIcon, MinusIcon, PlusIcon } from "lucide-react"
 import {
-  buildBoxes,
+  PANEL_ROW_LIMIT,
+  edgeEndKey,
   fullStrength,
+  isBoxStrong,
+  isRowStrong,
   layoutMap,
+  panelCounts,
   roleCounts,
 } from "@workspace/graph"
-import type { MapInput } from "@workspace/graph"
+import type { Selection } from "@workspace/graph"
 import { fileName } from "@workspace/parser/paths"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
 import { ButtonGroup } from "@workspace/ui/components/shadcn-ui/button-group"
 
+import { useMapData } from "@/components/map/map-data"
 import { useMapState } from "@/components/map/map-state"
 import { BoxView, PanelView } from "@/components/map/map-boxes"
 import type { BoxElement, PanelElement } from "@/components/map/map-boxes"
 
 const ELEMENT_TYPES = { box: BoxView, panel: PanelView }
 const ANIMATION_MS = 200
+/** Room around what a fit shows, as a share of the view. */
+const FIT_PADDING = 0.1
+
+/**
+ * React Flow turns pointer events off for a node that's neither draggable
+ * nor selectable, so a mouse click would reach the pane behind it; a node's
+ * own style comes last and wins. Its buttons handle every click (FR-007,
+ * FR-010; spec 003 plan, stack notes).
+ */
+const NODE_STYLE: React.CSSProperties = { pointerEvents: "all" }
+
+/**
+ * An edge's opacity: full with nothing selected, where a grey edge keeps 3:1
+ * against the page (WCAG 1.4.11: 4.7:1 light, 7.6:1 dark); low when a
+ * selection leaves it out. Those are background then: the selection's own
+ * edges carry the information, in their own colours at full strength, and
+ * clearing the selection brings every edge back (spec 003 plan D-13).
+ */
+const EDGE_OPACITY = { plain: 1, dimmed: 0.15 }
+
+/** A selection as one comparable value. */
+const selectionKey = (selection: Selection | null) =>
+  selection === null
+    ? null
+    : edgeEndKey({ box: selection.box, row: selection.file })
 
 /** Whether the system asks for reduced motion (FR-020). */
 function useReducedMotion(): boolean {
@@ -49,7 +80,8 @@ function useReducedMotion(): boolean {
   )
 }
 
-function Drawing({ input }: { input: MapInput }) {
+function Drawing() {
+  const { input, boxMap, tierOf } = useMapData()
   const { state, actions } = useMapState()
   const { selection, role, open } = state
   const flow = useReactFlow()
@@ -57,10 +89,17 @@ function Drawing({ input }: { input: MapInput }) {
   const reducedMotion = useReducedMotion()
   const duration = reducedMotion ? 0 : ANIMATION_MS
 
-  const boxMap = useMemo(() => buildBoxes(input.files, input.edges), [input])
+  // A selected file past its panel's row limit is listed anyway (spec 004,
+  // FR-012); any other selection leaves the layout as it is.
+  const pinned = useMemo(() => {
+    const file = selection?.file
+    if (selection === null || file === undefined) return undefined
+    const files = boxMap.byId.get(selection.box)?.files ?? []
+    return files.indexOf(file) >= PANEL_ROW_LIMIT ? file : undefined
+  }, [boxMap, selection])
   const layout = useMemo(
-    () => layoutMap(boxMap, input.edges, open),
-    [boxMap, input.edges, open]
+    () => layoutMap(boxMap, input.edges, open, pinned),
+    [boxMap, input.edges, open, pinned]
   )
   const strength = useMemo(
     () => (selection ? fullStrength(layout, selection) : null),
@@ -74,15 +113,15 @@ function Drawing({ input }: { input: MapInput }) {
     () => new Map(input.files.map((f) => [f.path, f.role])),
     [input.files]
   )
-  const tierOf = useMemo(
-    () => new Map(input.taxonomy.map((t) => [t.role, t.tier])),
-    [input.taxonomy]
+  const placedById = useMemo(
+    () => new Map(layout.boxes.map((placed) => [placed.id, placed])),
+    [layout.boxes]
   )
 
   /** Whether a box or panel is fully on screen. */
   const inView = useCallback(
     (id: string) => {
-      const placed = layout.boxes.find((b) => b.id === id)
+      const placed = placedById.get(id)
       const bounds = wrapper.current?.getBoundingClientRect()
       if (!placed || !bounds) return true
       const { x, y, zoom } = flow.getViewport()
@@ -95,38 +134,42 @@ function Drawing({ input }: { input: MapInput }) {
         top + placed.height * zoom <= bounds.height
       )
     },
-    [flow, layout.boxes]
+    [flow, placedById]
   )
 
-  // Opening a panel refits so it's visible, only ever zooming out (FR-011,
-  // C-03): read after the new layout is drawn, never before.
   // A box and its panel are different elements: whichever replaces the one
   // that had the focus takes it, so the keyboard keeps its place (FR-023).
-  const focusTarget = useRef<string | null>(null)
+  const [focusTarget, setFocusTarget] = useState<string | null>(null)
 
-  const opened = useRef<ReadonlySet<string>>(open)
+  // A panel just opened, or the box of a file chosen in the pane (spec 004,
+  // FR-011), is brought into view, only ever zooming out (FR-011, C-03):
+  // read after the new layout is drawn, never before.
+  const shown = useRef({ open, selected: selectionKey(selection) })
   useEffect(() => {
-    const added = [...open].filter((id) => !opened.current.has(id))
-    opened.current = open
-    const id = added.at(0)
+    const added = [...open].find((id) => !shown.current.open.has(id))
+    const selected = selectionKey(selection)
+    const moved =
+      selected !== shown.current.selected ? selection?.box : undefined
+    shown.current = { open, selected }
+    const id = added ?? moved
     if (id === undefined) return
     const frame = requestAnimationFrame(() => {
       if (inView(id)) return
       void flow.fitView({
         nodes: [{ id }],
         maxZoom: flow.getZoom(),
-        padding: 0.1,
+        padding: FIT_PADDING,
         duration,
       })
     })
     return () => cancelAnimationFrame(frame)
-  }, [open, flow, inView, duration])
+  }, [open, selection, flow, inView, duration])
 
   /** Keyboard focus brings a box into view (FR-023). */
   const bringIntoView = useCallback(
     (id: string) => {
       if (inView(id)) return
-      const placed = layout.boxes.find((b) => b.id === id)
+      const placed = placedById.get(id)
       if (!placed) return
       void flow.setCenter(
         placed.x + placed.width / 2,
@@ -137,17 +180,14 @@ function Drawing({ input }: { input: MapInput }) {
         }
       )
     },
-    [flow, inView, layout.boxes, duration]
+    [flow, inView, placedById, duration]
   )
 
   const elements = useMemo(() => {
-    const boxStrong = (id: string) =>
-      (strength === null || strength.kept.has(id)) &&
-      (matches === null || (matches.get(id) ?? 0) > 0)
     // Tab order follows the picture: columns left to right, then top down.
     const ordered = [...layout.boxes].sort((a, b) => a.x - b.x || a.y - b.y)
     return ordered.map((placed): BoxElement | PanelElement => {
-      const box = boxMap.boxes.find((b) => b.id === placed.id)
+      const box = boxMap.byId.get(placed.id)
       const label = box?.label ?? placed.id
       const files = box?.files.length ?? 0
       const common = {
@@ -159,19 +199,20 @@ function Drawing({ input }: { input: MapInput }) {
         selectable: false,
         connectable: false,
         focusable: false,
+        style: NODE_STYLE,
       }
       const selected =
         selection?.box === placed.id && selection.file === undefined
       const base = {
         label,
         files,
-        strong: boxStrong(placed.id),
+        strong: isBoxStrong(placed.id, strength, matches),
         selected,
-        focusOnMount: focusTarget.current === placed.id,
+        focusOnMount: focusTarget === placed.id,
         onOpen: () => {
-          focusTarget.current = placed.id
+          setFocusTarget(placed.id)
           actions.select({ box: placed.id })
-          if (!open.has(placed.id)) actions.toggleOpen(placed.id)
+          actions.openBox(placed.id)
         },
         onFocused: () => bringIntoView(placed.id),
       }
@@ -181,28 +222,28 @@ function Drawing({ input }: { input: MapInput }) {
         type: "panel",
         data: {
           ...base,
-          // Inside an open panel, its rows carry the strength.
-          strong: strength === null || strength.kept.has(placed.id),
-          fanIn: box?.fanIn ?? 0,
-          fanOut: box?.fanOut ?? 0,
+          // Inside an open panel, its rows carry the role's strength.
+          strong: isBoxStrong(placed.id, strength, null),
+          counts: box ? panelCounts(box) : [],
           more: placed.more,
           matches: matches === null ? null : (matches.get(placed.id) ?? 0),
           rows: placed.rows.map((path) => {
             const fileRoleName = fileRole.get(path) ?? ""
-            const inSelection =
-              strength === null ||
-              strength.kept.has(`${placed.id}\0${path}`) ||
-              (selection?.box === placed.id && selection.file === undefined)
             return {
               path,
               name: fileName(path),
-              tier: tierOf.get(fileRoleName) ?? "unidentified",
-              strong: inSelection && (role === null || fileRoleName === role),
+              tier: tierOf(fileRoleName),
+              strong: isRowStrong(
+                { box: placed.id, file: path, role: fileRoleName },
+                strength,
+                selection,
+                role
+              ),
               selected: selection?.file === path,
             }
           }),
           onClose: () => {
-            focusTarget.current = placed.id
+            setFocusTarget(placed.id)
             // A closed box has no rows: a file selected in it becomes the
             // box, or nothing would be one edge away from the selection.
             if (selection?.box === placed.id && selection.file !== undefined) {
@@ -221,12 +262,12 @@ function Drawing({ input }: { input: MapInput }) {
     strength,
     matches,
     selection,
-    open,
     actions,
     bringIntoView,
     fileRole,
     tierOf,
     role,
+    focusTarget,
   ])
 
   const edges = useMemo(
@@ -258,7 +299,10 @@ function Drawing({ input }: { input: MapInput }) {
             stroke: color,
             strokeWidth: into || outOf ? 2 : 1,
             strokeDasharray: edge.typeOnly ? "4 3" : undefined,
-            opacity: strength === null ? 0.6 : into || outOf ? 1 : 0.12,
+            opacity:
+              strength === null || into || outOf
+                ? EDGE_OPACITY.plain
+                : EDGE_OPACITY.dimmed,
           },
         }
       }),
@@ -285,7 +329,7 @@ function Drawing({ input }: { input: MapInput }) {
         edges={edges}
         nodeTypes={ELEMENT_TYPES}
         fitView
-        fitViewOptions={{ padding: 0.1, maxZoom: 1 }}
+        fitViewOptions={{ padding: FIT_PADDING, maxZoom: 1 }}
         minZoom={0.1}
         nodesDraggable={false}
         nodesConnectable={false}
@@ -319,7 +363,9 @@ function Drawing({ input }: { input: MapInput }) {
               variant="outline"
               size="icon-sm"
               aria-label="Fit the map"
-              onClick={() => void flow.fitView({ padding: 0.1, duration })}
+              onClick={() =>
+                void flow.fitView({ padding: FIT_PADDING, duration })
+              }
             >
               <MaximizeIcon />
             </Button>
@@ -330,10 +376,10 @@ function Drawing({ input }: { input: MapInput }) {
   )
 }
 
-export default function MapDrawing({ input }: { input: MapInput }) {
+export default function MapDrawing() {
   return (
     <ReactFlowProvider>
-      <Drawing input={input} />
+      <Drawing />
     </ReactFlowProvider>
   )
 }

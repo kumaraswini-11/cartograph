@@ -1,8 +1,7 @@
 // The detection result: what later specs read about frameworks, roles,
 // entry points and routes (spec 002). The Zod schema is the one source; the
 // types are inferred from it, and readDetection checks a file against it.
-import { readFileSync, writeFileSync } from "node:fs"
-
+import { readJson, writeJson } from "@workspace/parser/json"
 import { z } from "zod"
 
 import { TIERS } from "./taxonomy.ts"
@@ -71,10 +70,10 @@ export type Detection = z.infer<typeof detection>
 
 /** Writes a detection as JSON: the same bytes for the same detection. */
 export function writeDetection(path: string, result: Detection): void {
-  writeFileSync(path, `${JSON.stringify(result, null, 2)}\n`)
+  writeJson(path, result)
 }
 
 /** Reads a written detection back, checking it against the schema. */
 export function readDetection(path: string): Detection {
-  return detection.parse(JSON.parse(readFileSync(path, "utf8")))
+  return readJson(path, detection)
 }

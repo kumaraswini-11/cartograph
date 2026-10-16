@@ -1,21 +1,19 @@
 import { posix } from "node:path"
 
-import { fileName, folderOf } from "@workspace/parser/paths"
+import {
+  SOURCE_EXTENSION_PATTERN,
+  SOURCE_FOR,
+  fileName,
+  folderOf,
+  withSourceExtensions,
+} from "@workspace/parser/paths"
 
 import type { PackageInput } from "./adapter.ts"
 import { namedFiles } from "./manifest.ts"
 import { localPath } from "./packages.ts"
 
-const EXTENSIONS = [
-  ".ts",
-  ".tsx",
-  ".mts",
-  ".cts",
-  ".js",
-  ".jsx",
-  ".mjs",
-  ".cjs",
-]
+const TOOL_CONFIG = new RegExp(`\\.config${SOURCE_EXTENSION_PATTERN}$`)
+const TEST_FILE = new RegExp(`[.-](test|spec)${SOURCE_EXTENSION_PATTERN}$`)
 
 /** A file's name without its last extension: `users.controller.ts` → `users.controller`. */
 export function stemOf(path: string): string {
@@ -29,28 +27,22 @@ export const isHookName = (stem: string) => /^use[A-Z-]/.test(stem)
 
 /** Configuration files a tool finds by name: `vite.config.ts`, `.eslintrc.cjs`. */
 export const isToolConfig = (name: string) =>
-  /\.config\.[cm]?[jt]sx?$/.test(name) || /^\.[\w-]+rc\.[cm]?js$/.test(name)
+  TOOL_CONFIG.test(name) || /^\.[\w-]+rc\.[cm]?js$/.test(name)
 
 /** Test files a runner finds by name, or by a `__tests__` folder. */
 export const isTestFile = (path: string) =>
-  /[.-](test|spec)\.[cm]?[jt]sx?$/.test(fileName(path)) ||
-  path.split("/").includes("__tests__")
+  TEST_FILE.test(fileName(path)) || path.split("/").includes("__tests__")
 
-/** The source files a manifest-named path can mean: as written, or its source. */
+/**
+ * The source files a manifest-named path can mean: as written (with an
+ * extension or as a folder's index), or the source it's compiled from.
+ */
 function candidates(path: string): Array<string> {
-  const swaps: Record<string, Array<string>> = {
-    ".js": [".ts", ".tsx"],
-    ".jsx": [".tsx"],
-    ".mjs": [".mts"],
-    ".cjs": [".cts"],
-  }
   const extension = posix.extname(path)
   const stem = path.slice(0, path.length - extension.length)
   return [
-    path,
-    ...EXTENSIONS.map((e) => `${path}${e}`),
-    ...EXTENSIONS.map((e) => `${path}/index${e}`),
-    ...(swaps[extension] ?? []).map((e) => `${stem}${e}`),
+    ...withSourceExtensions(path),
+    ...(SOURCE_FOR[extension] ?? []).map((e) => `${stem}${e}`),
   ]
 }
 

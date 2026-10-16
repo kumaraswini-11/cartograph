@@ -81,6 +81,12 @@ file), so the same repository gives byte-identical output (`001` FR-022).
   holds no syntax tree, and parsing is fast (`001`: 4,980 files in about 6 s
   with resolution). _Rejected:_ text searches, which match comments and
   strings (`001` FR-008).
+  A parsed tree takes about 17 times its source on the heap (measured on
+  three golden repositories, 2026-10-17), so the cache holds at most
+  16 million characters of source, about 280 MB: a typical repository fits
+  whole; past that, the files used longest ago are parsed again if asked.
+  Each file's calls are indexed in one walk, on the first lookup, so an
+  adapter asking for several call names walks the file once.
 - **D-03** A package is any folder above a parsed file that holds a
   `package.json`, plus the root. _Why:_ it covers workspace packages and the
   repositories that keep `client/` and `server/` apps without declaring a

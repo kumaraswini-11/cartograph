@@ -3,9 +3,11 @@ import { Button } from "@workspace/ui/components/shadcn-ui/button"
 
 import { useTheme } from "@/components/theme/theme-provider"
 
-// One click flips between light and dark. Which icon shows is decided by the
-// `dark` class on <html> in CSS, not by React state, so the server render and
-// the first client render always match.
+/**
+ * One click flips between light and dark. Which icon shows is decided by the
+ * `dark` class on <html> in CSS, not by React state, so the server render and
+ * the first client render always match.
+ */
 export function ThemeToggle() {
   const { setTheme } = useTheme()
 

@@ -4,9 +4,11 @@
   "type": "module",
   "private": true,
   "description": "Parses a directory of JavaScript and TypeScript into files, edges and coverage (docs/specs/001-repository-parser).",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
-    "./cli": "./src/cli-args.ts",
+    "./command": "./src/command.ts",
+    "./json": "./src/jsonc.ts",
     "./paths": "./src/paths.ts",
     "./syntax": "./src/syntax.ts",
     "./testing": "./src/testing.ts"
@@ -24,9 +26,11 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@workspace/golden": "workspace:*",
-    "@tanstack/eslint-config": "catalog:",
     "@types/node": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/golden": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*",
     "eslint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

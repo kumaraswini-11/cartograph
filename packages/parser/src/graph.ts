@@ -1,3 +1,4 @@
+import { compareText } from "./paths.ts"
 import type { Edge, ImportKind, ImportRecord } from "./result.ts"
 
 /** The kinds in a fixed order, so an edge's list reads the same every time. */
@@ -48,17 +49,7 @@ export function buildEdges(
         typeOnly: e.typeOnly,
       }
     })
-    .sort((a, b) =>
-      a.from !== b.from
-        ? a.from < b.from
-          ? -1
-          : 1
-        : a.to < b.to
-          ? -1
-          : a.to > b.to
-            ? 1
-            : 0
-    )
+    .sort((a, b) => compareText(a.from, b.from) || compareText(a.to, b.to))
 }
 
 /** Each file's fan-in (dependents) and fan-out (dependencies), from edges (FR-017). */

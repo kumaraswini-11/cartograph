@@ -1,10 +1,11 @@
 // Test helpers: map files and edges with only what a test cares about.
+import { UNIDENTIFIED } from "@workspace/frameworks/taxonomy"
 import { folderOf } from "@workspace/parser/paths"
 
 import type { MapEdge, MapFile } from "./input.ts"
 
 /** A file at `path`, in the folder that holds it, with `role`. */
-export const file = (path: string, role = "Unidentified"): MapFile => ({
+export const file = (path: string, role = UNIDENTIFIED): MapFile => ({
   path,
   folder: folderOf(path),
   lines: 1,
