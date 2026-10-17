@@ -203,6 +203,11 @@ _Avoid_: team, workspace, tenant, account
 A person who belongs to an organization.
 _Avoid_: user, seat
 
+**Admin**:
+A member who manages the organization's members, inviting them among other
+things. Whoever an organization is created for is its first.
+_Avoid_: owner, role
+
 **Invitation**:
 An offer, sent to an email address, to join an organization.
 _Avoid_: invite link

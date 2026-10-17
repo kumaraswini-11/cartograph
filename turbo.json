@@ -1,7 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalPassThroughEnv": ["ENABLE_EXPERIMENTAL_COREPACK"],
+  "globalPassThroughEnv": ["COREPACK_HOME", "ENABLE_EXPERIMENTAL_COREPACK"],
   "tasks": {
     "transit": {
       "dependsOn": ["^transit"]

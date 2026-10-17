@@ -1,6 +1,6 @@
 # 006 — Sign-in and organizations
 
-**Status:** Draft
+**Status:** Approved
 **Milestone:** M3 Platform
 **Depends on:** 000-platform-requirements
 
@@ -19,34 +19,41 @@ that claim, never by asking the identity provider.
 
 ### Signing in
 
-- **FR-001** The system shall offer sign-in with GitHub, Google and email, used
-  for identity only.
+- **FR-001** The system shall offer sign-in with GitHub, Google and email, the
+  last by a one-time code sent to the address, used for identity only.
 - **FR-002** When someone signs in with any method, the system shall land them
-  in the same place.
+  on the dashboard.
 - **FR-003** The system shall enable or disable a sign-in method through
   configuration, with no change to the code.
-- **FR-004** The system shall request no access to anyone's repositories and
-  store no repository token.
+- **FR-004** The system shall request access to identity only (profile and
+  email address), never to anyone's repositories, and keep no provider token
+  in its own storage.
 
 ### Organizations
 
 - **FR-005** When someone signs in for the first time, the system shall put
-  them in an organization without asking them to create one.
+  them in an organization of their own, named after them, without asking
+  them to create one.
 - **FR-006** The system shall let a member switch the current organization
   among those they belong to.
-- **FR-007** The system shall let a member invite someone by email into the
-  current organization.
+- **FR-007** The system shall let an admin of the current organization invite
+  someone into it by email.
 - **FR-008** When an invitation is accepted, the system shall bring the person
   to this application's sign-in page, and after sign-in, into that
   organization.
-- **FR-009** The system shall use the identity provider's default roles only.
+- **FR-009** The system shall give members the identity provider's default
+  permissions only: an admin manages the organization's members, and other
+  members don't.
 
 ### Protecting pages
 
 - **FR-010** If a signed-out visitor requests a protected page, then the system
-  shall send them to sign-in before any of the page is sent.
-- **FR-011** The system shall make the current organization readable while a
-  page renders on the server, so it's present in the first paint.
+  shall send them to sign-in before any of the page is sent. The dashboard
+  and every page under it are protected; the home page and the samples are
+  not.
+- **FR-011** The system shall make the current organization, its name
+  included, readable from the token while a page renders on the server, so
+  it's present in the first paint.
 
 ### Tokens
 
@@ -79,30 +86,42 @@ that claim, never by asking the identity provider.
   person joins the organization and it becomes current.
 - An expired or revoked invitation → the person signs in and sees a message
   that it no longer applies; they're not added.
-- A member removed from the current organization → on their next request, the
-  current organization becomes another one they belong to, or their own.
+- A member removed from the current organization → they keep its access until
+  their token expires, at most a minute (C-01); then another organization
+  they belong to becomes current.
+- A member removed from their last organization → on their next request
+  they're signed out of it and taken to sign-in, which asks them to choose
+  or create an organization before going on.
 
 ## Acceptance criteria
 
-| ID    | Given / When / Then                                                                                                                           | Covers                 | Verified by |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ----------- |
-| AC-01 | Given a new account on each enabled method, when it signs in, then each lands in the same place, already in an organization                   | FR-002, FR-005, FR-001 | browser     |
-| AC-02 | Given an invitation to a second account, when it's accepted, then it reaches the sign-in page and lands in that organization after sign-in    | FR-007, FR-008         | browser     |
-| AC-03 | Given a signed-in member, when a page renders on the server, then the current organization is in the first paint                              | FR-011                 | browser     |
-| AC-04 | Given a signed-out visitor, when a protected page is requested, then they're sent to sign-in and the network panel shows no page HTML sent    | FR-010                 | browser     |
-| AC-05 | Given a sign-in method disabled in configuration, when the sign-in page loads, then it's gone, and no code changed                            | FR-003                 | browser     |
-| AC-06 | Given the signed-in token, when it's decoded, then it carries the current organization; switching organization changes the claim              | FR-006, FR-012         | test        |
-| AC-07 | Given the GitHub sign-in consent screen, when it's shown, then it asks for no repository access, and no repository token is stored afterwards | FR-004                 | browser     |
-| AC-08 | Given a new organization, when its roles are listed, then they're the identity provider's defaults only                                       | FR-009                 | test        |
-| AC-09 | Given a signed-in member, when a storage request is made, then it carries their token                                                         | FR-013, C-04           | test        |
+| ID    | Given / When / Then                                                                                                                        | Covers                 | Verified by |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- | ----------- |
+| AC-01 | Given a new account on each enabled method, when it signs in, then each lands on the dashboard, already in an organization named after it  | FR-002, FR-005, FR-001 | browser     |
+| AC-02 | Given an invitation to a second account, when it's accepted, then it reaches the sign-in page and lands in that organization after sign-in | FR-007, FR-008         | browser     |
+| AC-03 | Given a signed-in member, when a page renders on the server, then the current organization is in the first paint                           | FR-011                 | browser     |
+| AC-04 | Given a signed-out visitor, when a protected page is requested, then they're sent to sign-in and the network panel shows no page HTML sent | FR-010                 | browser     |
+| AC-05 | Given a sign-in method disabled in configuration, when the sign-in page loads, then it's gone, and no code changed                         | FR-003                 | browser     |
+| AC-06 | Given the signed-in token, when it's decoded, then it carries the current organization; switching organization changes the claim           | FR-006, FR-012         | test        |
+| AC-07 | Given the GitHub sign-in consent screen, when it's shown, then it asks for profile and email only, and Cartograph stores no provider token | FR-004                 | browser     |
+| AC-08 | Given a new organization, when its members' permissions are listed, then they're the identity provider's defaults only                     | FR-009                 | test        |
+| AC-09 | Given a signed-in member, when a storage request is made, then it carries their token                                                      | FR-013, C-04           | test        |
 
 ## Out of scope
 
-- Roles beyond the provider's defaults.
+- Permissions beyond the provider's defaults.
 - Storage and its policies → `007`.
 - Styling the sign-in screens beyond matching the rest of the application.
 
 ## Open questions
 
-- [NEEDS CLARIFICATION] The organization a first sign-in lands in: a personal
-  one named after the person (proposed), or one shared organization?
+None. Resolved 2026-10-17: a first sign-in lands in an organization of the
+person's own, named after them (FR-005); one shared organization would show
+everyone's analyses to everyone. Inviting is an admin's, the default
+permissions being kept (FR-007, FR-009), and everyone is the admin of their own. Email
+sign-in is a one-time code: no password to keep, and it works across
+devices. Everyone lands on the dashboard; the samples stay public (FR-010).
+The provider keeps its own sign-in token and can't be told not to, so FR-004
+asks for identity only and keeps none in Cartograph's storage. The
+organization's name is in the token, so the first paint never asks the
+provider (C-01).

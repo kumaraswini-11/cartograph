@@ -3,6 +3,9 @@ packages:
   - "packages/*"
 
 allowBuilds:
+  # Its install script only prints a funding message (reached through
+  # @clerk/ui); nothing is built.
+  core-js: false
   esbuild: true
   lightningcss: true
   unrs-resolver: true
@@ -32,8 +35,12 @@ catalogMode: strict
 
 catalog:
   "@base-ui/react": 1.9.0
+  "@clerk/backend": 3.24.0
+  "@clerk/tanstack-react-start": 1.7.2
+  "@clerk/ui": 1.40.2
   "@dagrejs/dagre": 3.1.1
   "@fontsource-variable/inter": 5.3.0
+  "@supabase/supabase-js": 2.118.0
   "@tailwindcss/vite": 4.3.3
   "@tanstack/devtools-vite": 0.8.5
   "@tanstack/eslint-config": 0.4.0

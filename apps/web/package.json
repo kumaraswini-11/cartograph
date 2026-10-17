@@ -12,9 +12,13 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "sample": "node scripts/sample.ts",
+    "clerk:check": "node --env-file=.env.local scripts/clerk-check.ts",
     "og-image": "node scripts/og-image.ts"
   },
   "dependencies": {
+    "@clerk/tanstack-react-start": "catalog:",
+    "@clerk/ui": "catalog:",
+    "@supabase/supabase-js": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
@@ -31,6 +35,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@clerk/backend": "catalog:",
     "@fontsource-variable/inter": "catalog:",
     "@tanstack/devtools-vite": "catalog:",
     "@tanstack/react-devtools": "catalog:",

@@ -3,10 +3,10 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 
 import { Toaster } from "@workspace/ui/components/shadcn-ui/toast"
-import appCss from "@workspace/ui/globals.css?url"
 
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { siteMeta } from "@/lib/site"
+import appCss from "@/styles.css?url"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -47,6 +47,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeProvider defaultTheme="system" storageKey="theme">
+          {/* Identity is provided only where it's used: routes/_identity.tsx. */}
           {children}
         </ThemeProvider>
         {/* One toast region for the whole app: call toast.add() from

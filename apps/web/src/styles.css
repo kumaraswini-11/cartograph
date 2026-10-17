@@ -1,0 +1,5 @@
+/* The app's stylesheet: the shared design system, then what only this app
+   uses. Clerk's shadcn theme follows Tailwind's import, as Clerk asks, so
+   its components take this app's tokens (spec 006 plan D-05). */
+@import "@workspace/ui/globals.css";
+@import "@clerk/ui/themes/shadcn.css";
