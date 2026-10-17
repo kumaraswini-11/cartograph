@@ -11,7 +11,7 @@ import { pageTitle } from "@/lib/site"
  * organization screen isn't used, since its invitations can't lead to this
  * app's sign-in (FR-008).
  */
-export const Route = createFileRoute("/_signed-in/organization")({
+export const Route = createFileRoute("/_identity/_signed-in/organization")({
   head: () => ({ meta: [{ title: pageTitle("Organization") }] }),
   component: OrganizationPage,
 })

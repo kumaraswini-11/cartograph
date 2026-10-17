@@ -18,6 +18,7 @@
   "dependencies": {
     "@clerk/tanstack-react-start": "catalog:",
     "@clerk/ui": "catalog:",
+    "@supabase/supabase-js": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",

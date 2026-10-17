@@ -11,7 +11,7 @@ import { pageTitle } from "@/lib/site"
  * organization's name is in the server's HTML (FR-011). Its analyses come
  * with spec 007.
  */
-export const Route = createFileRoute("/_signed-in/dashboard")({
+export const Route = createFileRoute("/_identity/_signed-in/dashboard")({
   head: () => ({ meta: [{ title: pageTitle("Dashboard") }] }),
   component: Dashboard,
 })

@@ -10,7 +10,7 @@ import { SIGN_IN_PATH } from "@/lib/sign-in"
  * from the route context. A route guard protects pages only: each server
  * function checks the session itself.
  */
-export const Route = createFileRoute("/_signed-in")({
+export const Route = createFileRoute("/_identity/_signed-in")({
   beforeLoad: async ({ location }) => {
     const session = await getSession()
     if (!session.signedIn) {

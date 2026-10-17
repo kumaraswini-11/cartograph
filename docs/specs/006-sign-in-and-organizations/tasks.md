@@ -66,7 +66,7 @@ that organization; the `clerk:check` script (D-09).
 
 ## T04 — Storage carries the token
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T02
 **Covers:** FR-013, C-03 to C-05, AC-09, D-05's measurement
 
@@ -76,10 +76,10 @@ no table. Home and a sample measured with Clerk's script loaded against
 
 **Done when:**
 
-- [ ] A storage request carries the signed-in person's token (AC-09).
-- [ ] Home and a sample still meet `012`'s thresholds, or the provider is
-      moved under the routes that need it.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] A storage request carries the signed-in person's token (AC-09).
+- [x] Home and a sample still meet `012`'s thresholds, or the provider is
+      moved under the routes that need it: it was moved (plan D-05).
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T05 — Acceptance
 

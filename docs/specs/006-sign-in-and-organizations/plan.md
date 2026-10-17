@@ -34,11 +34,12 @@ the risks below), and one finding changed the spec.
 | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `apps/web/src/start.ts`                                          | `createStart`: request middleware, CSRF protection first, then `clerkMiddleware()` (D-03).                                                                                                           |
 | `apps/web/src/lib/session.functions.ts`, `session.server.ts`     | `getSession`: a server function reading `auth()`: the person, the current organization's id, name and whether they're its admin, all from the token (FR-011, FR-012, D-04).                          |
-| `apps/web/src/routes/_signed-in.tsx`                             | The pathless layout of every protected page: `beforeLoad` calls `getSession` and throws `redirect` to `/sign-in` when signed out (FR-010); its children read the session from context.               |
-| `apps/web/src/routes/_signed-in/dashboard.tsx`                   | `/dashboard`, where every sign-in lands (FR-002): the current organization in the first paint (FR-011), the switcher (FR-006) and, for an admin, the invitation form (FR-007). `007` fills the rest. |
-| `apps/web/src/routes/sign-in.$.tsx`                              | `/sign-in`: Clerk's `<SignIn />`, which also signs up and accepts an invitation's ticket (C-02, FR-008); afterwards, `/dashboard`.                                                                   |
+| `apps/web/src/routes/_identity.tsx`                              | The layout, with no path, of the pages that use identity: Clerk's provider, so no other page loads its script (D-05).                                                                                |
+| `apps/web/src/routes/_identity/_signed-in.tsx`                   | The pathless layout of every protected page: `beforeLoad` calls `getSession` and throws `redirect` to `/sign-in` when signed out (FR-010); its children read the session from context.               |
+| `apps/web/src/routes/_identity/_signed-in/dashboard.tsx`         | `/dashboard`, where every sign-in lands (FR-002): the current organization in the first paint (FR-011), the switcher (FR-006) and, for an admin, the invitation form (FR-007). `007` fills the rest. |
+| `apps/web/src/routes/_identity/sign-in.$.tsx`                    | `/sign-in`: Clerk's `<SignIn />`, which also signs up and accepts an invitation's ticket (C-02, FR-008); afterwards, `/dashboard`.                                                                   |
 | `apps/web/src/lib/invitations.functions.ts`, `.server.ts`        | `inviteMember({ email })`: checks the token's admin claim itself (a route guard doesn't protect a server function), then creates the invitation with `/sign-in` as its redirect (D-06).              |
-| `apps/web/src/routes/_signed-in/organization.tsx`                | `/organization`, where the switcher's "Manage" goes: an admin's invitation form, or for a member, that only an admin invites (D-06).                                                                 |
+| `apps/web/src/routes/_identity/_signed-in/organization.tsx`      | `/organization`, where the switcher's "Manage" goes: an admin's invitation form, or for a member, that only an admin invites (D-06).                                                                 |
 | `apps/web/src/components/organization/`                          | The switcher over a fallback of the same size (D-05), and the invitation form (shadcn `Field`, `Input`, `Button`).                                                                                   |
 | `apps/web/src/components/account/account-header.tsx`             | The signed-in pages' header: the app's name, the theme and Clerk's account button over a fallback of its size.                                                                                       |
 | `apps/web/src/lib/storage.ts`                                    | `storageClient(getToken)`: the one way to make a Supabase client, its `accessToken` the Clerk token (FR-013, C-03, C-04). No table, no query (C-05).                                                 |
@@ -97,8 +98,9 @@ organization is active; the custom claim adds `org_name: "{{org.name}}"`.
   the Backend API on every render (a runtime question to the provider);
   the slug (not the name people gave it); rendering it only in the browser
   (not in the first paint).
-- **D-05** `ClerkProvider` sits in the root document, as Clerk's TanStack
-  Start guide places it; `<SignIn />`, `<OrganizationSwitcher />` and
+- **D-05** `ClerkProvider` sits in `routes/_identity.tsx`, a layout with no
+  path around `/sign-in` and the signed-in pages, not in the root document
+  where Clerk's TanStack Start guide places it; `<SignIn />`, `<OrganizationSwitcher />` and
   `<UserButton />` are Clerk's components, themed with `@clerk/ui`'s shadcn
   theme and its `@clerk/ui/themes/shadcn.css`, so they use this app's
   tokens (out of scope: styling beyond matching; `@clerk/themes` is the
@@ -107,10 +109,13 @@ organization is active; the custom claim adds `org_name: "{{org.name}}"`.
   CLS). _Why not `<ClientOnly>`_ (AGENTS.md's rule for browser-only UI):
   Clerk's components wait for Clerk's script, not only the browser, so
   `<ClientOnly>` would still leave a gap after hydration; `<ClerkLoading>`
-  renders on the server and stays until the component can draw. Pages that don't sign anyone
-  in, home and the samples, still load Clerk's script; T04 measures them
-  against `012`'s thresholds, and if they fail, the provider moves under
-  the routes that need it.
+  renders on the server and stays until the component can draw. _Why not
+  the root:_ measured in T04 with Lighthouse 13.5.0's mobile profile, the
+  median of five runs each, Clerk at the root added 344 KB of script and
+  273 ms of blocking time to the home page (75 to 348 ms, past the 200 ms a
+  good interaction allows), though home and the samples sign no one in.
+  Under `_identity`, home's blocking time is 87 ms and its script 437 KB,
+  with none of Clerk's; layout shift stays 0.
 - **D-06** Invitations are created by a server function with the Backend
   API's `createOrganizationInvitation`, role `org:member` and `redirectUrl`
   this app's `/sign-in`. _Why:_ the browser's `inviteMember()` can't set a
@@ -132,7 +137,13 @@ organization is active; the custom claim adds `org_name: "{{org.name}}"`.
   each time. _Why:_ Supabase's documented way, which replaced the JWT
   template deprecated on 1 April 2025; with `accessToken` set, Supabase
   Auth can't be used on that client, so there is one session system
-  (C-03). `007`'s policies read `auth.jwt()->'o'->>'id'`.
+  (C-03). `007`'s policies read `auth.jwt()->'o'->>'id'`. The client stays
+  in `apps/web` while it's that one function with one user (AGENTS.md:
+  code one package needs stays in it); it moves into `@workspace/storage`
+  when `007` brings what storage owns: the migrations, the policies and
+  their tests, and the generated table types, with Supabase's project
+  folder kept there by its CLI's `--workdir` (Turborepo: one purpose per
+  package).
 - **D-09** AC-06 and AC-08 read Clerk itself, so they're checked by a script
   against the development instance (`pnpm --filter web clerk:check`), as
   the golden scripts check the parser: with test users made through the

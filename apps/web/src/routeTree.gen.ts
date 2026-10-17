@@ -10,31 +10,26 @@
 
 import { Route as rootRouteImport } from "./routes/__root"
 import { Route as IndexRouteImport } from "./routes/index"
-import { Route as SignedInRouteImport } from "./routes/_signed-in"
-import { Route as SignedInDashboardRouteImport } from "./routes/_signed-in/dashboard"
-import { Route as SignedInOrganizationRouteImport } from "./routes/_signed-in/organization"
+import { Route as IdentityRouteImport } from "./routes/_identity"
+import { Route as IdentitySignedInRouteImport } from "./routes/_identity/_signed-in"
 import { Route as SampleIndexRouteImport } from "./routes/sample.index"
 import { Route as SampleNameRouteImport } from "./routes/sample.$name"
-import { Route as SignInSplatRouteImport } from "./routes/sign-in.$"
+import { Route as IdentitySignedInDashboardRouteImport } from "./routes/_identity/_signed-in/dashboard"
+import { Route as IdentitySignedInOrganizationRouteImport } from "./routes/_identity/_signed-in/organization"
+import { Route as IdentitySignInSplatRouteImport } from "./routes/_identity/sign-in.$"
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
   getParentRoute: () => rootRouteImport,
 } as any)
-const SignedInRoute = SignedInRouteImport.update({
-  id: "/_signed-in",
+const IdentityRoute = IdentityRouteImport.update({
+  id: "/_identity",
   getParentRoute: () => rootRouteImport,
 } as any)
-const SignedInDashboardRoute = SignedInDashboardRouteImport.update({
-  id: "/dashboard",
-  path: "/dashboard",
-  getParentRoute: () => SignedInRoute,
-} as any)
-const SignedInOrganizationRoute = SignedInOrganizationRouteImport.update({
-  id: "/organization",
-  path: "/organization",
-  getParentRoute: () => SignedInRoute,
+const IdentitySignedInRoute = IdentitySignedInRouteImport.update({
+  id: "/_signed-in",
+  getParentRoute: () => IdentityRoute,
 } as any)
 const SampleIndexRoute = SampleIndexRouteImport.update({
   id: "/sample/",
@@ -46,71 +41,84 @@ const SampleNameRoute = SampleNameRouteImport.update({
   path: "/sample/$name",
   getParentRoute: () => rootRouteImport,
 } as any)
-const SignInSplatRoute = SignInSplatRouteImport.update({
+const IdentitySignedInDashboardRoute =
+  IdentitySignedInDashboardRouteImport.update({
+    id: "/dashboard",
+    path: "/dashboard",
+    getParentRoute: () => IdentitySignedInRoute,
+  } as any)
+const IdentitySignedInOrganizationRoute =
+  IdentitySignedInOrganizationRouteImport.update({
+    id: "/organization",
+    path: "/organization",
+    getParentRoute: () => IdentitySignedInRoute,
+  } as any)
+const IdentitySignInSplatRoute = IdentitySignInSplatRouteImport.update({
   id: "/sign-in/$",
   path: "/sign-in/$",
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => IdentityRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
-  "/dashboard": typeof SignedInDashboardRoute
-  "/organization": typeof SignedInOrganizationRoute
   "/sample/$name": typeof SampleNameRoute
-  "/sign-in/$": typeof SignInSplatRoute
   "/sample/": typeof SampleIndexRoute
+  "/dashboard": typeof IdentitySignedInDashboardRoute
+  "/organization": typeof IdentitySignedInOrganizationRoute
+  "/sign-in/$": typeof IdentitySignInSplatRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
-  "/dashboard": typeof SignedInDashboardRoute
-  "/organization": typeof SignedInOrganizationRoute
   "/sample/$name": typeof SampleNameRoute
-  "/sign-in/$": typeof SignInSplatRoute
   "/sample": typeof SampleIndexRoute
+  "/dashboard": typeof IdentitySignedInDashboardRoute
+  "/organization": typeof IdentitySignedInOrganizationRoute
+  "/sign-in/$": typeof IdentitySignInSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
-  "/_signed-in": typeof SignedInRouteWithChildren
-  "/_signed-in/dashboard": typeof SignedInDashboardRoute
-  "/_signed-in/organization": typeof SignedInOrganizationRoute
+  "/_identity": typeof IdentityRouteWithChildren
+  "/_identity/_signed-in": typeof IdentitySignedInRouteWithChildren
   "/sample/$name": typeof SampleNameRoute
-  "/sign-in/$": typeof SignInSplatRoute
   "/sample/": typeof SampleIndexRoute
+  "/_identity/_signed-in/dashboard": typeof IdentitySignedInDashboardRoute
+  "/_identity/_signed-in/organization": typeof IdentitySignedInOrganizationRoute
+  "/_identity/sign-in/$": typeof IdentitySignInSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | "/"
+    | "/sample/$name"
+    | "/sample/"
     | "/dashboard"
     | "/organization"
-    | "/sample/$name"
     | "/sign-in/$"
-    | "/sample/"
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
+    | "/sample/$name"
+    | "/sample"
     | "/dashboard"
     | "/organization"
-    | "/sample/$name"
     | "/sign-in/$"
-    | "/sample"
   id:
     | "__root__"
     | "/"
-    | "/_signed-in"
-    | "/_signed-in/dashboard"
-    | "/_signed-in/organization"
+    | "/_identity"
+    | "/_identity/_signed-in"
     | "/sample/$name"
-    | "/sign-in/$"
     | "/sample/"
+    | "/_identity/_signed-in/dashboard"
+    | "/_identity/_signed-in/organization"
+    | "/_identity/sign-in/$"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  SignedInRoute: typeof SignedInRouteWithChildren
+  IdentityRoute: typeof IdentityRouteWithChildren
   SampleNameRoute: typeof SampleNameRoute
-  SignInSplatRoute: typeof SignInSplatRoute
   SampleIndexRoute: typeof SampleIndexRoute
 }
 
@@ -123,26 +131,19 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/_signed-in": {
-      id: "/_signed-in"
+    "/_identity": {
+      id: "/_identity"
       path: ""
       fullPath: "/"
-      preLoaderRoute: typeof SignedInRouteImport
+      preLoaderRoute: typeof IdentityRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/_signed-in/dashboard": {
-      id: "/_signed-in/dashboard"
-      path: "/dashboard"
-      fullPath: "/dashboard"
-      preLoaderRoute: typeof SignedInDashboardRouteImport
-      parentRoute: typeof SignedInRoute
-    }
-    "/_signed-in/organization": {
-      id: "/_signed-in/organization"
-      path: "/organization"
-      fullPath: "/organization"
-      preLoaderRoute: typeof SignedInOrganizationRouteImport
-      parentRoute: typeof SignedInRoute
+    "/_identity/_signed-in": {
+      id: "/_identity/_signed-in"
+      path: ""
+      fullPath: "/"
+      preLoaderRoute: typeof IdentitySignedInRouteImport
+      parentRoute: typeof IdentityRoute
     }
     "/sample/": {
       id: "/sample/"
@@ -158,35 +159,61 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof SampleNameRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/sign-in/$": {
-      id: "/sign-in/$"
+    "/_identity/_signed-in/dashboard": {
+      id: "/_identity/_signed-in/dashboard"
+      path: "/dashboard"
+      fullPath: "/dashboard"
+      preLoaderRoute: typeof IdentitySignedInDashboardRouteImport
+      parentRoute: typeof IdentitySignedInRoute
+    }
+    "/_identity/_signed-in/organization": {
+      id: "/_identity/_signed-in/organization"
+      path: "/organization"
+      fullPath: "/organization"
+      preLoaderRoute: typeof IdentitySignedInOrganizationRouteImport
+      parentRoute: typeof IdentitySignedInRoute
+    }
+    "/_identity/sign-in/$": {
+      id: "/_identity/sign-in/$"
       path: "/sign-in/$"
       fullPath: "/sign-in/$"
-      preLoaderRoute: typeof SignInSplatRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof IdentitySignInSplatRouteImport
+      parentRoute: typeof IdentityRoute
     }
   }
 }
 
-interface SignedInRouteChildren {
-  SignedInDashboardRoute: typeof SignedInDashboardRoute
-  SignedInOrganizationRoute: typeof SignedInOrganizationRoute
+interface IdentitySignedInRouteChildren {
+  IdentitySignedInDashboardRoute: typeof IdentitySignedInDashboardRoute
+  IdentitySignedInOrganizationRoute: typeof IdentitySignedInOrganizationRoute
 }
 
-const SignedInRouteChildren: SignedInRouteChildren = {
-  SignedInDashboardRoute: SignedInDashboardRoute,
-  SignedInOrganizationRoute: SignedInOrganizationRoute,
+const IdentitySignedInRouteChildren: IdentitySignedInRouteChildren = {
+  IdentitySignedInDashboardRoute: IdentitySignedInDashboardRoute,
+  IdentitySignedInOrganizationRoute: IdentitySignedInOrganizationRoute,
 }
 
-const SignedInRouteWithChildren = SignedInRoute._addFileChildren(
-  SignedInRouteChildren,
+const IdentitySignedInRouteWithChildren =
+  IdentitySignedInRoute._addFileChildren(IdentitySignedInRouteChildren)
+
+interface IdentityRouteChildren {
+  IdentitySignedInRoute: typeof IdentitySignedInRouteWithChildren
+  IdentitySignInSplatRoute: typeof IdentitySignInSplatRoute
+}
+
+const IdentityRouteChildren: IdentityRouteChildren = {
+  IdentitySignedInRoute: IdentitySignedInRouteWithChildren,
+  IdentitySignInSplatRoute: IdentitySignInSplatRoute,
+}
+
+const IdentityRouteWithChildren = IdentityRoute._addFileChildren(
+  IdentityRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  SignedInRoute: SignedInRouteWithChildren,
+  IdentityRoute: IdentityRouteWithChildren,
   SampleNameRoute: SampleNameRoute,
-  SignInSplatRoute: SignInSplatRoute,
   SampleIndexRoute: SampleIndexRoute,
 }
 export const routeTree = rootRouteImport

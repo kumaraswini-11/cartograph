@@ -17,6 +17,12 @@ export const serverEnvSchema = z.object({
   CLERK_SECRET_KEY: z
     .string()
     .regex(/^sk_(test|live)_/, "must start with sk_test_ or sk_live_"),
+  // Storage (spec 006; tables from 007). Requests carry the Clerk token, so
+  // the publishable key is all Supabase needs, and no secret key is kept.
+  SUPABASE_URL: z.url(),
+  SUPABASE_PUBLISHABLE_KEY: z
+    .string()
+    .regex(/^sb_publishable_/, "must start with sb_publishable_"),
 })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>

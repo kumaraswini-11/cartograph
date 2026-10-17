@@ -30,9 +30,9 @@ middleware, and the dev server reads it only when it starts: restart it after
 changing that file.
 
 Sign-in is Clerk's (spec 006): `/sign-in` signs in and up, and every page
-under `src/routes/_signed-in/` is protected, read from the session token
-(`src/lib/session.ts`) without asking Clerk. Home and the samples are
-public.
+under `src/routes/_identity/_signed-in/` is protected, read from the session token
+(`src/lib/session.ts`) without asking Clerk. Clerk loads only under
+`src/routes/_identity/`: home and the samples are public and never load it.
 
 `/sample/$name` shows the map of one of three fixed repositories
 (`src/sample/samples.ts`) until spec 008 stores real analyses. Not-found,

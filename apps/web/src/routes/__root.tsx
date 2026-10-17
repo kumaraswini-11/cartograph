@@ -1,5 +1,3 @@
-import { ClerkProvider } from "@clerk/tanstack-react-start"
-import { shadcn } from "@clerk/ui/themes"
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
@@ -7,7 +5,6 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { Toaster } from "@workspace/ui/components/shadcn-ui/toast"
 
 import { ThemeProvider } from "@/components/theme/theme-provider"
-import { AFTER_SIGN_IN_PATH, SIGN_IN_PATH } from "@/lib/sign-in"
 import { siteMeta } from "@/lib/site"
 import appCss from "@/styles.css?url"
 
@@ -50,18 +47,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeProvider defaultTheme="system" storageKey="theme">
-          {/* Identity for every page (spec 006 plan D-05). Sign-in and sign-up
-              are one page, and every sign-in lands on the dashboard (FR-002). */}
-          <ClerkProvider
-            appearance={{ theme: shadcn }}
-            signInUrl={SIGN_IN_PATH}
-            signUpUrl={SIGN_IN_PATH}
-            signInFallbackRedirectUrl={AFTER_SIGN_IN_PATH}
-            signUpFallbackRedirectUrl={AFTER_SIGN_IN_PATH}
-            afterSignOutUrl="/"
-          >
-            {children}
-          </ClerkProvider>
+          {/* Identity is provided only where it's used: routes/_identity.tsx. */}
+          {children}
         </ThemeProvider>
         {/* One toast region for the whole app: call toast.add() from
             @workspace/ui/components/shadcn-ui/toast anywhere to show a toast. */}

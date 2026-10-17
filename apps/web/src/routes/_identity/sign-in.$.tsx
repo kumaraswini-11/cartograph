@@ -11,7 +11,7 @@ import { pageTitle, seo } from "@/lib/site"
  * invitation's ticket (FR-008) and, for a session with no organization yet,
  * asks for one (edge cases). The splat holds its steps (`/sign-in/factor-one`).
  */
-export const Route = createFileRoute("/sign-in/$")({
+export const Route = createFileRoute("/_identity/sign-in/$")({
   head: () =>
     seo({
       title: pageTitle("Sign in"),
