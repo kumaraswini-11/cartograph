@@ -170,16 +170,36 @@ together.
 
 ## T07 — Acceptance
 
-**Status:** Todo
+**Status:** In progress: every criterion passes locally; the deployed checks
+follow the merge
 **Blocked by:** T04, T05, T06
 **Covers:** AC-01 to AC-12; `006` AC-01 (GitHub, Google), AC-02, AC-03,
 AC-05, AC-07; `007` AC-01 to AC-09
 
+**Locally, before merge** (2026-10-17):
+
+| AC    | How                       | Result                                                                                                                                                          |
+| ----- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AC-01 | Browser, production build | `t3-oss/create-t3-app` from the dashboard: Fetching, Parsing and Storing by name, each with its sentence, no reload, then its map; and by the owner, signed in. |
+| AC-02 | Browser (owner)           | `expressjs/express` submitted again opened the same analysis: one analysis in the organization.                                                                 |
+| AC-03 | Browser (owner)           | `someone-nope-zz/missing-repo` failed at fetching, "…doesn't exist or isn't public.", and the dashboard read Failed.                                            |
+| AC-04 | Browser (owner); tokens   | A second tab's dashboard moved with the run; with real Clerk tokens, the organization's topic heard every stage in order.                                       |
+| AC-05 | pgTAP                     | A run 11 minutes in is stale, 9 minutes in isn't (`runs_test.sql`).                                                                                             |
+| AC-06 | pgTAP; tokens             | Another organization's member reads no message (`progress_test.sql`); with a real Clerk token, never joins the channel.                                         |
+| AC-07 | Browser, production build | `t3-oss/create-t3-app`'s map shows "Coverage 48.2%: some lines may be missing".                                                                                 |
+| AC-08 | pgTAP                     | The stored results name the run's commit, and can't be stored without one.                                                                                      |
+| AC-09 | Vitest                    | GitLab, malformed and non-repository GitHub addresses refused, each with its reason (`address.test.ts`).                                                        |
+| AC-10 | Browser (owner)           | Re-run on `expressjs/express` added a second run, done, to the same analysis.                                                                                   |
+| AC-11 | pgTAP                     | A second start during a run returns that run; the database refuses a second unfinished run.                                                                     |
+| AC-12 | Vitest                    | An archive past the limit stops downloading, and the run fails naming 100 MB.                                                                                   |
+
 **Done when:**
 
-- [ ] Every acceptance criterion passes, each checked the way its row says.
-      The browser ones are checked locally before merge, and on production
-      after it (plan, Testing).
+- [x] Every acceptance criterion passes locally, each checked the way its row
+      says.
+- [ ] On production, after merge (migrations applied, T06): the browser
+      ones again, and the run's `waitUntil` seen keeping a run alive on
+      Vercel (plan D-04).
 - [ ] `006`'s and `007`'s carried checks pass on production, and their
       tasks files say so.
 - [ ] Build status at the top of this file set to Done.
