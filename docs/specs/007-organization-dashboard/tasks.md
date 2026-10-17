@@ -16,14 +16,14 @@
 
 - [ ] Each check passes, or what fails is fixed, and `006`'s T05 says so.
 
-## T02 — The storage package and its schema
+## T02 — The database package and its schema
 
 **Status:** Todo
 **Blocked by:** none
 **Covers:** FR-001 to FR-005, C-01, C-03, AC-03 to AC-06, AC-08, D-01 to
 D-04, D-06
 
-**What to build:** `@workspace/storage` with Supabase's project folder; the
+**What to build:** `@workspace/database` with Supabase's project folder; the
 migrations (row-level access by default, grants revoked, `organizations`,
 `analyses`, `runs`, policies); the pgTAP tests; the generated types; the
 client moved from `apps/web`; the database tests and Supabase's checks in
