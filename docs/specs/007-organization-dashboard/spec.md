@@ -1,6 +1,6 @@
 # 007 — Organization dashboard
 
-**Status:** Draft
+**Status:** Approved
 **Milestone:** M3 Platform
 **Depends on:** 006-sign-in-and-organizations
 
@@ -51,6 +51,10 @@ the query.
 - **C-03** Migrations are files, never edits made by hand in a console. _Why:_
   storage must be rebuildable from the repository. _Looks fine until:_ a
   policy added by hand is missing from the next environment.
+- **C-04** Sample analyses exist in development only, never in a deployed
+  environment. _Why:_ a deployed dashboard lists only what analyses really
+  created (`008`). _Looks fine until:_ a seed meant for development lands in
+  production and an organization sees analyses nobody ran.
 
 ## Edge cases
 
@@ -58,6 +62,10 @@ the query.
   analyses.
 - A table created by a migration with no policy yet → returns nothing to
   everyone.
+- The notice that an organization was deleted arrives twice, or late → its
+  records are deleted once, and a repeat deletes nothing.
+- Between an organization's deletion and its notice → its records remain but
+  can't be read: no token carries a deleted organization.
 
 ## Acceptance criteria
 
@@ -80,6 +88,9 @@ the query.
 
 ## Open questions
 
-- [NEEDS CLARIFICATION] Until `008` can create analyses, the dashboard needs
-  records to list: seed data for development only (proposed), or wait for
-  `008`?
+None. Resolved 2026-10-17: until `008` creates analyses, sample analyses
+fill the development database only (C-04), so the list, its states and
+switching can be built and checked there; a deployed dashboard shows the
+empty state (FR-007). Deleting an organization's records happens when the
+identity provider says it was deleted, a notice that can repeat or arrive
+late (edge cases).
