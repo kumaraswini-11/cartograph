@@ -154,6 +154,21 @@ organization is active; the custom claim adds `org_name: "{{org.name}}"`.
   into a `Session`, the admin check, and the storage client's header
   (AC-09). _Why:_ a unit test of a mocked Clerk proves nothing about
   Clerk's token. A departure from the spec's "test" for those two rows.
+- **D-10** Until the project has a domain of its own, production runs on
+  Clerk's development instance too, decided by the repository's owner on
+  2026-10-17: a production instance can't be made without a domain. A
+  deliberate departure from Clerk's guidance, which calls development
+  instances "not suitable for production workloads" (Clerk: managing
+  environments), accepted for a demonstration with few users. What it
+  costs: at most 100 users; a looser security posture, with the session
+  carried by a development token rather than a same-site cookie; GitHub
+  and Google sign-in through Clerk's shared OAuth apps, so their consent
+  screens name Clerk (still asking for identity only, FR-004); and users
+  who can't be moved to a production instance later, so everyone signs up
+  again then. _Ends when:_ a domain is bought; then a production instance
+  gets the same settings (`clerk config patch`), this project's own OAuth
+  apps (D-02), and the production keys in Vercel's Production
+  environment.
 
 ## What needs doing outside the code
 
@@ -172,9 +187,12 @@ tasks name which they need:
   its own sign-up turned off, so Clerk is the only way in (C-03).
 - **Configuration:** the four variables in `apps/web/.env.local`, and in
   Vercel for preview and production. Previews take the development
-  instance's keys and production the production instance's: an invitation
-  leads to the deployment that sent it (D-06), and a production instance
-  accepts redirects only to its own domain, not to a preview's address.
+  instance's keys, and so does production until a domain exists (D-10);
+  then production takes the production instance's. An invitation leads to
+  the deployment that sent it (D-06), and a production instance accepts
+  redirects only to its own domain, not to a preview's address. In Vercel,
+  `CLERK_SECRET_KEY` is a secret; the other three are public values, set
+  as configuration (a `VITE_` variable can't be a secret).
 
 ## Testing
 
