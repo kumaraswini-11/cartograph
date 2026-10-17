@@ -52,7 +52,7 @@ production for `main`.
 
 ## T04 — The dashboard's list
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T02
 **Covers:** FR-006 to FR-008, C-02, C-04, AC-01, AC-02, AC-07, D-08, D-09
 
@@ -62,9 +62,9 @@ state; the local seed script.
 
 **Done when:**
 
-- [ ] Seeded locally for two organizations, each one's dashboard lists only
+- [x] Seeded locally for two organizations, each one's dashboard lists only
       its own, and switching changes the list through the same query.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T05 — Deleting an organization's records
 

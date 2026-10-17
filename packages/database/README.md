@@ -31,14 +31,15 @@ filters by organization (spec 007, C-02).
 Supabase's local stack runs in Docker; Docker Desktop must be running. From
 this folder:
 
-| Command            | What it does                                                  |
-| ------------------ | ------------------------------------------------------------- |
-| `pnpm db:start`    | Starts the local stack (Postgres, the Data API, Studio)       |
-| `pnpm db:reset`    | Rebuilds the local database from the migrations               |
-| `pnpm db:test`     | Runs the pgTAP tests in `supabase/tests` against it           |
-| `pnpm db:advisors` | Supabase's security and performance checks; fails on an error |
-| `pnpm db:types`    | Regenerates `src/database.types.ts` from the local schema     |
-| `pnpm db:stop`     | Stops the local stack                                         |
+| Command                             | What it does                                                            |
+| ----------------------------------- | ----------------------------------------------------------------------- |
+| `pnpm db:start`                     | Starts the local stack (Postgres, the Data API, Studio)                 |
+| `pnpm db:reset`                     | Rebuilds the local database from the migrations                         |
+| `pnpm db:test`                      | Runs the pgTAP tests in `supabase/tests` against it                     |
+| `pnpm db:advisors`                  | Supabase's security and performance checks; fails on an error           |
+| `pnpm db:types`                     | Regenerates `src/database.types.ts` from the local schema               |
+| `pnpm db:seed --organization org_…` | Sample analyses for that Clerk organization, in the local database only |
+| `pnpm db:stop`                      | Stops the local stack                                                   |
 
 A schema change is a new migration (`pnpm exec supabase migration new
 <name>`), never an edit made in a console (spec 007, C-03). After one, run
