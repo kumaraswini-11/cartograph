@@ -56,9 +56,11 @@ export function useStages(
     }
     // Reads the route again; once storage has answered, drops the changes
     // that were held when the read began and haven't been replaced since.
+    // `sync`: an already loaded route otherwise reloads in the background,
+    // and the promise settles before the new data has arrived.
     const reread = () => {
       const before = held.current
-      void router.invalidate().then(() => {
+      void router.invalidate({ sync: true }).then(() => {
         if (left) return
         hold(afterRead(before, held.current))
       })
