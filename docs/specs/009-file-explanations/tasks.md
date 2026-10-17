@@ -104,7 +104,8 @@ files and their roles, and the edges into and out of it (plan D-12).
 
 ## T06 — Stale explanations
 
-**Status:** Todo
+**Status:** In progress: built and tested; the browser check waits for
+Gemini's quota
 **Blocked by:** T04
 **Covers:** FR-014, FR-015, AC-06, D-10
 
@@ -112,11 +113,11 @@ files and their roles, and the edges into and out of it (plan D-12).
 
 **Done when:**
 
-- [ ] A test covers each case: the branch unmoved, moved with the file
+- [x] A test covers each case: the branch unmoved, moved with the file
       unchanged, and moved with the file changed.
 - [ ] Locally, an analysis whose repository has moved on shows the notice
       and Re-run (AC-06).
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T07 — Acceptance
 

@@ -4,14 +4,14 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { readAnalysis, readExplanation, readResult } from "@workspace/database"
 import { detectFrameworks } from "@workspace/frameworks"
-import { fileAtCommit } from "@workspace/github"
+import { GitHubError, defaultBranchHead, fileAtCommit } from "@workspace/github"
 import { isTooLarge, parseRepository } from "@workspace/parser"
 import { makeRepository } from "@workspace/parser/testing"
 
 import type * as Ai from "@workspace/ai"
 import type * as GitHub from "@workspace/github"
 
-import { explainSelection } from "./explanations.server"
+import { explainSelection, stalenessOf } from "./explanations.server"
 
 vi.mock("@tanstack/react-start/server-only", () => ({}))
 vi.mock("./analyses.server", () => ({
@@ -37,6 +37,7 @@ vi.mock("@workspace/database", () => ({
 vi.mock("@workspace/github", async (actual) => ({
   ...(await actual<typeof GitHub>()),
   fileAtCommit: vi.fn(),
+  defaultBranchHead: vi.fn(),
 }))
 const ask = vi.fn()
 vi.mock("@workspace/ai", async (actual) => ({
@@ -166,5 +167,59 @@ describe("explaining a selection (spec 009, plan Approach)", () => {
     const result = await explainSelection("a1", { kind: "box", path: "lib" })
     expect(result).toMatchObject({ status: "failed" })
     expect(ask).not.toHaveBeenCalled()
+  })
+})
+
+describe("staleness (spec 009, FR-014, FR-015, plan D-10)", () => {
+  const app = { kind: "file", path: "lib/app.js" } as const
+  const moved = "d".repeat(40)
+  const headAt = (commit: string) =>
+    vi.mocked(defaultBranchHead).mockResolvedValue({ branch: "main", commit })
+
+  it("is current while the branch is at the analysed commit, with no fetch", async () => {
+    headAt(stored.commit)
+    expect(await stalenessOf("a1", app)).toEqual({ status: "current" })
+    expect(fileAtCommit).not.toHaveBeenCalled()
+  })
+
+  it("says the repository moved when the file itself is unchanged", async () => {
+    headAt(moved)
+    vi.mocked(fileAtCommit).mockResolvedValue(bytes(SOURCES["lib/app.js"]))
+    expect(await stalenessOf("a1", app)).toEqual({ status: "moved" })
+    // Read at the branch's new commit, not the analysed one.
+    expect(vi.mocked(fileAtCommit).mock.calls[0]?.[1]).toBe(moved)
+  })
+
+  it("says the file changed when its bytes differ", async () => {
+    headAt(moved)
+    vi.mocked(fileAtCommit).mockResolvedValue(bytes("// rewritten\n"))
+    expect(await stalenessOf("a1", app)).toEqual({ status: "changed" })
+  })
+
+  it("says the file changed when it's gone", async () => {
+    headAt(moved)
+    vi.mocked(fileAtCommit).mockRejectedValue(
+      new GitHubError({ kind: "not found", repository: "owner/demo" })
+    )
+    expect(await stalenessOf("a1", app)).toEqual({ status: "changed" })
+  })
+
+  it("holds a box to the branch alone, reading none of its files", async () => {
+    headAt(moved)
+    expect(await stalenessOf("a1", { kind: "box", path: "" })).toEqual({
+      status: "moved",
+    })
+    expect(fileAtCommit).not.toHaveBeenCalled()
+  })
+
+  it("says nothing when GitHub doesn't answer", async () => {
+    vi.mocked(defaultBranchHead).mockRejectedValue(
+      new GitHubError({
+        kind: "unavailable",
+        repository: "owner/demo",
+        status: 503,
+      })
+    )
+    expect(await stalenessOf("a1", app)).toEqual({ status: "unknown" })
   })
 })

@@ -66,7 +66,11 @@ function AnalysisRoute() {
 
   if (map !== null) {
     return (
-      <ExplanationsProvider analysisId={analysis.id}>
+      <ExplanationsProvider
+        analysisId={analysis.id}
+        commit={map.commit}
+        rerun={rerun}
+      >
         <MapShell
           input={map}
           actions={

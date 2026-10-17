@@ -1,7 +1,5 @@
 import "@tanstack/react-start/server-only"
 
-import { createHash } from "node:crypto"
-
 import {
   INFERRED_ROLES,
   MODEL,
@@ -22,11 +20,16 @@ import {
 } from "@workspace/database"
 import { detection } from "@workspace/frameworks"
 import { buildBoxes, toMapInput } from "@workspace/graph"
-import { GitHubError, fileAtCommit } from "@workspace/github"
-import { MAX_FILE_BYTES, isTooLarge, parseResult } from "@workspace/parser"
+import { GitHubError, defaultBranchHead, fileAtCommit } from "@workspace/github"
+import {
+  MAX_FILE_BYTES,
+  contentHash,
+  isTooLarge,
+  parseResult,
+} from "@workspace/parser"
 
 import { currentOrganization } from "./analyses.server"
-import type { ExplainResult, ExplainSubject } from "./explanations"
+import type { ExplainResult, ExplainSubject, Staleness } from "./explanations"
 import { getServerEnv } from "./env.server"
 import { requestStorage } from "./storage.server"
 
@@ -181,6 +184,54 @@ export async function explainSelection(
   return { traced: traces.enabled, ...outcome }
 }
 
+/**
+ * Whether an explanation still matches the repository (spec 009, FR-014,
+ * FR-015, plan D-10): the default branch's commit against the analysed
+ * one, then, for a file, its bytes there against the parser's hash. A box
+ * is only as current as the branch: checking each of its files would take
+ * a request apiece. Read with the member's token, as the explanation is.
+ */
+export async function stalenessOf(
+  analysisId: string,
+  subject: ExplainSubject
+): Promise<Staleness> {
+  const storage = await requestStorage()
+  const analysis = await readAnalysis(storage, analysisId)
+  const stored = await readResult(storage, analysisId)
+  if (analysis === null || stored === null) return { status: "unknown" }
+
+  let head: string
+  try {
+    head = (await defaultBranchHead(analysis.repository)).commit
+  } catch (error) {
+    // Gone, private or unreachable: nothing to compare with.
+    console.error(`The head of ${analysis.repository} wasn't read:`, error)
+    return { status: "unknown" }
+  }
+  if (head === stored.commit) return { status: "current" }
+  if (subject.kind === "box") return { status: "moved" }
+
+  const parsed = parseResult.parse(stored.parsed)
+  const record = isTooLarge(parsed)
+    ? undefined
+    : parsed.files.find((file) => file.path === subject.path)
+  if (record === undefined) return { status: "unknown" }
+  try {
+    const bytes = await fileAtCommit(analysis.repository, head, record.path, {
+      maxBytes: MAX_FILE_BYTES,
+    })
+    return { status: contentHash(bytes) === record.hash ? "moved" : "changed" }
+  } catch (error) {
+    if (error instanceof GitHubError) {
+      // Deleted, or grown past what's read: either way, not what was parsed.
+      if (error.failure.kind === "not found") return { status: "changed" }
+      if (error.failure.kind === "too large") return { status: "changed" }
+    }
+    console.error(`${record.path} at ${head.slice(0, 7)} wasn't read:`, error)
+    return { status: "unknown" }
+  }
+}
+
 /** Why a file's source can't be used: it isn't what was parsed. */
 class SourceMismatch extends Error {}
 
@@ -196,8 +247,7 @@ async function sourceAtCommit(
   const bytes = await fileAtCommit(repository, commit, record.path, {
     maxBytes: MAX_FILE_BYTES,
   })
-  const hash = createHash("sha256").update(bytes).digest("hex")
-  if (hash !== record.hash) {
+  if (contentHash(bytes) !== record.hash) {
     throw new SourceMismatch(
       `${record.path} at ${commit.slice(0, 7)} doesn't match the analysed file`
     )

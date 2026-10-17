@@ -25,6 +25,9 @@ if (!isTooLarge(result)) writeResult("result.json", result)
 | `pnpm --filter @workspace/parser golden`                | Parses the golden repositories and fails on drift from the pinned counts |
 | `pnpm --filter @workspace/parser test`                  | Runs its tests                                                           |
 
+Each file's `hash` is `contentHash(bytes)`, the SHA-256 of its bytes. It's
+exported, so a file fetched later is checked the same way (spec 009).
+
 Other entry points, each one source for its concern:
 
 - `@workspace/parser/paths`: how the result writes paths (compare, folder,

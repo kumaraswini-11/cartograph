@@ -191,6 +191,22 @@ the short form.
     itself changed or only the repository moved (FR-014, FR-015).
   - The tab shows the explanation at once and adds the notice when the
     answer arrives. The explanation is never held back for it.
+  - It answers `current`, `moved` (the branch moved, the file is
+    byte-identical), `changed` (different or gone at the branch's commit) or
+    `unknown` (GitHub didn't answer). Unknown shows no notice: a wrong
+    "stale" is worse than none. Both `moved` and `changed` are stale
+    (FR-015), with words that say which.
+  - A box is held to the branch alone. Considered: fetching each of its
+    files at the new commit. Rejected: a request per file, for a box of
+    hundreds, on every explanation shown.
+  - The hash is the parser's own `contentHash`, so "unchanged" means what
+    the parser meant.
+  - The notice's Re-run is the page's own `RerunButton`, passed to the
+    explanations' provider as a slot. Considered: a second button in the
+    tab. Rejected: two copies of "disabled while a run is under way"
+    (`008` FR-004).
+  - The session's explanations belong to the stored commit: when a re-run
+    stores a new one, they're dropped, and each is asked for again.
 - **D-11 Session memory in the browser (FR-004).**
   - A provider beside the map's state keeps each explanation by subject for
     the page's life.
