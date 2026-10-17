@@ -220,8 +220,9 @@ _Avoid_: home, overview, workspace
 **Storage**:
 Where analyses, runs and everything else an organization owns are kept: the
 relational records, whose access is decided by policies reading the
-organization from the signed-in person's token. Not files.
-_Avoid_: database, db, backend
+organization from the signed-in person's token. Not files. The database is
+where storage lives (Postgres); say "database" for it, not for storage.
+_Avoid_: db, backend, data layer
 
 ### AI
 
