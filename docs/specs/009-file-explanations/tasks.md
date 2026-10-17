@@ -1,11 +1,13 @@
 # 009 — File explanations: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** In progress
+**Build status:** Built; the browser checks are carried into the next
+phase (see T07)
 
 ## T01 — The checks carried from 008
 
-**Status:** Todo, the owner's (needs a sign-in on production)
+**Status:** Carried into the next phase, the owner's (needs a sign-in on
+production)
 **Blocked by:** none
 **Covers:** `008` AC-01 to AC-04, AC-07 and AC-10 on production, and D-04's
 `waitUntil` on Vercel; `006` AC-01 (GitHub, Google), AC-02, AC-03, AC-05,
@@ -60,8 +62,7 @@ watch its stages, the map, a re-run and a second tab. The carried 006 and
 
 ## T04 — A file explained, grounded and cached
 
-**Status:** In progress: built and tested; the browser checks wait for
-Gemini's daily quota (reset at midnight Pacific time)
+**Status:** Built and tested; its browser checks are carried (T07)
 **Blocked by:** T02, T03
 **Covers:** FR-001, FR-003 to FR-011, C-01 to C-05, AC-01 to AC-03, AC-05,
 AC-07, AC-09, D-04 to D-08, D-11
@@ -88,8 +89,7 @@ AC-07, AC-09, D-04 to D-08, D-11
 
 ## T05 — A box explained
 
-**Status:** In progress: built and tested; the browser check waits for
-Gemini's quota
+**Status:** Built and tested; its browser check is carried (T07)
 **Blocked by:** T04
 **Covers:** FR-002, AC-04
 
@@ -104,8 +104,7 @@ files and their roles, and the edges into and out of it (plan D-12).
 
 ## T06 — Stale explanations
 
-**Status:** In progress: built and tested; the browser check waits for
-Gemini's quota
+**Status:** Built and tested; its browser check is carried (T07)
 **Blocked by:** T04
 **Covers:** FR-014, FR-015, AC-06, D-10
 
@@ -121,7 +120,19 @@ Gemini's quota
 
 ## T07 — Acceptance
 
-**Status:** Todo
+**Status:** Carried into the next phase, by the owner's decision on
+2026-10-18: the PR is raised with the test rows passing and the browser
+rows still to check. Gemini's free tier allows 20 requests a day, and that
+day's were spent; they reset at midnight Pacific time.
+
+| Row                        | How it's checked | State                                                                     |
+| -------------------------- | ---------------- | ------------------------------------------------------------------------- |
+| AC-02, AC-05, AC-07, AC-10 | test             | Pass                                                                      |
+| AC-01, AC-03, AC-04, AC-09 | browser, local   | Carried: about 4 requests                                                 |
+| AC-08                      | browser, local   | Carried: `LANGSMITH_TRACING` unset, 1 request                             |
+| AC-06                      | browser, local   | Carried: needs a public repository that gets a commit after it's analysed |
+| Every row on production    | browser          | Carried, after merge, with T01                                            |
+
 **Blocked by:** T04, T05, T06
 **Covers:** AC-01 to AC-10
 
