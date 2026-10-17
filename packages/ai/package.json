@@ -1,0 +1,30 @@
+{
+  "name": "@workspace/ai",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "description": "The one place that builds the model client and its tracing (spec 009, C-04): the pinned model, LangSmith tracing that can be off, and the explanation prompts, grounding and formatting.",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "catalog:",
+    "ai": "catalog:",
+    "langsmith": "catalog:"
+  }
+}

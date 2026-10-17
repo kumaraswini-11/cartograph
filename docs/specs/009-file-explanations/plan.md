@@ -46,22 +46,22 @@ setting and a key.
 
 ## Modules and interfaces
 
-| Module                                           | What it does                                                                                                                                                                                                                                                                                   |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/ai/` (`@workspace/ai`)                 | The one place that builds the model client and turns tracing on (C-04). Server-only, except `./text`.                                                                                                                                                                                          |
-| `packages/ai/src/model.ts`                       | `MODEL`: the exact pinned version, `gemini-3.6-flash` (FR-012). `languageModel(env)`: the provider-neutral AI SDK model, built here only.                                                                                                                                                      |
-| `packages/ai/src/tracing.ts`                     | `tracing(env)`: when `LANGSMITH_TRACING` is `true`, LangSmith's telemetry is registered once and `traced(name, fn)` records runs; when it isn't, `traced` is the function itself, and `enabled` is false (FR-013). `flushTraces()` waits for traces to send before a serverless response ends. |
-| `packages/ai/src/explain.ts`                     | `explainFile(input, deps)` and `explainBox(input, deps)`: prompt (versioned), structured output, the grounding check with one retry, inside `traced`. The cache read and write are passed in, so the package knows nothing of storage.                                                         |
-| `packages/ai/src/grounding.ts`                   | `ungroundedPaths(text, analysisPaths)`: every path the paragraph names that isn't in the analysis (FR-005).                                                                                                                                                                                    |
-| `packages/ai/src/text.ts` (`@workspace/ai/text`) | `parseExplanation(text)`: the paragraph as blocks (paragraphs, bullet lists) of runs (plain, bold, code). Anything else is plain text, so no stray marks are shown (FR-007, C-03). Pure, so the browser renders with it.                                                                       |
-| `packages/ai/src/roles.ts`                       | `INFERRED_ROLES`: service, data access, model, utility, configuration, component, hook (FR-009). Never a surface role (C-02).                                                                                                                                                                  |
-| `packages/github/src/file.ts`                    | `fileAtCommit(repository, commit, path)`: one file's bytes from GitHub at a commit, capped at the parser's `MAX_FILE_BYTES`.                                                                                                                                                                   |
-| `packages/database/supabase/migrations/`         | `explanations`: the organization's cache, with members reading through 007's policy and the server writing with the secret key.                                                                                                                                                                |
-| `packages/database/src/explanations.ts`          | `readExplanation(storage, key)` with the member's token; `explanationWriter(access).store(…)` with the secret key, taking the organization from the session (008 D-06).                                                                                                                        |
-| `apps/web/src/lib/explanations.server.ts`        | `explainSelection(analysisId, subject)`: the steps in Approach, wiring storage, GitHub and `@workspace/ai`.                                                                                                                                                                                    |
-| `apps/web/src/lib/explanations.functions.ts`     | `explain` (POST) and `staleness` (GET): server functions, the organization from the session.                                                                                                                                                                                                   |
-| `apps/web/src/components/detail/explanation.tsx` | The tab: Explain button, pending state, the rendered paragraph with path links, the inferred role, a stale notice with Re-run, "tracing is off", and messages for errors and limits.                                                                                                           |
-| `apps/web/src/components/map/explanations.tsx`   | The session's explanations by subject, held beside the map's state (FR-004).                                                                                                                                                                                                                   |
+| Module                                           | What it does                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/ai/` (`@workspace/ai`)                 | The one place that builds the model client and turns tracing on (C-04). Server-only, except `./text`.                                                                                                                                                                                    |
+| `packages/ai/src/model.ts`                       | `MODEL`: the exact pinned version, `gemini-3.6-flash` (FR-012). `languageModel(env)`: the provider-neutral AI SDK model, built here only.                                                                                                                                                |
+| `packages/ai/src/tracing.ts`                     | `tracing(env)`: when `LANGSMITH_TRACING` is `true`, LangSmith's telemetry is registered once and `traced(name, fn)` records runs; when it isn't, `traced` is the function itself, and `enabled` is false (FR-013). `flush()` waits for traces to send before a serverless response ends. |
+| `packages/ai/src/explain.ts`                     | `explainFile(input, deps)` and `explainBox(input, deps)`: prompt (versioned), structured output, the grounding check with one retry, inside `traced`. The cache read and write are passed in, so the package knows nothing of storage.                                                   |
+| `packages/ai/src/grounding.ts`                   | `ungroundedPaths(text, analysisPaths)`: every path the paragraph names that isn't in the analysis (FR-005).                                                                                                                                                                              |
+| `packages/ai/src/text.ts` (`@workspace/ai/text`) | `parseExplanation(text)`: the paragraph as blocks (paragraphs, bullet lists) of runs (plain, bold, code). Anything else is plain text, so no stray marks are shown (FR-007, C-03). Pure, so the browser renders with it.                                                                 |
+| `packages/ai/src/roles.ts`                       | `INFERRED_ROLES`: service, data access, model, utility, configuration, component, hook (FR-009). Never a surface role (C-02).                                                                                                                                                            |
+| `packages/github/src/file.ts`                    | `fileAtCommit(repository, commit, path)`: one file's bytes from GitHub at a commit, capped at the parser's `MAX_FILE_BYTES`.                                                                                                                                                             |
+| `packages/database/supabase/migrations/`         | `explanations`: the organization's cache, with members reading through 007's policy and the server writing with the secret key.                                                                                                                                                          |
+| `packages/database/src/explanations.ts`          | `readExplanation(storage, key)` with the member's token; `explanationWriter(access).store(…)` with the secret key, taking the organization from the session (008 D-06).                                                                                                                  |
+| `apps/web/src/lib/explanations.server.ts`        | `explainSelection(analysisId, subject)`: the steps in Approach, wiring storage, GitHub and `@workspace/ai`.                                                                                                                                                                              |
+| `apps/web/src/lib/explanations.functions.ts`     | `explain` (POST) and `staleness` (GET): server functions, the organization from the session.                                                                                                                                                                                             |
+| `apps/web/src/components/detail/explanation.tsx` | The tab: Explain button, pending state, the rendered paragraph with path links, the inferred role, a stale notice with Re-run, "tracing is off", and messages for errors and limits.                                                                                                     |
+| `apps/web/src/components/map/explanations.tsx`   | The session's explanations by subject, held beside the map's state (FR-004).                                                                                                                                                                                                             |
 
 ## Data
 
@@ -124,9 +124,11 @@ the short form.
   - `gemini-3.6-flash` is a stable name for one model (Google: stable models
     "point to a specific stable model"). `gemini-flash-latest` is an alias
     "hot-swapped with every new release", which FR-012 forbids.
-  - The free tier allows 5 requests a minute, measured on 2026-10-17.
-    Explanations are cached per organization, so each is paid for once. At
-    the limit, the tab says to try again shortly.
+  - The free tier allows 5 requests a minute and **20 a day** per model,
+    for the whole project (ADR 0003). Explanations are cached per
+    organization, so each is paid for once. At either limit, the tab says to
+    try again later, without retrying: a daily limit won't lift in seconds,
+    and every retry is another refused request.
   - Google may use free-tier data, but Cartograph sends only public
     repositories' code (`008` C-06).
   - _Changing it:_ `MODEL` and the provider in `model.ts`, and a key.
@@ -208,7 +210,9 @@ By the repository's owner:
 
 - **LangSmith:**
   - Settings → Plans and Pricing should say Developer. Add no card.
-  - Settings → API Keys → a Service key, workspace-scoped, Tracing Only.
+  - Settings → API Keys → "+ API Key", Key Type **Tracing Only** (the third
+    card), named `cartograph`, expiring in a year: one key for local and
+    Vercel. ADR 0003 has the screen's every field.
 - **`apps/web/.env.local`:**
   - `GEMINI_API_KEY` (already there);
   - `LANGSMITH_TRACING=true`, `LANGSMITH_API_KEY`,
@@ -250,9 +254,11 @@ By the repository's owner:
 
 ## Risks
 
-- **The free tier's 5 requests a minute.** A second ungrounded retry can meet
-  it. The cache, and explaining only on request, keep calls rare; at the
-  limit the tab says to try again.
+- **The free tier's 5 requests a minute and 20 a day.** That's about 20 new
+  explanations a day across everyone, fewer with retries. The cache, and
+  explaining only on request, keep calls rare. If it isn't enough, the
+  options are recorded in ADR 0003: another Gemini model with its own
+  quota, or Kimi on the LangSmith credits.
 - **raw.githubusercontent.com throttles.** It's GitHub's file host, with its
   own generous limits. A refusal shows a message, as fetching does in `008`.
 - **Traces lost when a function ends.** Each server function flushes before

@@ -134,12 +134,24 @@ works, apart from the bill.
 - **It was the plan.** ADR 0001 named LangSmith for tracing, and nothing found
   here argues against it.
 
-**The key LangSmith needs:** a **Service key, workspace-scoped, "Tracing
-Only"**, created under Settings → API Keys.
+**The key LangSmith needs:** a **"Tracing Only"** key, its own key type.
+
+- **Where:** Settings → API Keys → "+ API Key", which opens "Create an API
+  Key":
+
+  | Field       | Choose                                                                                                                                                                                                       |
+  | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+  | Description | `cartograph`                                                                                                                                                                                                 |
+  | Key Type    | **Tracing Only**, the third card: "Org-owned, write-only keys for agents". Not "Personal Access Token" (it acts as you, with all your rights), and not "Service Key" (read and write access for automation). |
+  | Workspaces  | The personal account's one workspace (Workspace 1)                                                                                                                                                           |
+  | Expiration  | 1 year. Not "Never": a key that leaks should stop working on its own.                                                                                                                                        |
 
 - It can only send traces (`runs:create`, `projects:create`), so a leaked
   key can't read or change anything else.
-- LangSmith shows it once.
+- LangSmith shows it **once**: copy it into a password manager, then
+  `.env.local` (or Vercel).
+- **One key, `cartograph`, serves local and Vercel** (the owner's decision,
+  2026-10-18). Revoking it means pasting a new one into both.
 - The account is in the **APAC** region, so the app also sets
   `LANGSMITH_ENDPOINT=https://apac.api.smith.langchain.com`. Without it,
   traces go to the US region and never reach the account.
@@ -247,7 +259,8 @@ million downloads a week at version 7's launch).
   - a run regularly needs longer than `MAX_RUN_SECONDS` (300 s);
   - stale runs become common, so they need retrying rather than re-running
     by hand;
-  - Gemini's free limit (5 a minute) turns many requests away. Then a
+  - Gemini's free limits (5 a minute, 20 a day) turn many requests away.
+    Then a
     throttled queue would hold explanations until there's room, instead of
     asking the member to try again.
 
@@ -255,10 +268,14 @@ million downloads a week at version 7's launch).
 
 ## Consequences
 
-- **Gemini's free tier allows 5 requests a minute** (measured 2026-10-17;
-  Google's docs don't publish the free numbers, and each account's are at
-  aistudio.google.com/rate-limit). Daily quotas reset at midnight Pacific
-  time.
+- **Gemini's free tier on `gemini-3.6-flash` allows 5 requests a minute
+  and 20 a day**, for the whole project, so for everyone using Cartograph.
+  - The minute limit was measured 2026-10-17. The day limit is from Google's
+    own error on 2026-10-18 (`GenerateRequestsPerDayPerProjectPerModel-FreeTier`,
+    20), after the separate Deep Agents test had used up the day.
+  - Daily quotas reset at midnight Pacific time, and each model has its own.
+  - Google's docs don't publish the free numbers; each account's are at
+    aistudio.google.com/rate-limit.
   - Explanations are cached per organization and asked for only on request,
     so each is paid for once.
   - At the limit, the tab says to try again shortly, and nothing is cached.

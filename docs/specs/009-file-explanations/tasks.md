@@ -1,7 +1,7 @@
 # 009 — File explanations: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** Not started
+**Build status:** In progress
 
 ## T01 — The checks carried from 008
 
@@ -22,23 +22,24 @@ watch its stages, the map, a re-run and a second tab. The carried 006 and
 
 ## T02 — The model and its tracing
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** FR-011 to FR-013, C-04, AC-08, AC-10, D-01 to D-03
 
 **What to build:** `@workspace/ai`:
 
 - `MODEL` and `languageModel`, the one place that builds the model client;
-- `tracing`, with `traced` and `flushTraces`, which is a plain call when
+- `tracing`, with `traced` and `flush`, which is a plain call when
   tracing is off.
 
 **Done when:**
 
-- [ ] AC-10: `MODEL` is an exact version, and a test refuses any alias.
-- [ ] With the real key locally, one call to Gemini returns. With
-      `LANGSMITH_*` set, its run appears in the `cartograph-development`
-      project; with tracing off, the call still returns.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] AC-10: `MODEL` is an exact version, and a test refuses any alias.
+- [x] With the real key locally, one call to Gemini returns (3.6 s,
+      2026-10-18), and with tracing off it still returns.
+- [x] With `LANGSMITH_*` set, a traced run (`t02-tracing-check`) appears in
+      the `cartograph-development` project (2026-10-18).
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T03 — The cache in storage
 
