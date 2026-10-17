@@ -38,7 +38,8 @@ the risks below), and one finding changed the spec.
 | `apps/web/src/routes/_signed-in/dashboard.tsx`                   | `/dashboard`, where every sign-in lands (FR-002): the current organization in the first paint (FR-011), the switcher (FR-006) and, for an admin, the invitation form (FR-007). `007` fills the rest. |
 | `apps/web/src/routes/sign-in.$.tsx`                              | `/sign-in`: Clerk's `<SignIn />`, which also signs up and accepts an invitation's ticket (C-02, FR-008); afterwards, `/dashboard`.                                                                   |
 | `apps/web/src/lib/invitations.functions.ts`, `.server.ts`        | `inviteMember({ email })`: checks the token's admin claim itself (a route guard doesn't protect a server function), then creates the invitation with `/sign-in` as its redirect (D-06).              |
-| `apps/web/src/components/organization/`                          | The organization's name as the server renders it, the switcher in `<ClientOnly>` over a fallback of the same size, the invitation form (shadcn `Field`, `Input`, `Button`).                          |
+| `apps/web/src/components/organization/`                          | The switcher over a fallback of the same size (D-05), and the invitation form (shadcn `Field`, `Input`, `Button`).                                                                                   |
+| `apps/web/src/components/account/account-header.tsx`             | The signed-in pages' header: the app's name, the theme and Clerk's account button over a fallback of its size.                                                                                       |
 | `apps/web/src/lib/storage.ts`                                    | `storageClient(getToken)`: the one way to make a Supabase client, its `accessToken` the Clerk token (FR-013, C-03, C-04). No table, no query (C-05).                                                 |
 | `apps/web/src/lib/env.server.ts`, `src/env.d.ts`, `.env.example` | The new configuration, checked at start (spec `000`, FR-011).                                                                                                                                        |
 
@@ -100,8 +101,12 @@ organization is active; the custom claim adds `org_name: "{{org.name}}"`.
   `<UserButton />` are Clerk's components, themed with `@clerk/ui`'s shadcn
   theme and its `@clerk/ui/themes/shadcn.css`, so they use this app's
   tokens (out of scope: styling beyond matching; `@clerk/themes` is the
-  older SDKs' package). Each renders in `<ClientOnly>` over a fallback of its size, so
-  nothing shifts when they load (`012` CLS). Pages that don't sign anyone
+  older SDKs' package). Each renders in `<ClerkLoaded>`, with a fallback of
+  its size in `<ClerkLoading>`, so nothing shifts when they load (`012`
+  CLS). _Why not `<ClientOnly>`_ (AGENTS.md's rule for browser-only UI):
+  Clerk's components wait for Clerk's script, not only the browser, so
+  `<ClientOnly>` would still leave a gap after hydration; `<ClerkLoading>`
+  renders on the server and stays until the component can draw. Pages that don't sign anyone
   in, home and the samples, still load Clerk's script; T04 measures them
   against `012`'s thresholds, and if they fail, the provider moves under
   the routes that need it.

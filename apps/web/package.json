@@ -15,6 +15,8 @@
     "og-image": "node scripts/og-image.ts"
   },
   "dependencies": {
+    "@clerk/tanstack-react-start": "catalog:",
+    "@clerk/ui": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",

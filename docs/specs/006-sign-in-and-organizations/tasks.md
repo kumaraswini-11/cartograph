@@ -26,7 +26,7 @@ changed where one isn't as assumed.
 
 ## T02 — Sign-in and the protected dashboard
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T01
 **Covers:** FR-001 to FR-005, FR-010 to FR-012, C-01, C-02, AC-01, AC-03 to
 AC-05, AC-07
@@ -38,12 +38,13 @@ paint.
 
 **Done when:**
 
-- [ ] A first sign-in on the development instance lands on `/dashboard` in
+- [x] A first sign-in on the development instance lands on `/dashboard` in
       an organization named after the account, with no screen asking for
-      one.
-- [ ] A signed-out `/dashboard` is answered with a redirect and no page; a
+      one (email, in the browser with a testing token; GitHub and Google in
+      T05).
+- [x] A signed-out `/dashboard` is answered with a redirect and no page; a
       signed-in one has the organization's name in the server's HTML.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T03 — Switching and inviting
 

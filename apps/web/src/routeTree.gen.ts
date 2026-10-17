@@ -10,13 +10,25 @@
 
 import { Route as rootRouteImport } from "./routes/__root"
 import { Route as IndexRouteImport } from "./routes/index"
+import { Route as SignedInRouteImport } from "./routes/_signed-in"
+import { Route as SignedInDashboardRouteImport } from "./routes/_signed-in/dashboard"
 import { Route as SampleIndexRouteImport } from "./routes/sample.index"
 import { Route as SampleNameRouteImport } from "./routes/sample.$name"
+import { Route as SignInSplatRouteImport } from "./routes/sign-in.$"
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
   getParentRoute: () => rootRouteImport,
+} as any)
+const SignedInRoute = SignedInRouteImport.update({
+  id: "/_signed-in",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignedInDashboardRoute = SignedInDashboardRouteImport.update({
+  id: "/dashboard",
+  path: "/dashboard",
+  getParentRoute: () => SignedInRoute,
 } as any)
 const SampleIndexRoute = SampleIndexRouteImport.update({
   id: "/sample/",
@@ -28,34 +40,55 @@ const SampleNameRoute = SampleNameRouteImport.update({
   path: "/sample/$name",
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignInSplatRoute = SignInSplatRouteImport.update({
+  id: "/sign-in/$",
+  path: "/sign-in/$",
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
+  "/dashboard": typeof SignedInDashboardRoute
   "/sample/$name": typeof SampleNameRoute
+  "/sign-in/$": typeof SignInSplatRoute
   "/sample/": typeof SampleIndexRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
+  "/dashboard": typeof SignedInDashboardRoute
   "/sample/$name": typeof SampleNameRoute
+  "/sign-in/$": typeof SignInSplatRoute
   "/sample": typeof SampleIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
+  "/_signed-in": typeof SignedInRouteWithChildren
+  "/_signed-in/dashboard": typeof SignedInDashboardRoute
   "/sample/$name": typeof SampleNameRoute
+  "/sign-in/$": typeof SignInSplatRoute
   "/sample/": typeof SampleIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/" | "/sample/$name" | "/sample/"
+  fullPaths: "/" | "/dashboard" | "/sample/$name" | "/sign-in/$" | "/sample/"
   fileRoutesByTo: FileRoutesByTo
-  to: "/" | "/sample/$name" | "/sample"
-  id: "__root__" | "/" | "/sample/$name" | "/sample/"
+  to: "/" | "/dashboard" | "/sample/$name" | "/sign-in/$" | "/sample"
+  id:
+    | "__root__"
+    | "/"
+    | "/_signed-in"
+    | "/_signed-in/dashboard"
+    | "/sample/$name"
+    | "/sign-in/$"
+    | "/sample/"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SignedInRoute: typeof SignedInRouteWithChildren
   SampleNameRoute: typeof SampleNameRoute
+  SignInSplatRoute: typeof SignInSplatRoute
   SampleIndexRoute: typeof SampleIndexRoute
 }
 
@@ -67,6 +100,20 @@ declare module "@tanstack/react-router" {
       fullPath: "/"
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    "/_signed-in": {
+      id: "/_signed-in"
+      path: ""
+      fullPath: "/"
+      preLoaderRoute: typeof SignedInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/_signed-in/dashboard": {
+      id: "/_signed-in/dashboard"
+      path: "/dashboard"
+      fullPath: "/dashboard"
+      preLoaderRoute: typeof SignedInDashboardRouteImport
+      parentRoute: typeof SignedInRoute
     }
     "/sample/": {
       id: "/sample/"
@@ -82,12 +129,33 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof SampleNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/sign-in/$": {
+      id: "/sign-in/$"
+      path: "/sign-in/$"
+      fullPath: "/sign-in/$"
+      preLoaderRoute: typeof SignInSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface SignedInRouteChildren {
+  SignedInDashboardRoute: typeof SignedInDashboardRoute
+}
+
+const SignedInRouteChildren: SignedInRouteChildren = {
+  SignedInDashboardRoute: SignedInDashboardRoute,
+}
+
+const SignedInRouteWithChildren = SignedInRoute._addFileChildren(
+  SignedInRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SignedInRoute: SignedInRouteWithChildren,
   SampleNameRoute: SampleNameRoute,
+  SignInSplatRoute: SignInSplatRoute,
   SampleIndexRoute: SampleIndexRoute,
 }
 export const routeTree = rootRouteImport
@@ -95,10 +163,11 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from "./router.tsx"
-import type { createStart } from "@tanstack/react-start"
+import type { startInstance } from "./start.ts"
 declare module "@tanstack/react-start" {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

@@ -22,8 +22,16 @@ From the repository root:
 | `pnpm --filter web sample`   | Rewrites the sample maps, `src/sample/*.gen.ts`                         |
 
 Configuration is checked at start: a required value that is missing, blank
-or invalid stops the app, naming each one (`src/lib/config.ts`). Server-only
-code lives in `*.server.ts` files; server functions in `*.functions.ts`.
+or invalid stops the app, naming each one (`src/lib/config.ts`); the values
+are listed in `.env.example`. Server-only code lives in `*.server.ts` files;
+server functions in `*.functions.ts`. `src/start.ts` holds every request's
+middleware, and the dev server reads it only when it starts: restart it after
+changing that file.
+
+Sign-in is Clerk's (spec 006): `/sign-in` signs in and up, and every page
+under `src/routes/_signed-in/` is protected, read from the session token
+(`src/lib/session.ts`) without asking Clerk. Home and the samples are
+public.
 
 `/sample/$name` shows the map of one of three fixed repositories
 (`src/sample/samples.ts`) until spec 008 stores real analyses. Not-found,
@@ -39,5 +47,6 @@ production.
 
 [Spec 000](../../docs/specs/000-platform-requirements/spec.md) ·
 [Spec 003](../../docs/specs/003-dependency-map/spec.md) ·
+[Spec 006](../../docs/specs/006-sign-in-and-organizations/spec.md) ·
 [ADR 0002: hosting on Vercel with Nitro](../../docs/adr/0002-hosting-on-vercel-with-nitro.md) ·
 [AGENTS.md: Rendering](../../AGENTS.md#rendering-tanstack-start)
