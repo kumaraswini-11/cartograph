@@ -60,7 +60,8 @@ watch its stages, the map, a re-run and a second tab. The carried 006 and
 
 ## T04 — A file explained, grounded and cached
 
-**Status:** Todo
+**Status:** In progress: built and tested; the browser checks wait for
+Gemini's daily quota (reset at midnight Pacific time)
 **Blocked by:** T02, T03
 **Covers:** FR-001, FR-003 to FR-011, C-01 to C-05, AC-01 to AC-03, AC-05,
 AC-07, AC-09, D-04 to D-08, D-11
@@ -76,14 +77,14 @@ AC-07, AC-09, D-04 to D-08, D-11
 
 **Done when:**
 
-- [ ] Tests pass for AC-02, AC-05 and AC-07, and for a source whose hash
+- [x] Tests pass for AC-02, AC-05 and AC-07, and for a source whose hash
       doesn't match.
 - [ ] Locally, a file's explanation names genuine neighbours, and choosing
       one moves the map (AC-01).
 - [ ] Explained again, it's instant, and LangSmith shows a second run with
       no model call (AC-03).
 - [ ] Away and back, it shows without a request (AC-09).
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T05 — A box explained
 

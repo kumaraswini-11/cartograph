@@ -5,6 +5,8 @@ export type { ArchiveOptions, Extracted } from "./archive.ts"
 export { GitHubError, megabytes } from "./errors.ts"
 export type { GitHubFailure } from "./errors.ts"
 export { defaultBranchHead } from "./head.ts"
+export { fileAtCommit } from "./file.ts"
+export type { FileOptions } from "./file.ts"
 export type { Head, HeadOptions } from "./head.ts"
 export {
   DOWNLOAD_TIMEOUT_MS,

@@ -18,3 +18,12 @@ export const MODEL = "gemini-3.6-flash"
 export function languageModel(apiKey: string): LanguageModel {
   return createGoogleGenerativeAI({ apiKey })(MODEL)
 }
+
+/**
+ * The model's own settings, keyed by provider, which other providers
+ * ignore. A short paragraph needs little reasoning: the least thinking
+ * keeps it quick, and fewer tokens count against the free tier.
+ */
+export const MODEL_OPTIONS = {
+  google: { thinkingConfig: { thinkingLevel: "minimal" } },
+}

@@ -44,6 +44,28 @@ await traces.flush() // before a serverless function returns
   returns the function itself, `enabled` is `false`, and nothing is
   recorded (`009` FR-013).
 
+## Explaining a file
+
+`explainFile(file, deps)` (spec 009) runs inside one traced call: the
+organization's cache first (a hit is a run with no model call), then, on a
+miss, the source and the model. `file` carries the facts the parser found:
+the file's hash, its role, and its real dependencies and dependents. The
+model is handed those and never asked to find connections (C-01). `deps`
+supplies the cache, the source and the model call, so the package knows
+nothing of storage or GitHub.
+
+- The answer must fit `answerSchema`: a paragraph, and an inferred role
+  from `INFERRED_ROLES` or none, never a surface role (C-02).
+- `ungroundedPaths` checks every file it names against the analysis
+  (`pathIndex`, built once). An answer naming an absent file is asked for
+  once more, then refused, and nothing is cached (FR-006).
+- A refusal for the model's request limit returns `limited` at once; it
+  isn't retried.
+- Two browser-safe subpaths: `@workspace/ai/text` reads an explanation into
+  its three formats (code, bold, bullets) and drops any other mark (FR-007);
+  `@workspace/ai/grounding` turns a named path into the analysis's file, for
+  links (FR-008).
+
 ## The choices behind it
 
 The model (Gemini, free tier), the tracing service (LangSmith, free plan),

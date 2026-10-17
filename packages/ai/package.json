@@ -6,7 +6,9 @@
   "description": "The one place that builds the model client and its tracing (spec 009, C-04): the pinned model, LangSmith tracing that can be off, and the explanation prompts, grounding and formatting.",
   "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./grounding": "./src/grounding.ts",
+    "./text": "./src/text.ts"
   },
   "scripts": {
     "lint": "eslint",
@@ -24,7 +26,9 @@
   },
   "dependencies": {
     "@ai-sdk/google": "catalog:",
+    "@workspace/parser": "workspace:*",
     "ai": "catalog:",
-    "langsmith": "catalog:"
+    "langsmith": "catalog:",
+    "zod": "catalog:"
   }
 }

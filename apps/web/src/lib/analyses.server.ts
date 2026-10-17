@@ -24,7 +24,7 @@ export type AnalysisPage = { analysis: AnalysisDetail; map: MapInput | null }
  * The current organization, from the session Clerk's middleware verified:
  * the only source of whose analysis this is (plan D-06), never the request.
  */
-async function currentOrganization(): Promise<string> {
+export async function currentOrganization(): Promise<string> {
   const session = await readSession()
   if (!session.signedIn)
     throw new Error("Signed out: no organization to act for.")

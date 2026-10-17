@@ -18,6 +18,7 @@ import {
 } from "@workspace/ui/components/shadcn-ui/tabs"
 
 import { BoxDetail } from "@/components/detail/box-detail"
+import { ExplanationTab } from "@/components/detail/explanation"
 import { FileDetail } from "@/components/detail/file-detail"
 import { PaneScrollContext } from "@/components/detail/file-list"
 import { SUMMARY_HEADING, Summary } from "@/components/detail/summary"
@@ -116,7 +117,6 @@ function SelectionDetail({
   onClear: () => void
 }) {
   const { boxMap } = useMapData()
-  const isFile = selection.file !== undefined
   const box = boxMap.byId.get(selection.box)
   const title =
     selection.file === undefined
@@ -172,11 +172,15 @@ function SelectionDetail({
           )}
         </TabsContent>
         <TabsContent value="explanation">
-          <EmptyState
-            icon={<SparklesIcon />}
-            title="No explanation yet"
-            description={`An explanation of this ${isFile ? "file" : "box"}, written from its real neighbours, will appear here.`}
-          />
+          {selection.file !== undefined ? (
+            <ExplanationTab path={selection.file} />
+          ) : (
+            <EmptyState
+              icon={<SparklesIcon />}
+              title="No explanation yet"
+              description="An explanation of this box, written from its real neighbours, will appear here."
+            />
+          )}
         </TabsContent>
       </Tabs>
     </>
