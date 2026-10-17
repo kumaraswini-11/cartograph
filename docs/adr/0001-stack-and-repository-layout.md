@@ -81,7 +81,8 @@ Each is confirmed, or replaced, in its spec's `plan.md` when that spec starts
 | Sign-in, organizations, a token carrying the claim  | Clerk                                                                          | `006`      |
 | Storage with row-level policies and pushed changes  | Supabase (Postgres)                                                            | `007`      |
 | Drawing and laying out the map                      | React Flow and dagre                                                           | `003`      |
-| Tracing model calls                                 | LangSmith                                                                      | `009`      |
+| Model calls                                         | Gemini through the AI SDK (decided: [ADR 0003](0003-ai-model-and-tracing.md))  | `009`      |
+| Tracing model calls                                 | LangSmith (decided: [ADR 0003](0003-ai-model-and-tracing.md))                  | `009`      |
 | Hosting with server rendering and preview addresses | Vercel, with Nitro (decided: [ADR 0002](0002-hosting-on-vercel-with-nitro.md)) | `000`      |
 
 ## Alternatives considered

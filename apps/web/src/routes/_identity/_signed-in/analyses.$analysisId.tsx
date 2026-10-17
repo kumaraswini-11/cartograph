@@ -9,6 +9,7 @@ import { AccountHeader } from "@/components/account/account-header"
 import { RerunButton } from "@/components/analysis/rerun-button"
 import { RunBadge } from "@/components/analysis/run-badge"
 import { RunProgress } from "@/components/analysis/run-progress"
+import { ExplanationsProvider } from "@/components/map/explanations"
 import { MapShell } from "@/components/map/map-shell"
 import { getAnalysis } from "@/lib/analyses.functions"
 import { useStages, withChange } from "@/lib/progress"
@@ -65,22 +66,24 @@ function AnalysisRoute() {
 
   if (map !== null) {
     return (
-      <MapShell
-        input={map}
-        actions={
-          <>
-            <Link
-              to="/dashboard"
-              className={buttonVariants({ variant: "ghost", size: "sm" })}
-            >
-              Dashboard
-            </Link>
-            {/* A later run that isn't done yet, or didn't finish. */}
-            {run !== null && run.state !== "done" && <RunBadge run={run} />}
-            {rerun}
-          </>
-        }
-      />
+      <ExplanationsProvider analysisId={analysis.id}>
+        <MapShell
+          input={map}
+          actions={
+            <>
+              <Link
+                to="/dashboard"
+                className={buttonVariants({ variant: "ghost", size: "sm" })}
+              >
+                Dashboard
+              </Link>
+              {/* A later run that isn't done yet, or didn't finish. */}
+              {run !== null && run.state !== "done" && <RunBadge run={run} />}
+              {rerun}
+            </>
+          }
+        />
+      </ExplanationsProvider>
     )
   }
 

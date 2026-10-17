@@ -17,6 +17,13 @@ export type {
 export { NO_TOKEN, storageClient } from "./client.ts"
 export type { StorageAccess, StorageClient } from "./client.ts"
 export type { Database, Json } from "./database.types.ts"
+export { explanationWriter, readExplanation } from "./explanations.ts"
+export type {
+  ExplanationKind,
+  ExplanationWriter,
+  NewExplanation,
+  StoredExplanation,
+} from "./explanations.ts"
 export { deleteOrganization } from "./organizations.ts"
 export {
   analysisTopic,
