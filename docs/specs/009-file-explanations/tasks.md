@@ -43,7 +43,7 @@ watch its stages, the map, a re-run and a second tab. The carried 006 and
 
 ## T03 — The cache in storage
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** FR-010, D-09
 
@@ -52,9 +52,11 @@ watch its stages, the map, a re-run and a second tab. The carried 006 and
 
 **Done when:**
 
-- [ ] pgTAP: `explanations` passes 007's every-table tests, members read
-      only their organization's, and a duplicate key writes one row.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] pgTAP: `explanations` passes 007's every-table tests, members read
+      only their organization's, and a duplicate key writes one row. The
+      table also refuses a surface role (C-02) and another organization's
+      analysis; checked against the local database too.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T04 — A file explained, grounded and cached
 
