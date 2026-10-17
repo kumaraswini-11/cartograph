@@ -120,7 +120,15 @@ reads one indexed column, as Supabase's guidance on policy performance asks.
   cloud only through CI (`supabase db push`): a pull request's to staging,
   `main`'s to production (C-03). _Why:_ Supabase's documented setup;
   branching is paid. AC-09 compares production's schema with one built from
-  the migrations (`supabase db diff --linked`).
+  the migrations (`supabase db diff --linked`). _Until a staging project
+  exists_ (the repository owner's decision, 2026-10-17): previews and
+  production share the one project, and migrations reach it only from
+  `main` (`.github/workflows/database-migrations.yml`). What it costs: a
+  pull request that adds a migration can't be seen working on its preview
+  before merge, since the table it needs isn't there yet, and a preview's
+  writes (from `008` on) land in production's data. When staging is added,
+  previews take its values and the workflow pushes a pull request's
+  migrations to it.
 - **D-06** The policies are proved by pgTAP tests run with `supabase test
 db`, each in a transaction that's rolled back, with Clerk-shaped claims
   set through `request.jwt.claims` (which is what `auth.jwt()` reads), and

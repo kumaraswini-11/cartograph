@@ -1,11 +1,12 @@
 # 007 — Organization dashboard: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** In progress
+**Build status:** Done, with the checks that need deployed data carried into
+`008` (T01, T03's first run, T06)
 
 ## T01 — `006`'s preview checks, carried over
 
-**Status:** Todo
+**Status:** Carried into `008` with this spec's own checks
 **Blocked by:** none
 **Covers:** `006` AC-01 (GitHub, Google), AC-02, AC-03, AC-05, AC-07
 
@@ -18,7 +19,7 @@
 
 ## T02 — The database package and its schema
 
-**Status:** In progress (its CI job runs on the first push)
+**Status:** Done; its CI job runs on the first push
 **Blocked by:** none
 **Covers:** FR-001 to FR-005, C-01, C-03, AC-03 to AC-06, AC-08, D-01 to
 D-04, D-06
@@ -31,24 +32,26 @@ CI.
 
 **Done when:**
 
-- [ ] `supabase test db` passes AC-03 to AC-06 and AC-08 locally and in CI,
-      and `supabase db advisors` reports no error.
+- [x] `supabase test db` passes AC-03 to AC-06 and AC-08 locally (in CI on
+      the first push), and `supabase db advisors` reports no error.
 - [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
-## T03 — Staging and production
+## T03 — Migrations reach the deployed database
 
-**Status:** Todo
+**Status:** Done in the repository; its first run needs the owner's secrets
 **Blocked by:** T02
 **Covers:** FR-005, C-03, AC-09, D-05
 
-**What to build:** with the repository's owner, the staging project and the
-secrets; CI pushing migrations to staging for a pull request and to
-production for `main`.
+**What to build:** CI applying `main`'s migrations to the one cloud project,
+which previews and production share until a staging project exists (D-05,
+the owner's decision).
 
 **Done when:**
 
-- [ ] A pull request's migrations reach staging, and production's schema
-      matches the migrations (AC-09).
+- [x] `.github/workflows/database-migrations.yml` applies `main`'s
+      migrations, showing them first (`--dry-run`).
+- [ ] Its first run, after the owner adds the secrets, and production's
+      schema matches the migrations (AC-09). Carried into the next phase.
 
 ## T04 — The dashboard's list
 
@@ -68,7 +71,7 @@ state; the local seed script.
 
 ## T05 — Deleting an organization's records
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T02
 **Covers:** FR-002, the spec's edge cases, D-07
 
@@ -77,13 +80,14 @@ delete with the secret key.
 
 **Done when:**
 
-- [ ] A signed `organization.deleted` removes that organization's rows, a
+- [x] A signed `organization.deleted` removes that organization's rows, a
       repeat changes nothing, and an unsigned request is refused.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T06 — Acceptance
 
-**Status:** Todo
+**Status:** Carried into `008`, at the owner's decision (2026-10-17): checked
+when real analyses exist
 **Blocked by:** T03, T04, T05
 **Covers:** AC-01 to AC-09
 
