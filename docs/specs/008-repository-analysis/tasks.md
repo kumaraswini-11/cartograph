@@ -31,7 +31,7 @@ The golden scripts' `checkout` moves onto it.
 
 ## T02 — Runs in storage
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** FR-002 to FR-004, FR-007, FR-013, FR-015, C-01, C-05, AC-05,
 AC-08, AC-11, D-06 to D-08, D-12
@@ -46,12 +46,12 @@ AC-08, AC-11, D-06 to D-08, D-12
 
 **Done when:**
 
-- [ ] pgTAP passes AC-05, AC-08 and AC-11, and every earlier test, now
+- [x] pgTAP passes AC-05, AC-08 and AC-11, and every earlier test, now
       covering `results`. `supabase db advisors` reports no error.
-- [ ] Submitting an address the organization already has returns that
+- [x] Submitting an address the organization already has returns that
       analysis and starts no run. A re-run over a stale run ends the stale
       one as failed first.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T03 — A submitted address becomes a stored map
 

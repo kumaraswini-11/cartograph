@@ -26,6 +26,31 @@ const { data } = await storage.from("analyses").select("repository")
 Who sees which row is the policies' decision, never the caller's: no query
 filters by organization (spec 007, C-02).
 
+Reads, with the signed-in person's token:
+
+- `listAnalyses(storage)`: the dashboard's list, each analysis with its
+  latest run and whether that run is stale.
+- `readAnalysis(storage, id)` and `readResult(storage, id)`: one
+  analysis with its latest run, and its stored results.
+
+Writes go only through the server, with the secret key, and only through
+the database's own functions (spec 008, plan D-06):
+
+```ts
+import { runWriter } from "@workspace/database"
+
+const runs = runWriter({ url, secretKey })
+const { analysisId, runId } = await runs.startAnalysis({
+  organizationId, // from the verified session, never the request
+  repository,
+  message,
+})
+```
+
+`deleteOrganization` is the other writer: the organization-deleted webhook's
+(spec 007, D-07). Members can't call either: the functions are granted to
+the secret key's role alone, and the pgTAP tests check it.
+
 ## The local database
 
 Supabase's local stack runs in Docker; Docker Desktop must be running. From

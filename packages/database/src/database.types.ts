@@ -39,16 +39,42 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
-                },"runs": {
+                },"results": {
                   Row: {
-                    "analysis_id": string,"finished_at": string | null,"id": string,"organization_id": string,"started_at": string,"state": string
+                    "analysis_id": string,"commit": string,"detection": NonNullable<Json>,"organization_id": string,"parsed": NonNullable<Json>,"stored_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "analysis_id": string,"finished_at"?: string | null,"id"?: string,"organization_id": string,"started_at"?: string,"state": string
+                    "analysis_id": string,"commit": string,"detection": NonNullable<Json>,"organization_id": string,"parsed": NonNullable<Json>,"stored_at"?: string
                   }
                   Update: {
-                    "analysis_id"?: string,"finished_at"?: string | null,"id"?: string,"organization_id"?: string,"started_at"?: string,"state"?: string
+                    "analysis_id"?: string,"commit"?: string,"detection"?: NonNullable<Json>,"organization_id"?: string,"parsed"?: NonNullable<Json>,"stored_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "results_organization_id_analysis_id_fkey"
+      columns: ["organization_id","analysis_id"]
+isOneToOne: false
+      referencedRelation: "analyses"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "results_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"runs": {
+                  Row: {
+                    "analysis_id": string,"commit": string | null,"failed_stage": string | null,"finished_at": string | null,"id": string,"message": string,"organization_id": string,"started_at": string,"state": string,"stale": boolean | null
+                  }
+                  ComputedFields: "stale"
+                  Insert: {
+                    "analysis_id": string,"commit"?: string | null,"failed_stage"?: string | null,"finished_at"?: string | null,"id"?: string,"message"?: string,"organization_id": string,"started_at"?: string,"state": string
+                  }
+                  Update: {
+                    "analysis_id"?: string,"commit"?: string | null,"failed_stage"?: string | null,"finished_at"?: string | null,"id"?: string,"message"?: string,"organization_id"?: string,"started_at"?: string,"state"?: string
                   }
                   Relationships: [
                     {
@@ -71,7 +97,28 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            [_ in never]: never
+            "advance_run":
+{ Args: { "commit"?: string,"message": string,"run": string,"stage": string }; Returns: boolean
+                           },
+"fail_run":
+{ Args: { "message": string,"run": string }; Returns: undefined
+                           },
+"finish_run":
+{ Args: { "detection": Json,"message": string,"parsed": Json,"run": string }; Returns: boolean
+                           },
+"rerun_analysis":
+{ Args: { "analysis": string,"message": string,"organization": string,"stopped": string }; Returns: {
+              "run_id": string,"started": boolean
+            }[]
+                           },
+"stale":
+{ Args: { "run": Omit<Database["public"]['Tables']["runs"]['Row'], Database["public"]['Tables']["runs"]['ComputedFields']> }; Returns: boolean
+                           },
+"start_analysis":
+{ Args: { "message": string,"organization": string,"repository": string }; Returns: {
+              "analysis_id": string,"run_id": string
+            }[]
+                           }
           }
           Enums: {
             [_ in never]: never

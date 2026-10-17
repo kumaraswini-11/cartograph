@@ -49,8 +49,8 @@ detection and the map never know which services are in use.
 | `packages/golden/src/index.ts`                                      | `checkout` downloads through `extractArchive` instead of the system's `tar`.                                                                                                                                                                                                                                                                                 |
 | `packages/database/supabase/migrations/`                            | The run's columns, the one-unfinished-run index, `stale`, `results`, the write functions, the broadcast trigger and the Realtime policy (Data).                                                                                                                                                                                                              |
 | `packages/database/supabase/tests/`                                 | pgTAP: AC-05, AC-06, AC-08, AC-11, and `results` covered by the existing tests that read every table from the catalog.                                                                                                                                                                                                                                       |
-| `packages/database/src/runs.ts`                                     | With the secret key, server-only: `startAnalysis`, `rerunAnalysis`, `advanceRun`, `failRun`, `finishRun` (D-06). Each takes the organization or the run it acts on and nothing else.                                                                                                                                                                         |
-| `packages/database/src/analyses.ts`                                 | `listAnalyses` gains each latest run's `stale`. `readAnalysis(storage, id)` returns the analysis, its latest run and its stored result, with the member's token.                                                                                                                                                                                             |
+| `packages/database/src/runs.ts`                                     | `runWriter(access)`, with the secret key, server-only: `startAnalysis`, `rerunAnalysis`, `advanceRun`, `failRun`, `finishRun` (D-06). Each takes the organization or the run it acts on and nothing else, and the client behind them is never handed out.                                                                                                    |
+| `packages/database/src/analyses.ts`                                 | `listAnalyses` gains each latest run's `stale`. `readAnalysis(storage, id)` returns the analysis with its latest run, and `readResult(storage, id)` its stored results, each with the member's token.                                                                                                                                                        |
 | `packages/database/src/progress.ts`                                 | `organizationTopic`, `analysisTopic`, and `subscribeToStages(storage, topic, onStage)`: a private channel and its `stage` events, `{ analysisId, stage, message }` (D-09).                                                                                                                                                                                   |
 | `apps/web/src/lib/run.server.ts`                                    | `runAnalysis(run)`: fetching, then parsing, then storing, each stage written before it starts. Any error ends the run as failed in the stage it reached, with its sentence (FR-006, FR-007).                                                                                                                                                                 |
 | `apps/web/src/lib/parse.worker.ts`                                  | `parseRepository` then `detectFrameworks` on the extracted directory, in a worker thread (D-05).                                                                                                                                                                                                                                                             |
@@ -65,13 +65,21 @@ detection and the map never know which services are in use.
 ## Data
 
 ```sql
+-- One analysis per repository per organization (C-01), whatever the case:
+-- GitHub reads Facebook/React as facebook/react. 007's unique
+-- (organization_id, repository) becomes:
+create unique index analyses_one_per_repository
+  on analyses (organization_id, lower(repository));
+
 -- runs gains what a run reports (007 left these to 008).
 alter table runs
   add column message text not null default '',   -- the current stage's sentence, or why it failed
   add column failed_stage text check (failed_stage in ('fetching', 'parsing', 'storing')),
   add column commit text,                         -- set once fetching has read it (FR-005)
   add constraint runs_failure_names_its_stage
-    check ((state = 'failed') = (failed_stage is not null));
+    check ((state = 'failed') = (failed_stage is not null)),
+  add constraint runs_end_when_finished
+    check ((state in ('done', 'failed')) = (finished_at is not null));
 
 -- At most one unfinished run per analysis (FR-004, AC-11): a second
 -- insert fails, whatever raced it.
