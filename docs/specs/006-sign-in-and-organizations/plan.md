@@ -24,9 +24,9 @@ connection. No table exists yet (C-05), but the one storage client is
 written now, with the token attached to every request, so `007`'s first
 policy finds it (C-04).
 
-Clerk documents most of this but not all of it. Five behaviours are
-confirmed on a development instance before anything is built on them
-(T01).
+Clerk documents most of this but not all of it. What it doesn't was
+checked on a development instance before anything was built on it (T01,
+the risks below), and one finding changed the spec.
 
 ## Modules and interfaces
 
@@ -71,7 +71,9 @@ organization is active; the custom claim adds `org_name: "{{org.name}}"`.
 - **D-01** Clerk is set, in its dashboard, to require organization
   membership and to create the first organization automatically, named
   `{{user.first_name}}'s organization`, "My organization" when there's no
-  first name, with naming from the email's domain off (FR-005). _Why:_
+  first name, with naming from the email's domain off (FR-005). A first
+  name is required at sign-up, so the fallback is never reached by an
+  email sign-up; GitHub and Google supply it. _Why:_
   Clerk's own recommendation for "every user always has an organization"
   (Clerk: organizations, configure), and no code to own. _Rejected:_
   creating the organization from a `user.created` webhook, which Clerk
@@ -95,9 +97,10 @@ organization is active; the custom claim adds `org_name: "{{org.name}}"`.
   (not in the first paint).
 - **D-05** `ClerkProvider` sits in the root document, as Clerk's TanStack
   Start guide places it; `<SignIn />`, `<OrganizationSwitcher />` and
-  `<UserButton />` are Clerk's components, themed with `@clerk/themes`'
-  shadcn theme so they use this app's tokens (out of scope: styling beyond
-  matching). Each renders in `<ClientOnly>` over a fallback of its size, so
+  `<UserButton />` are Clerk's components, themed with `@clerk/ui`'s shadcn
+  theme and its `@clerk/ui/themes/shadcn.css`, so they use this app's
+  tokens (out of scope: styling beyond matching; `@clerk/themes` is the
+  older SDKs' package). Each renders in `<ClientOnly>` over a fallback of its size, so
   nothing shifts when they load (`012` CLS). Pages that don't sign anyone
   in, home and the samples, still load Clerk's script; T04 measures them
   against `012`'s thresholds, and if they fail, the provider moves under
@@ -110,9 +113,13 @@ organization is active; the custom claim adds `org_name: "{{org.name}}"`.
   a route guard doesn't protect a server function (TanStack: auth and
   guards). Only admins see the form (FR-007, FR-009).
 - **D-07** After an invitation is accepted, the invited organization becomes
-  current: `<SignIn />` completes the ticket, and if T01 shows Clerk doesn't
-  make that organization active, `/sign-in` sets it active itself before
-  going to `/dashboard` (spec edge case).
+  current: `<SignIn />` completes the ticket and Clerk makes that
+  organization active, so no code of ours sets it (confirmed in T01: the
+  invited person's session came back with the invited organization current
+  and their role `member` in it). A person left with no organization gets
+  a pending session with Clerk's `choose-organization` task; `auth()` treats
+  it as signed out, so they're sent to `/sign-in`, whose `<SignIn />` shows
+  the task (spec edge case).
 - **D-08** Storage: Supabase's third-party connection to Clerk (Clerk's
   "Connect with Supabase"), which adds the `role: authenticated` claim, and
   `createClient(url, publishableKey, { accessToken })`, the Clerk token
@@ -122,9 +129,11 @@ organization is active; the custom claim adds `org_name: "{{org.name}}"`.
   (C-03). `007`'s policies read `auth.jwt()->'o'->>'id'`.
 - **D-09** AC-06 and AC-08 read Clerk itself, so they're checked by a script
   against the development instance (`pnpm --filter web clerk:check`), as
-  the golden scripts check the parser: it signs a test user in, reads the
-  token's claims, switches organization and reads them again, and lists the
-  instance's roles. Vitest covers what's this app's own: reading the claims
+  the golden scripts check the parser: with test users made through the
+  Backend API, it reads a session token's claims, switches organization
+  and reads them again, and lists the instance's roles. Signing up can't be
+  scripted (Clerk completes it only in its own component), so AC-01 stays
+  in the browser. Vitest covers what's this app's own: reading the claims
   into a `Session`, the admin check, and the storage client's header
   (AC-09). _Why:_ a unit test of a mocked Clerk proves nothing about
   Clerk's token. A departure from the spec's "test" for those two rows.
@@ -136,10 +145,14 @@ tasks name which they need:
 
 - **Clerk:** an application with a development and a production instance;
   organizations on, membership required, first organization created
-  automatically with D-01's naming; GitHub, Google and email code on;
-  the `org_name` custom claim; component paths pointing at `/sign-in`;
-  in production, GitHub and Google OAuth apps of this project's own.
-- **Supabase:** a project, with Clerk added as a third-party provider.
+  automatically with D-01's naming; GitHub, Google and email code on,
+  passwords off, a first name required; the `org_name` custom claim;
+  component paths pointing at `/sign-in`; in production, GitHub and Google
+  OAuth apps of this project's own. The development instance's settings
+  were applied with `clerk config patch` and checked with `config pull`;
+  production gets the same patch.
+- **Supabase:** a project, with Clerk added as a third-party provider, and
+  its own sign-up turned off, so Clerk is the only way in (C-03).
 - **Configuration:** the four variables in `apps/web/.env.local`, and in
   Vercel for preview and production.
 
@@ -158,11 +171,13 @@ tasks name which they need:
 
 ## Risks
 
-- **Undocumented behaviours** → T01 confirms them on a development instance
-  before they're built on: the automatic organization is active with no
-  screen shown; an accepted invitation's organization becomes active; a
-  last membership can't be removed; `{{org.name}}` is a valid claim; an
-  expired or revoked invitation's message in `<SignIn />`.
+- **Undocumented behaviours** → checked in T01 on the development instance:
+  an accepted invitation's organization becomes active; `{{org.name}}` is a
+  valid claim and follows a switch; a revoked invitation is refused with
+  `organization_invitation_revoked_code`; only `org:admin` and `org:member`
+  exist. A last membership _can_ be removed, which changed the spec's edge
+  case (D-07). The automatic organization at sign-up can only be checked in
+  the browser, so T02 checks it.
 - **Clerk's script on every page** → measured in T04 against `012` (D-05).
 - **A removed member's token is good for up to a minute** → accepted in the
   spec (edge cases); `007`'s policies read the same token.

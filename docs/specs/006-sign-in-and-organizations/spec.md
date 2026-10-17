@@ -88,8 +88,10 @@ that claim, never by asking the identity provider.
   that it no longer applies; they're not added.
 - A member removed from the current organization → they keep its access until
   their token expires, at most a minute (C-01); then another organization
-  they belong to becomes current. A person's last membership can't be
-  removed, so there's always one.
+  they belong to becomes current.
+- A member removed from their last organization → on their next request
+  they're signed out of it and taken to sign-in, which asks them to choose
+  or create an organization before going on.
 
 ## Acceptance criteria
 

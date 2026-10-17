@@ -1,11 +1,11 @@
 # 006 — Sign-in and organizations: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** Not started
+**Build status:** In progress
 
 ## T01 — The services, and what Clerk doesn't document
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** D-01, D-02, D-04, D-08, the plan's risks
 
@@ -17,10 +17,12 @@ changed where one isn't as assumed.
 
 **Done when:**
 
-- [ ] A first sign-in on the development instance lands in an organization
-      named after the account, with no screen asking for one.
-- [ ] Each of the five behaviours in the plan's risks is confirmed or the
-      plan says what replaces it.
+- [x] The development instance and the Supabase project are set up, and
+      Supabase accepts the Clerk token.
+- [x] Supabase's own sign-up is off.
+- [x] Each of the five behaviours in the plan's risks is confirmed or the
+      plan says what replaces it. The first sign-in's automatic
+      organization can only be checked in the browser, so it moves to T02.
 
 ## T02 — Sign-in and the protected dashboard
 
@@ -36,6 +38,9 @@ paint.
 
 **Done when:**
 
+- [ ] A first sign-in on the development instance lands on `/dashboard` in
+      an organization named after the account, with no screen asking for
+      one.
 - [ ] A signed-out `/dashboard` is answered with a redirect and no page; a
       signed-in one has the organization's name in the server's HTML.
 - [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
