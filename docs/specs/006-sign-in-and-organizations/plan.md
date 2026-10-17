@@ -130,7 +130,15 @@ organization is active; the custom claim adds `org_name: "{{org.name}}"`.
   and their role `member` in it). A person left with no organization gets
   a pending session with Clerk's `choose-organization` task; `auth()` treats
   it as signed out, so they're sent to `/sign-in`, whose `<SignIn />` shows
-  the task (spec edge case).
+  the task (spec edge case). Both removal cases were checked on the
+  development instance against an existing session: removed from the
+  current organization with another left, the session stays active and
+  Clerk makes the other current; removed from the last, it turns pending.
+  So a signed-in token with no organization only comes of a misconfigured
+  instance (membership made optional), and `sessionFromClaims` refuses it
+  rather than send it to sign-in, which would send it straight back
+  (CodeRabbit's review on PR 12 suggested the redirect; declined on this
+  evidence).
 - **D-08** Storage: Supabase's third-party connection to Clerk (Clerk's
   "Connect with Supabase"), which adds the `role: authenticated` claim, and
   `createClient(url, publishableKey, { accessToken })`, the Clerk token
