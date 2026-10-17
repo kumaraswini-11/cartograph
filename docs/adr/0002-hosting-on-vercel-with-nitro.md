@@ -49,7 +49,13 @@ which makes them a worker; `000` C-01 rules that out.
 
 - **pnpm 11.** Vercel installs pnpm 6 to 10 by itself. It uses the version in
   `packageManager` only through Corepack, which the project turns on with the
-  `ENABLE_EXPERIMENTAL_COREPACK=1` environment variable.
+  `ENABLE_EXPERIMENTAL_COREPACK=1` environment variable. `turbo.json` passes
+  `COREPACK_HOME` through to tasks as well: Turborepo's Strict Mode gives a
+  task only the variables it lists, and without that one Vercel disables
+  Corepack ("Disabling corepack because it may break your project … include
+  `COREPACK_HOME` in `turbo.json#globalPassThroughEnv`"). Vercel can't read
+  the Turborepo version that would also avoid it, since the root
+  `package.json` names it `catalog:`.
 - **Node.js** comes from `engines` in `package.json` (`24.x`), the same
   version `.node-version` gives CI and local tools.
 - **Monorepo.** The Vercel project's Root Directory is `apps/web`; Vercel
