@@ -1,11 +1,11 @@
 # 008 — Repository analysis: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** Not started
+**Build status:** In progress
 
 ## T01 — Addresses and archives
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** FR-001, FR-005, FR-008, FR-009, C-06, AC-09, AC-12, D-01 to D-03
 
@@ -19,14 +19,15 @@ The golden scripts' `checkout` moves onto it.
 
 **Done when:**
 
-- [ ] A GitLab address, a malformed one and a GitHub address that isn't a
+- [x] A GitLab address, a malformed one and a GitHub address that isn't a
       repository are each refused with their reason. `.git`, branch and path
       forms normalise to the repository.
-- [ ] An archive past `MAX_ARCHIVE_BYTES` stops at the limit, and the error
+- [x] An archive past `MAX_ARCHIVE_BYTES` stops at the limit, and the error
       names the limit. Links and escaping paths are refused.
-- [ ] `facebook/react` extracts only the files the parser reads. The parser's
+- [x] `facebook/react` is written with contents only for the files the parser
+      reads, and parses exactly as a full copy does. The parser's
       and detection's golden scripts still pass through the new `checkout`.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T02 — Runs in storage
 

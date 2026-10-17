@@ -2,16 +2,11 @@
 // detection (spec 002): each downloaded once at its pinned commit, and its
 // counts printed beside the ones its spec pins. The network belongs here,
 // never to the packages these scripts check.
-import { execFileSync } from "node:child_process"
-import {
-  existsSync,
-  mkdirSync,
-  renameSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs"
+import { existsSync, renameSync, rmSync } from "node:fs"
 import { join } from "node:path"
 import process, { stdout } from "node:process"
+
+import { extractArchive } from "@workspace/github"
 
 /** Counts by name, as a spec's golden data pins them. */
 export type Counts = Record<string, number | string>
@@ -57,11 +52,13 @@ export function timed<TValue>(step: () => TValue): [TValue, number] {
   return [value, (performance.now() - started) / 1000]
 }
 
-const DOWNLOAD_TIMEOUT_MS = 120_000
 /** Git-ignored (`.cache` in the root .gitignore). */
 const CACHE = join(import.meta.dirname, "..", ".cache")
 
-/** The repository's files at `commit`, downloaded once into the cache. */
+/**
+ * The repository's files at `commit`, downloaded once into the cache, the
+ * way a run fetches one (`@workspace/github`, spec 008 plan D-01).
+ */
 export async function checkout(
   repository: string,
   commit: string
@@ -70,34 +67,17 @@ export async function checkout(
   const directory = join(CACHE, name)
   if (existsSync(directory)) return directory
 
-  const response = await fetch(
-    `https://codeload.github.com/${repository}/tar.gz/${commit}`,
-    { signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS) }
-  )
-  if (!response.ok) {
-    throw new Error(`${repository}@${commit}: HTTP ${response.status}`)
-  }
-  const body = Buffer.from(await response.arrayBuffer())
-
   // Extracted beside the cache entry, then renamed into place: the entry
   // exists only once complete, so an interrupted run never leaves one
   // half-filled that a later run would trust.
   const staging = join(CACHE, `${name}.partial`)
-  const archive = join(CACHE, `${name}.tar.gz`)
   rmSync(staging, { recursive: true, force: true })
-  mkdirSync(staging, { recursive: true })
-  writeFileSync(archive, body)
   try {
-    // Relative paths: GNU tar reads "C:\..." as a remote host.
-    execFileSync("tar", ["-xzf", `../${name}.tar.gz`, "--strip-components=1"], {
-      cwd: staging,
-    })
+    await extractArchive(repository, commit, staging)
     renameSync(staging, directory)
   } catch (error) {
     rmSync(staging, { recursive: true, force: true })
     throw error
-  } finally {
-    rmSync(archive, { force: true })
   }
   return directory
 }
