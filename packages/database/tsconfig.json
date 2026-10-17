@@ -1,0 +1,7 @@
+{
+  "extends": "@workspace/typescript-config/node.json",
+  "include": ["src", "scripts", "*.ts"],
+  "compilerOptions": {
+    "types": []
+  }
+}

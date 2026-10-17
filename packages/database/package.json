@@ -1,0 +1,36 @@
+{
+  "name": "@workspace/database",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "description": "The database where storage lives: Supabase's project (migrations, row-level policies and their pgTAP tests), the generated table types, the client that carries the signed-in person's token, and the queries (docs/specs/007).",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:test": "supabase test db",
+    "db:advisors": "supabase db advisors --local --fail-on error",
+    "db:types": "supabase gen types typescript --local --schema public > src/database.types.ts",
+    "db:seed": "node scripts/seed.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*",
+    "eslint": "catalog:",
+    "supabase": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

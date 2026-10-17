@@ -6,8 +6,10 @@ import { serverEnvSchema } from "./env.server"
 const valid = {
   VITE_CLERK_PUBLISHABLE_KEY: "pk_test_abc",
   CLERK_SECRET_KEY: "sk_test_abc",
+  CLERK_WEBHOOK_SIGNING_SECRET: "whsec_abc",
   SUPABASE_URL: "https://ref.supabase.co",
   SUPABASE_PUBLISHABLE_KEY: "sb_publishable_abc",
+  SUPABASE_SECRET_KEY: "sb_secret_abc",
 }
 
 const problemsOf = (source: Record<string, string | undefined>) => {
@@ -21,7 +23,7 @@ const problemsOf = (source: Record<string, string | undefined>) => {
 }
 
 describe("the server's configuration (spec 000 FR-011, spec 006)", () => {
-  it("accepts Clerk's two keys and Supabase's address and key", () => {
+  it("accepts Clerk's keys and Supabase's address and keys", () => {
     expect(problemsOf(valid)).toEqual([])
   })
 
@@ -32,10 +34,12 @@ describe("the server's configuration (spec 000 FR-011, spec 006)", () => {
         VITE_CLERK_PUBLISHABLE_KEY: "sk_test_abc",
         CLERK_SECRET_KEY: undefined,
         SUPABASE_PUBLISHABLE_KEY: "sb_secret_abc",
+        CLERK_WEBHOOK_SIGNING_SECRET: " whsec_abc",
       })
     ).toEqual([
       "VITE_CLERK_PUBLISHABLE_KEY: must start with pk_test_ or pk_live_",
       "CLERK_SECRET_KEY is missing",
+      "CLERK_WEBHOOK_SIGNING_SECRET: must start with whsec_",
       "SUPABASE_PUBLISHABLE_KEY: must start with sb_publishable_",
     ])
   })

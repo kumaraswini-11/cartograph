@@ -5,7 +5,7 @@ import "@tanstack/react-start/server-only"
 import { auth } from "@clerk/tanstack-react-start/server"
 
 import { getServerEnv } from "./env.server"
-import { NO_TOKEN, storageClient } from "./storage"
+import { NO_TOKEN, storageClient } from "@workspace/database"
 
 /**
  * Storage for this request, as the signed-in person: their token, from the

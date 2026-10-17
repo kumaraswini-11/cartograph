@@ -147,7 +147,7 @@ organization is active; the custom claim adds `org_name: "{{org.name}}"`.
   Auth can't be used on that client, so there is one session system
   (C-03). `007`'s policies read `auth.jwt()->'o'->>'id'`. The client stays
   in `apps/web` while it's that one function with one user (AGENTS.md:
-  code one package needs stays in it); it moves into `@workspace/storage`
+  code one package needs stays in it); it moves into `@workspace/database`
   when `007` brings what storage owns: the migrations, the policies and
   their tests, and the generated table types, with Supabase's project
   folder kept there by its CLI's `--workdir` (Turborepo: one purpose per

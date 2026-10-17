@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { NO_TOKEN, storageClient } from "./storage"
+import { NO_TOKEN, storageClient } from "./client.ts"
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -12,7 +12,7 @@ function recordRequests() {
   const seen: Array<Headers> = []
   vi.stubGlobal(
     "fetch",
-    vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
+    vi.fn((_input: string | URL | Request, init?: RequestInit) => {
       seen.push(new Headers(init?.headers))
       return Promise.resolve(Response.json([]))
     })
@@ -29,7 +29,7 @@ const access = (token: string | null) => ({
 describe("the storage client (spec 006, FR-013, AC-09)", () => {
   it("sends the signed-in person's token with a request", async () => {
     const seen = recordRequests()
-    await storageClient(access("token-of-a-member")).from("anything").select()
+    await storageClient(access("token-of-a-member")).from("analyses").select()
     expect(seen).toHaveLength(1)
     expect(seen[0]?.get("Authorization")).toBe("Bearer token-of-a-member")
     expect(seen[0]?.get("apikey")).toBe("sb_publishable_abc")
@@ -42,9 +42,9 @@ describe("the storage client (spec 006, FR-013, AC-09)", () => {
       ...access(null),
       getToken: () => Promise.resolve(token),
     })
-    await client.from("anything").select()
+    await client.from("analyses").select()
     token = "second"
-    await client.from("anything").select()
+    await client.from("analyses").select()
     expect(seen.map((h) => h.get("Authorization"))).toEqual([
       "Bearer first",
       "Bearer second",
@@ -58,7 +58,7 @@ describe("the storage client (spec 006, FR-013, AC-09)", () => {
     // A failed read is retried with backoff; fake time runs through it.
     vi.useFakeTimers()
     const pending = Promise.resolve(
-      storageClient(access(null)).from("anything").select()
+      storageClient(access(null)).from("analyses").select()
     )
     await vi.runAllTimersAsync()
     const result = await pending

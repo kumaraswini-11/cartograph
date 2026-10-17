@@ -6,23 +6,34 @@ import { z } from "zod"
 
 import { parseConfig } from "./config"
 
-// Add each variable the server needs here, and to apps/web/.env.example.
+// Add each variable the server needs here, and to apps/web/.env.example, in
+// the same groups and order, so a start-up error lists them as the file does.
 export const serverEnvSchema = z.object({
-  // Identity (spec 006). Clerk's SDK reads both itself; they're checked here
-  // so a missing key stops the server when it starts. The publishable key is
-  // public, sent to the browser in the page's initial state.
+  // Identity: Clerk (spec 006). Clerk's SDK reads its two keys itself;
+  // they're checked here so a missing key stops the server when it starts.
+  // The publishable key is public, sent to the browser in the page's
+  // initial state.
   VITE_CLERK_PUBLISHABLE_KEY: z
     .string()
     .regex(/^pk_(test|live)_/, "must start with pk_test_ or pk_live_"),
   CLERK_SECRET_KEY: z
     .string()
     .regex(/^sk_(test|live)_/, "must start with sk_test_ or sk_live_"),
-  // Storage (spec 006; tables from 007). Requests carry the Clerk token, so
-  // the publishable key is all Supabase needs, and no secret key is kept.
+  // Proves a webhook notice is Clerk's (spec 007, plan D-07).
+  CLERK_WEBHOOK_SIGNING_SECRET: z
+    .string()
+    .regex(/^whsec_/, "must start with whsec_"),
+  // Storage: Supabase (spec 006; tables from 007). A person's requests
+  // carry their Clerk token, so the publishable key is all those need.
   SUPABASE_URL: z.url(),
   SUPABASE_PUBLISHABLE_KEY: z
     .string()
     .regex(/^sb_publishable_/, "must start with sb_publishable_"),
+  // Deleting an organization's rows when Clerk says it's gone: no person
+  // asks, so the secret key, read by that webhook alone (plan D-07).
+  SUPABASE_SECRET_KEY: z
+    .string()
+    .regex(/^sb_secret_/, "must start with sb_secret_"),
 })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>

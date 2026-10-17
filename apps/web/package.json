@@ -18,11 +18,11 @@
   "dependencies": {
     "@clerk/tanstack-react-start": "catalog:",
     "@clerk/ui": "catalog:",
-    "@supabase/supabase-js": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
     "@tanstack/react-virtual": "catalog:",
+    "@workspace/database": "workspace:*",
     "@workspace/frameworks": "workspace:*",
     "@workspace/graph": "workspace:*",
     "@workspace/parser": "workspace:*",

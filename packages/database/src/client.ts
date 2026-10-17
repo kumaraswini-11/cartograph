@@ -1,4 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
+import type { SupabaseClient } from "@supabase/supabase-js"
+
+import type { Database } from "./database.types.ts"
 
 /** Where storage is, and how a request proves who's asking. */
 export type StorageAccess = {
@@ -8,21 +11,24 @@ export type StorageAccess = {
   getToken: () => Promise<string | null>
 }
 
+/** A storage client, its queries typed by the schema the migrations build. */
+export type StorageClient = SupabaseClient<Database>
+
 /**
- * The one way to make a storage client (spec 006, FR-013, plan D-08): every
- * request carries the signed-in person's Clerk token, so storage policies
- * read its organization claim (C-04). With the token supplied this way,
+ * The one way to make a storage client (spec 006, FR-013): every request
+ * carries the signed-in person's token, so the policies read its
+ * organization claim (spec 007, FR-003). With the token supplied this way,
  * Supabase's own sign-in can't be used on the client, so there is one
- * session system, Clerk's (C-03). No table exists yet (C-05). Without a
- * token, a request fails here instead of going out on the publishable key
- * alone, where policies would answer with nothing and hide the mistake.
+ * session system (spec 006, C-03). Without a token, a request fails here
+ * instead of going out on the publishable key alone, where the policies
+ * would answer with nothing and hide the mistake (spec 006, C-04).
  */
 export function storageClient({
   url,
   publishableKey,
   getToken,
-}: StorageAccess) {
-  return createClient(url, publishableKey, {
+}: StorageAccess): StorageClient {
+  return createClient<Database>(url, publishableKey, {
     accessToken: async () => {
       const token = await getToken()
       if (token === null) throw new Error(NO_TOKEN)
