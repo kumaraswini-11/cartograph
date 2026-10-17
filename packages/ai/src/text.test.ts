@@ -66,11 +66,11 @@ describe("an explanation's formatting (spec 009, FR-007, C-03)", () => {
     expect(
       textOf(
         parseExplanation(
-          "Reads MAX_FILE_BYTES from lib/my_util.js and pages/_app.tsx; _really_ ~~not~~ _here_."
+          "Reads MAX_FILE_BYTES from lib/my_util.js, pages/_app.tsx, _app.tsx and __tests__/a.ts; _really_ ~~not~~ _here_."
         )
       )
     ).toBe(
-      "Reads MAX_FILE_BYTES from lib/my_util.js and pages/_app.tsx; really not here."
+      "Reads MAX_FILE_BYTES from lib/my_util.js, pages/_app.tsx, _app.tsx and __tests__/a.ts; really not here."
     )
   })
 

@@ -30,8 +30,10 @@ function plain(text: string): string {
       // Underscores and tildes only at a word's edge, where they mark
       // emphasis: inside a name they're part of it (`MAX_FILE_BYTES`,
       // `lib/my_util.js`, `pages/_app.tsx`), which grounding must read
-      // whole. A full stop after one ends a sentence unless a name goes on.
-      .replace(/(?<![\w/.-])[_~]+|[_~]+(?![\w/-]|\.\w)/g, "")
+      // whole. One starting a word stays when a name with a dot or a slash
+      // follows (`_app.tsx`, `__tests__/a.ts`); one ending a word goes before a
+      // sentence's full stop, but not before an extension.
+      .replace(/(?<![\w/.-])[_~]+(?![\w-]*[./]\w)|[_~]+(?![\w/-]|\.\w)/g, "")
   )
 }
 

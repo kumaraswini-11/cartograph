@@ -31,6 +31,25 @@ describe("fileAtCommit (spec 009, plan D-04)", () => {
     ).rejects.toMatchObject({ failure: { kind: "too large", bytes: 10 } })
   })
 
+  it("stops reading a file once it passes the limit", async () => {
+    let pulled = 0
+    const endless = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulled += 1
+        controller.enqueue(new Uint8Array(4))
+      },
+    })
+    const fetch = fakeFetch(() => new Response(endless))
+    await expect(
+      fileAtCommit("expressjs/express", COMMIT, "big.js", {
+        maxBytes: 10,
+        fetch,
+      })
+    ).rejects.toMatchObject({ failure: { kind: "too large" } })
+    // Three chunks pass the limit; the stream is cancelled, not drained.
+    expect(pulled).toBeLessThan(6)
+  })
+
   it("reads 404 as a file that isn't there", async () => {
     const fetch = fakeFetch(() => new Response("", { status: 404 }))
     await expect(

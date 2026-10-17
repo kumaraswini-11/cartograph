@@ -14,7 +14,8 @@ export type FileOptions = {
  * GitHub's file host with no token. A commit's files never change, so this
  * is exactly what was parsed; the caller checks it against the stored hash.
  * A file over `maxBytes` is refused rather than cut, so a partial file is
- * never taken for a whole one.
+ * never taken for a whole one, and it's refused as it arrives: no more than
+ * the limit and one chunk is ever held, whatever the server sends.
  */
 export async function fileAtCommit(
   repository: string,
@@ -42,14 +43,29 @@ export async function fileAtCommit(
       status: response.status,
     })
   }
-  const bytes = new Uint8Array(await response.arrayBuffer())
-  if (bytes.length > options.maxBytes) {
-    throw new GitHubError({
-      kind: "too large",
-      repository,
-      limit: "extracted",
-      bytes: options.maxBytes,
-    })
+  const chunks: Array<Uint8Array> = []
+  let length = 0
+  const reader = response.body.getReader()
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    length += value.length
+    if (length > options.maxBytes) {
+      await reader.cancel().catch(() => undefined)
+      throw new GitHubError({
+        kind: "too large",
+        repository,
+        limit: "extracted",
+        bytes: options.maxBytes,
+      })
+    }
+    chunks.push(value)
+  }
+  const bytes = new Uint8Array(length)
+  let offset = 0
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset)
+    offset += chunk.length
   }
   return bytes
 }
