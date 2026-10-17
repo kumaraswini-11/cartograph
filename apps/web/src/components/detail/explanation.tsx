@@ -1,4 +1,4 @@
-import { useMemo, useTransition } from "react"
+import { useMemo } from "react"
 import { SparklesIcon } from "lucide-react"
 import { useServerFn } from "@tanstack/react-start"
 
@@ -85,7 +85,6 @@ export function ExplanationTab({ subject }: { subject: ExplainSubject }) {
   )
   const ask = useServerFn(explain)
   const check = useServerFn(staleness)
-  const [pending, startTransition] = useTransition()
 
   if (explanations === null) {
     return (
@@ -98,6 +97,9 @@ export function ExplanationTab({ subject }: { subject: ExplainSubject }) {
   }
   const key = subjectKey(subject)
   const result = explanations.results.get(key)
+  // Held per subject: moving to another file while this one is asked for
+  // shows that file as it is, and coming back shows this one still pending.
+  const pending = explanations.asking.has(key)
   const stale = staleNotice(subject, explanations.staleness.get(key))
   // Not awaited by the request: the explanation shows at once, and the
   // notice follows when GitHub answers (plan D-10).
@@ -112,23 +114,23 @@ export function ExplanationTab({ subject }: { subject: ExplainSubject }) {
     }
     explanations.rememberStaleness(subject, answer)
   }
-  const request = () =>
-    startTransition(async () => {
-      let answer: ExplainResult
-      try {
-        answer = await ask({
-          data: { analysisId: explanations.analysisId, subject },
-        })
-      } catch {
-        answer = {
-          traced: false,
-          status: "failed",
-          message: "The explanation couldn't be written. Try again later.",
-        }
+  const request = async () => {
+    explanations.begin(subject)
+    let answer: ExplainResult
+    try {
+      answer = await ask({
+        data: { analysisId: explanations.analysisId, subject },
+      })
+    } catch {
+      answer = {
+        traced: false,
+        status: "failed",
+        message: "The explanation couldn't be written. Try again later.",
       }
-      explanations.remember(subject, answer)
-      if (answer.status === "explained") void checkStaleness()
-    })
+    }
+    explanations.remember(subject, answer)
+    if (answer.status === "explained") void checkStaleness()
+  }
 
   return (
     <section aria-label="Explanation" className="flex flex-col gap-3 p-4">
@@ -153,7 +155,7 @@ export function ExplanationTab({ subject }: { subject: ExplainSubject }) {
             variant="outline"
             size="sm"
             className="self-start"
-            onClick={request}
+            onClick={() => void request()}
           >
             {result !== undefined
               ? "Try again"

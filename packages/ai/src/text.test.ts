@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 
+import { pathIndex, ungroundedPaths } from "./grounding.ts"
 import { parseExplanation, textOf } from "./text.ts"
 
 describe("an explanation's formatting (spec 009, FR-007, C-03)", () => {
@@ -60,5 +61,22 @@ describe("an explanation's formatting (spec 009, FR-007, C-03)", () => {
         ],
       },
     ])
+  })
+  it("drops emphasis underscores and tildes, never those inside a name", () => {
+    expect(
+      textOf(
+        parseExplanation(
+          "Reads MAX_FILE_BYTES from lib/my_util.js and pages/_app.tsx; _really_ ~~not~~ _here_."
+        )
+      )
+    ).toBe(
+      "Reads MAX_FILE_BYTES from lib/my_util.js and pages/_app.tsx; really not here."
+    )
+  })
+
+  it("lets grounding read a snake_case path in plain words whole", () => {
+    expect(
+      ungroundedPaths("See lib/my_util.js.", pathIndex(["lib/my_util.js"]))
+    ).toEqual([])
   })
 })

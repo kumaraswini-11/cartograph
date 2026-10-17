@@ -32,6 +32,10 @@ describe("the server's configuration (spec 000 FR-011, spec 006)", () => {
     expect(problemsOf({ ...valid, GEMINI_API_KEY: undefined })).toEqual([
       "GEMINI_API_KEY is missing",
     ])
+    // Empty counts as missing, so no request is sent with an empty key.
+    expect(problemsOf({ ...valid, GEMINI_API_KEY: " " })).toEqual([
+      "GEMINI_API_KEY is missing",
+    ])
     expect(
       problemsOf({
         ...valid,
@@ -49,10 +53,12 @@ describe("the server's configuration (spec 000 FR-011, spec 006)", () => {
         ...valid,
         LANGSMITH_API_KEY: "sk-abc",
         LANGSMITH_TRACING: "yes",
+        LANGSMITH_ENDPOINT: "http://api.smith.langchain.com",
       })
     ).toEqual([
       'LANGSMITH_TRACING: Invalid option: expected one of "true"|"false"',
       "LANGSMITH_API_KEY: must start with lsv2_",
+      "LANGSMITH_ENDPOINT: must be an https:// address",
     ])
   })
 

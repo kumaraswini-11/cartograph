@@ -26,7 +26,12 @@ function plain(text: string): string {
       // HTML tags, never rendered as HTML.
       .replace(/<\/?[a-z][^>]*>/gi, "")
       // Emphasis and stray marks that aren't bold or code.
-      .replace(/[*_`#~]+/g, "")
+      .replace(/[*`#]+/g, "")
+      // Underscores and tildes only at a word's edge, where they mark
+      // emphasis: inside a name they're part of it (`MAX_FILE_BYTES`,
+      // `lib/my_util.js`, `pages/_app.tsx`), which grounding must read
+      // whole. A full stop after one ends a sentence unless a name goes on.
+      .replace(/(?<![\w/.-])[_~]+|[_~]+(?![\w/-]|\.\w)/g, "")
   )
 }
 

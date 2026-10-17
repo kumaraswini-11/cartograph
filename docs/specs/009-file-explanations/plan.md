@@ -88,10 +88,16 @@ explanations (
 
 - **The cache key** is a SHA-256 of `kind`, the subject's content, its
   neighbours, `MODEL` and `PROMPT_VERSION` (FR-010):
-  - for a file, its content is its stored hash, and its neighbours are the
-    sorted paths of its dependencies and dependents;
-  - for a box, its content is its folders and the sorted paths and hashes
-    of its files, and its neighbours are the edges into and out of it.
+  - for a file, its content is its repository, path, stored hash and
+    detected role, and its neighbours are the sorted paths of its
+    dependencies and dependents;
+  - for a box, its content is its repository, its folders, and the sorted
+    paths, hashes and roles of its files, and its neighbours are the edges
+    into and out of it.
+
+  Every fact the prompt states is in the key, since an answer can repeat
+  any of them: without the path, a fork's identical file could be served
+  an answer naming another path.
 
   A re-run that changes nothing hits the cache. A changed file, a changed
   import, a new model or a new prompt misses it.
@@ -214,6 +220,11 @@ the short form.
     without a request.
   - The server's cache makes a fresh visit cheap too, but only on request
     (the tab's button), so nothing is spent unasked.
+  - It's held per analysis and stored commit, and reset as the page renders
+    when either changes, so the map isn't remounted; an answer for the old
+    one arriving late is dropped.
+  - Whether a subject is being asked for is held there too, per subject:
+    moving to another file mid-request shows that file as it is.
 - **D-12 A box is the map's own box, explained from facts only (FR-002).**
   - Its files come from `buildBoxes` over the stored result, the function
     the map draws with, so the box explained is the box on screen.

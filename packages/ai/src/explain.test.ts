@@ -163,6 +163,10 @@ describe("explaining a file (spec 009)", () => {
       })
     ).toBe(key)
     expect(fileCacheKey({ ...FILE, hash: "e".repeat(64) })).not.toBe(key)
+    // Everything the prompt states: an answer can name any of it.
+    expect(fileCacheKey({ ...FILE, path: "lib/app.js" })).not.toBe(key)
+    expect(fileCacheKey({ ...FILE, repository: "fork/express" })).not.toBe(key)
+    expect(fileCacheKey({ ...FILE, detectedRole: "page" })).not.toBe(key)
   })
 })
 
@@ -245,6 +249,12 @@ describe("explaining a box (spec 009, FR-002)", () => {
       })
     ).not.toBe(key)
     expect(boxCacheKey({ ...BOX, incoming: [] })).not.toBe(key)
+    expect(
+      boxCacheKey({
+        ...BOX,
+        files: [{ ...BOX.files[0]!, role: "page" }, BOX.files[1]!],
+      })
+    ).not.toBe(key)
     expect(boxCacheKey({ ...BOX, folders: ["lib/router", "lib/x"] })).not.toBe(
       key
     )

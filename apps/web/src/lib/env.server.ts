@@ -48,7 +48,10 @@ export const serverEnvSchema = z
       .string()
       .regex(/^lsv2_/, "must start with lsv2_")
       .optional(),
-    LANGSMITH_ENDPOINT: z.url().optional(),
+    // The key goes with every trace: never over plain HTTP.
+    LANGSMITH_ENDPOINT: z
+      .url({ protocol: /^https$/, error: "must be an https:// address" })
+      .optional(),
     LANGSMITH_PROJECT: z.string().optional(),
   })
   .superRefine((env, context) => {

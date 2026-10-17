@@ -86,17 +86,21 @@ export type FileExplainDeps = ExplainDeps & {
 }
 
 /**
- * The cache key for a file's explanation (FR-010): its content, the
- * neighbours it's written from, the model and the prompt. Any change to one
- * misses the cache; the same facts again, in any order, hit it.
+ * The cache key for a file's explanation (FR-010): its repository, path,
+ * content and role, the neighbours it's written from, the model and the
+ * prompt, so every fact the prompt states, since an answer can repeat any.
+ * Any change to one misses the cache; the same facts again, in any order,
+ * hit it.
  */
 export function fileCacheKey(file: FileToExplain): string {
   const facts = JSON.stringify([
     "file",
+    file.repository,
+    file.path,
     file.hash,
+    file.detectedRole,
     [...file.dependencies].sort(),
     [...file.dependents].sort(),
-    file.detectedRole === UNIDENTIFIED,
     MODEL,
     PROMPT_VERSION,
   ])
@@ -286,18 +290,19 @@ const folderText = (folder: string) =>
   folder === "" ? "(the repository's root)" : `\`${folder}\``
 
 /**
- * The cache key for a box's explanation (FR-010): its folders, its files'
- * paths and content, the edges in and out, the model and the prompt. The
- * same facts again, in any order, hit it.
+ * The cache key for a box's explanation (FR-010): its repository and
+ * folders, its files' paths, content and roles, the edges in and out, the
+ * model and the prompt. The same facts again, in any order, hit it.
  */
 export function boxCacheKey(box: BoxToExplain): string {
   const pairs = (edges: ReadonlyArray<Edge>) =>
     edges.map((e) => `${e.from}>${e.to}`).sort(compareText)
   const facts = JSON.stringify([
     "box",
+    box.repository,
     box.folder,
     [...box.folders].sort(compareText),
-    box.files.map((f) => `${f.path}@${f.hash}`).sort(compareText),
+    box.files.map((f) => `${f.path}@${f.hash}:${f.role}`).sort(compareText),
     pairs(box.incoming),
     pairs(box.outgoing),
     MODEL,
