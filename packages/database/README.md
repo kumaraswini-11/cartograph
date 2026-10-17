@@ -47,6 +47,13 @@ const { analysisId, runId } = await runs.startAnalysis({
 })
 ```
 
+Progress is pushed, not polled (spec 008, plan D-09): a trigger broadcasts
+each change of a run's stage on private Realtime topics, and a member may
+hear only their own organization's, by a policy written like every read
+policy. `subscribeToStages(storage, analysisTopic(organizationId,
+analysisId), { onStage, onJoined })` follows one analysis;
+`organizationTopic` follows them all.
+
 `deleteOrganization` is the other writer: the organization-deleted webhook's
 (spec 007, D-07). Members can't call either: the functions are granted to
 the secret key's role alone, and the pgTAP tests check it.

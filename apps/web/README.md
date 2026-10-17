@@ -37,7 +37,7 @@ under `src/routes/_identity/_signed-in/` is protected, read from the session tok
 Storage is `@workspace/database` (spec 007): the dashboard lists the current
 organization's analyses through it, with the signed-in person's token, so
 the database's policies decide whose rows they are. Locally, point
-`SUPABASE_URL` at the local database (`pnpm --filter @workspace/database
+`VITE_SUPABASE_URL` at the local database (`pnpm --filter @workspace/database
 db:start`) and fill it with `db:seed --organization <your Clerk
 organization's ID>`; see that package's README.
 

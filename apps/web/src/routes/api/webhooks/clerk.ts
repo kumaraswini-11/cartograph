@@ -19,7 +19,10 @@ export const Route = createFileRoute("/api/webhooks/clerk")({
           signingSecret: env.CLERK_WEBHOOK_SIGNING_SECRET,
           deleteOrganization: (organizationId) =>
             deleteOrganization(
-              { url: env.SUPABASE_URL, secretKey: env.SUPABASE_SECRET_KEY },
+              {
+                url: env.VITE_SUPABASE_URL,
+                secretKey: env.SUPABASE_SECRET_KEY,
+              },
               organizationId
             ),
         })

@@ -19,8 +19,8 @@ export async function requestStorage() {
   if ((await getToken()) === null) throw new Error(NO_TOKEN)
   const env = getServerEnv()
   return storageClient({
-    url: env.SUPABASE_URL,
-    publishableKey: env.SUPABASE_PUBLISHABLE_KEY,
+    url: env.VITE_SUPABASE_URL,
+    publishableKey: env.VITE_SUPABASE_PUBLISHABLE_KEY,
     getToken,
   })
 }
@@ -33,7 +33,7 @@ export async function requestStorage() {
 export function serverRunWriter() {
   const env = getServerEnv()
   return runWriter({
-    url: env.SUPABASE_URL,
+    url: env.VITE_SUPABASE_URL,
     secretKey: env.SUPABASE_SECRET_KEY,
   })
 }

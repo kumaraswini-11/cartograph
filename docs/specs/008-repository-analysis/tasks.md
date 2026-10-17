@@ -88,7 +88,7 @@ D-04, D-05, D-13
 
 ## T04 — Progress, pushed
 
-**Status:** Todo
+**Status:** Done (browser check by the owner, 2026-10-17)
 **Blocked by:** T03
 **Covers:** FR-010 to FR-012, C-02 to C-04, AC-01, AC-04, AC-06, D-09 to
 D-11
@@ -103,18 +103,21 @@ D-11
 
 **Done when:**
 
-- [ ] Signed in, locally: T03's pages work end to end. An address becomes
+- [x] Signed in, locally: T03's pages work end to end. An address becomes
       its map, a known address opens its analysis, a missing repository
       reads failed, a GitLab address is refused, and re-run starts a run.
-
-- [ ] pgTAP passes AC-06: another organization's member reads no message on
-      the topic.
-- [ ] Locally, a run's stages pass by name on its page without a reload, and
-      on the dashboard in a second tab. A page opened mid-run shows the
-      current stage at once.
-- [ ] The rename is complete: no `SUPABASE_URL` or `SUPABASE_PUBLISHABLE_KEY`
+- [x] pgTAP passes AC-06: another organization's member reads no message on
+      the topic. Also with real Clerk tokens on the local Realtime: a member
+      of another organization never joins the channel and hears nothing.
+- [x] With real Clerk tokens on the local Realtime, a member hears each
+      stage of a run, by name and in order, on the analysis's topic and on
+      the organization's.
+- [x] Signed in, locally: those stages pass on the analysis page without a
+      reload, and on the dashboard in a second tab. A page opened mid-run
+      shows the current stage at once.
+- [x] The rename is complete: no `SUPABASE_URL` or `SUPABASE_PUBLISHABLE_KEY`
       left under the old name.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T05 — The samples go
 
