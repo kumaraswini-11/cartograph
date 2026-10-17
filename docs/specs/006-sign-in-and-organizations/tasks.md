@@ -1,7 +1,8 @@
 # 006 — Sign-in and organizations: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** In progress
+**Build status:** Done, with the preview's browser checks carried into
+`007` (T05)
 
 ## T01 — The services, and what Clerk doesn't document
 
@@ -83,12 +84,25 @@ no table. Home and a sample measured with Clerk's script loaded against
 
 ## T05 — Acceptance
 
-**Status:** Todo
+**Status:** Done, with the preview's browser checks carried into `007`
 **Blocked by:** T03, T04
 **Covers:** AC-01 to AC-09
 
 **Done when:**
 
-- [ ] Every acceptance criterion passes, each checked the way its row says,
-      the browser ones on the preview deployment.
-- [ ] Build status at the top of this file set to Done.
+- [x] Checked as their rows say: AC-06 and AC-08 by `clerk:check` against
+      the development instance; AC-09 by test, and against the real
+      Supabase project (a Clerk token accepted, a forged one refused).
+- [x] In a real browser on the production build, locally: AC-01 for email
+      (a new account lands on `/dashboard` in an organization named after
+      it), AC-02 (an invitation lands its person in that organization),
+      AC-03 (the organization's name in the server's HTML) and AC-04 (a
+      signed-out `/dashboard` answered with a redirect and an empty body).
+- [ ] On the preview deployment, by the repository's owner: AC-01 for
+      GitHub and Google, AC-02, AC-03, AC-05 (a method switched off
+      disappears) and AC-07 (GitHub's consent screen). Carried into the
+      start of `007` at the owner's decision on 2026-10-17, since the
+      preview is behind Vercel's sign-in.
+- [x] The test users and organizations made on the development instance
+      deleted; the owner's accounts kept.
+- [x] Build status at the top of this file set to Done.
