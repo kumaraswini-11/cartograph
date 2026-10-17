@@ -45,6 +45,20 @@ A schema change is a new migration (`pnpm exec supabase migration new
 <name>`), never an edit made in a console (spec 007, C-03). After one, run
 `db:reset`, `db:test`, `db:advisors` and `db:types`.
 
+## Deploying the schema
+
+The deployed database gets its schema only from these migrations, applied
+by `.github/workflows/database-migrations.yml` whenever one reaches `main`
+(spec 007, C-03); it can also be run by hand from the Actions tab. It reads
+three repository secrets: GitHub → the repository → Settings → Secrets and
+variables → Actions → New repository secret.
+
+| Secret                  | Where its value comes from                                                                                                                                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUPABASE_ACCESS_TOKEN` | Supabase Dashboard → your account (top right) → Account preferences → Access Tokens → Generate new token. Make it a scoped one, limited to this project and what migrations need, never a classic full-account token (`sbp_…`). |
+| `SUPABASE_DB_PASSWORD`  | The database password chosen when the project was made. If it's lost: Supabase Dashboard → the project → Project Settings → Database → Reset database password (then update this secret).                                       |
+| `SUPABASE_PROJECT_ID`   | The project's reference, the part before `.supabase.co` in its URL: Supabase Dashboard → the project → Project Settings → General → Project ID.                                                                                 |
+
 ## Docs
 
 [Spec 006](../../docs/specs/006-sign-in-and-organizations/spec.md) ·
