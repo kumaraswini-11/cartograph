@@ -1,6 +1,6 @@
 # 008 — Repository analysis
 
-**Status:** Draft
+**Status:** Approved
 **Milestone:** M3 Platform
 **Depends on:** 001-repository-parser, 002-framework-detection,
 007-organization-dashboard
@@ -92,6 +92,12 @@ progress is shown live; and a run that dies quietly must still be visible.
   too.
 - A repository with no JavaScript or TypeScript files → the run is done and the
   map shows the empty state of `003`.
+- A run that's stale (FR-013) → it doesn't count as unfinished: the analysis
+  can be re-run, and the stale run is ended as failed, stopped without
+  finishing.
+- A progress page opened after a run's first stages → it shows the current
+  stage at once, read from storage, then follows the stage changes pushed
+  after it (C-02).
 
 ## Acceptance criteria
 
@@ -117,8 +123,11 @@ progress is shown live; and a run that dies quietly must still be visible.
 
 ## Open questions
 
-- [NEEDS CLARIFICATION] `STALE_RUN_AFTER`: proposed 10 minutes, which must be
-  above `MAX_RUN_SECONDS` (`000`).
-- [NEEDS CLARIFICATION] `MAX_ARCHIVE_BYTES`: proposed 100 MB.
-- [NEEDS CLARIFICATION] Can a member choose a branch or a commit, or is it the
-  default branch only (proposed)?
+None. Resolved 2026-10-17, measured: `STALE_RUN_AFTER` = 10 minutes, twice
+the longest run (`MAX_RUN_SECONDS` = 300 s, `000`), so a run still going is
+never stale; facebook/react's whole run takes about 15 s (download 4 s,
+parse 11 s for 3,536 files). `MAX_ARCHIVE_BYTES` = 100 MB, twice the largest
+archive measured (vercel/next.js, 49.9 MB; react 9.8 MB, express 0.1 MB);
+larger repositories meet the parser's own limit first (`001`). The default
+branch only: one analysis per repository (C-01) can't hold one map per
+branch.

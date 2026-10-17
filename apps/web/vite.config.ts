@@ -26,6 +26,12 @@ const config = defineConfig(({ command }) => {
   }
   return {
     resolve: { tsconfigPaths: true },
+    // The parser's oxc packages load a native binary for the platform they
+    // run on, which a bundle can't hold: the server build leaves them as
+    // imports, and Nitro copies them into its output (traceDeps, below).
+    environments: {
+      ssr: { resolve: { external: ["oxc-parser", "oxc-resolver"] } },
+    },
     define: productionDomain
       ? {
           "import.meta.env.VITE_SITE_URL": JSON.stringify(
@@ -47,8 +53,10 @@ const config = defineConfig(({ command }) => {
         // copy serves everything. Bundled, React is duplicated: the CommonJS
         // use-sync-external-store shim (from Base UI and TanStack Router) still
         // calls require("react") at runtime, which fails on Vercel with
-        // "Cannot find module 'react'".
-        traceDeps: ["react", "react-dom"],
+        // "Cannot find module 'react'". The parser's oxc packages stay
+        // external too: they load a native binary for the platform they run
+        // on, which a bundle can't hold (spec 008, plan D-05).
+        traceDeps: ["react", "react-dom", "oxc-parser", "oxc-resolver"],
         vercel: { functions: { maxDuration: MAX_RUN_SECONDS } },
       }),
       viteReact(),

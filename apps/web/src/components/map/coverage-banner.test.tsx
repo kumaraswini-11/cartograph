@@ -1,5 +1,5 @@
-// AC-10 (spec 003, FR-017): the sample's coverage (97.5%) is above the
-// threshold, so the banner is checked here, rendered as the server would.
+// AC-10 (spec 003, FR-017): the banner, rendered as the server would, at
+// coverages either side of the threshold.
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
 

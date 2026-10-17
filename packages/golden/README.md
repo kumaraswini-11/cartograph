@@ -21,7 +21,8 @@ const directory = await checkout("date-fns/date-fns", "717ce0a…")
 const { lines, drift } = compareCounts(counts, pinnedCounts)
 ```
 
-Downloads go to `.cache/` beside this file, which git ignores.
+Downloads go through `@workspace/github`, the way a run fetches a
+repository, into `.cache/` beside this file, which git ignores.
 
 ## Status
 

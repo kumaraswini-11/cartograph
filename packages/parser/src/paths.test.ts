@@ -5,9 +5,11 @@ import {
   SOURCE_EXTENSION_PATTERN,
   SOURCE_FOR,
   escapeRegExp,
+  isReadFile,
   isSourceFile,
   withSourceExtensions,
 } from "./paths.ts"
+import { isConfigFile } from "./walk.ts"
 
 describe("source extensions, one source for every package", () => {
   it("recognises exactly the source extensions", () => {
@@ -16,6 +18,26 @@ describe("source extensions, one source for every package", () => {
     }
     for (const path of ["a.json", "a.d", "a.css", "a.mtsx", "ts"]) {
       expect(isSourceFile(path)).toBe(false)
+    }
+  })
+
+  it("reads the contents of source, configuration and JSON files only", () => {
+    // Every file the walk reads as configuration is read, wherever it sits.
+    for (const name of [
+      "package.json",
+      "pnpm-workspace.yaml",
+      "tsconfig.json",
+      "tsconfig.app.json",
+      "jsconfig.json",
+    ]) {
+      expect(isConfigFile(name)).toBe(true)
+      expect(isReadFile(`apps/web/${name}`)).toBe(true)
+    }
+    // A tsconfig may extend any JSON file.
+    expect(isReadFile("configs/base.json")).toBe(true)
+    expect(isReadFile("src/index.tsx")).toBe(true)
+    for (const path of ["logo.svg", "styles.css", "README.md", "a.json.bak"]) {
+      expect(isReadFile(path)).toBe(false)
     }
   })
 

@@ -1,5 +1,6 @@
-import type { AnalysisSummary, RunState } from "@workspace/database"
-import { Badge } from "@workspace/ui/components/shadcn-ui/badge"
+import { Link } from "@tanstack/react-router"
+
+import type { AnalysisSummary } from "@workspace/database"
 import {
   Item,
   ItemActions,
@@ -8,23 +9,12 @@ import {
   ItemTitle,
 } from "@workspace/ui/components/shadcn-ui/item"
 
-/** Each state in words, and the badge that carries it. */
-const STATES: Record<
-  RunState | "none",
-  { label: string; variant: "secondary" | "outline" | "destructive" }
-> = {
-  fetching: { label: "Fetching", variant: "outline" },
-  parsing: { label: "Parsing", variant: "outline" },
-  storing: { label: "Storing", variant: "outline" },
-  done: { label: "Done", variant: "secondary" },
-  failed: { label: "Failed", variant: "destructive" },
-  none: { label: "Not run yet", variant: "outline" },
-}
+import { RunBadge } from "@/components/analysis/run-badge"
 
 /**
- * An organization's analyses (spec 007, FR-006): each repository, with its
- * latest run's state in words, so a colour never carries it alone (WCAG
- * 2.2, 1.4.1). It shows what it's given; the dashboard's loader asks.
+ * An organization's analyses (spec 007, FR-006): each repository, leading
+ * to its analysis, with its latest run's state (spec 008, FR-013). It shows
+ * what it's given; the dashboard's loader asks.
  */
 export function AnalysisList({
   analyses,
@@ -33,22 +23,24 @@ export function AnalysisList({
 }) {
   return (
     <ItemGroup aria-label="Analyses">
-      {analyses.map((analysis) => {
-        const state = STATES[analysis.latestRun ?? "none"]
-        return (
-          <Item key={analysis.id} role="listitem" variant="outline">
-            <ItemContent>
-              <ItemTitle className="font-mono">{analysis.repository}</ItemTitle>
-            </ItemContent>
-            <ItemActions>
-              <Badge variant={state.variant}>
-                <span className="sr-only">Latest run: </span>
-                {state.label}
-              </Badge>
-            </ItemActions>
-          </Item>
-        )
-      })}
+      {analyses.map((analysis) => (
+        <Item key={analysis.id} role="listitem" variant="outline">
+          <ItemContent>
+            <ItemTitle className="font-mono">
+              <Link
+                to="/analyses/$analysisId"
+                params={{ analysisId: analysis.id }}
+                className="underline-offset-4 hover:underline"
+              >
+                {analysis.repository}
+              </Link>
+            </ItemTitle>
+          </ItemContent>
+          <ItemActions>
+            <RunBadge run={analysis.latestRun} />
+          </ItemActions>
+        </Item>
+      ))}
     </ItemGroup>
   )
 }

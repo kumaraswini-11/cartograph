@@ -7,8 +7,8 @@ const valid = {
   VITE_CLERK_PUBLISHABLE_KEY: "pk_test_abc",
   CLERK_SECRET_KEY: "sk_test_abc",
   CLERK_WEBHOOK_SIGNING_SECRET: "whsec_abc",
-  SUPABASE_URL: "https://ref.supabase.co",
-  SUPABASE_PUBLISHABLE_KEY: "sb_publishable_abc",
+  VITE_SUPABASE_URL: "https://ref.supabase.co",
+  VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_abc",
   SUPABASE_SECRET_KEY: "sb_secret_abc",
 }
 
@@ -33,14 +33,14 @@ describe("the server's configuration (spec 000 FR-011, spec 006)", () => {
         ...valid,
         VITE_CLERK_PUBLISHABLE_KEY: "sk_test_abc",
         CLERK_SECRET_KEY: undefined,
-        SUPABASE_PUBLISHABLE_KEY: "sb_secret_abc",
+        VITE_SUPABASE_PUBLISHABLE_KEY: "sb_secret_abc",
         CLERK_WEBHOOK_SIGNING_SECRET: " whsec_abc",
       })
     ).toEqual([
       "VITE_CLERK_PUBLISHABLE_KEY: must start with pk_test_ or pk_live_",
       "CLERK_SECRET_KEY is missing",
       "CLERK_WEBHOOK_SIGNING_SECRET: must start with whsec_",
-      "SUPABASE_PUBLISHABLE_KEY: must start with sb_publishable_",
+      "VITE_SUPABASE_PUBLISHABLE_KEY: must start with sb_publishable_",
     ])
   })
 })

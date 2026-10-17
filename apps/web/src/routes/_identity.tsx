@@ -7,7 +7,7 @@ import { AFTER_SIGN_IN_PATH, SIGN_IN_PATH } from "@/lib/sign-in"
 /**
  * The pages that use identity: sign-in and every signed-in page (spec 006).
  * Clerk's provider sits here rather than at the root, so the pages that
- * don't sign anyone in, home and the samples, never load its script: on
+ * don't sign anyone in, such as home, never load its script: on
  * Lighthouse's mobile profile it added 344 KB and 273 ms of blocking time
  * to the home page (plan D-05, measured in T04). The layout has no path, so
  * addresses don't change. Sign-in and sign-up are one page, and every

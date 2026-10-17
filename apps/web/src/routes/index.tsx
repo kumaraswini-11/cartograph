@@ -4,8 +4,13 @@ import { buttonVariants } from "@workspace/ui/components/shadcn-ui/button"
 
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { SITE, seo, websiteJsonLd } from "@/lib/site"
-import { SAMPLES } from "@/sample/samples"
 
+/**
+ * The home page: what Cartograph is, and the way in. Every map is an
+ * analysis an organization stored (spec 008, C-07), so the way in is the
+ * dashboard: signed out, it leads through sign-in and back. The page itself
+ * loads no identity script.
+ */
 export const Route = createFileRoute("/")({
   head: () => ({
     ...seo({ title: SITE.title, description: SITE.description, path: "/" }),
@@ -18,7 +23,7 @@ export const Route = createFileRoute("/")({
 function Home() {
   return (
     <main className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-2 text-sm leading-loose">
+      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
         <div className="flex items-center justify-between gap-4">
           <h1 className="font-medium">Cartograph</h1>
           <ThemeToggle />
@@ -27,23 +32,12 @@ function Home() {
           A dependency map of any public TypeScript or JavaScript repository,
           drawn from the code itself.
         </p>
-        <h2 className="font-medium">Sample maps</h2>
-        <ul className="flex flex-col">
-          {SAMPLES.map((sample) => (
-            <li key={sample.name}>
-              <Link
-                to="/sample/$name"
-                params={{ name: sample.name }}
-                className={buttonVariants({
-                  variant: "link",
-                  className: "px-0 font-mono",
-                })}
-              >
-                {sample.repository}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <Link
+          to="/dashboard"
+          className={buttonVariants({ className: "self-start" })}
+        >
+          Map a repository
+        </Link>
       </div>
     </main>
   )

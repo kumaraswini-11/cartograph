@@ -48,14 +48,17 @@ begin
 end;
 $$;
 
--- Two organizations, each with an analysis and a run.
+-- Two organizations, each with an analysis, a run and a result.
 insert into public.organizations (id) values ('org_a'), ('org_b');
 insert into public.analyses (id, organization_id, repository) values
   ('00000000-0000-0000-0000-00000000000a', 'org_a', 'owner/a'),
   ('00000000-0000-0000-0000-00000000000b', 'org_b', 'owner/b');
-insert into public.runs (organization_id, analysis_id, state) values
-  ('org_a', '00000000-0000-0000-0000-00000000000a', 'done'),
-  ('org_b', '00000000-0000-0000-0000-00000000000b', 'failed');
+insert into public.runs (organization_id, analysis_id, state, failed_stage, finished_at) values
+  ('org_a', '00000000-0000-0000-0000-00000000000a', 'done', null, now()),
+  ('org_b', '00000000-0000-0000-0000-00000000000b', 'failed', 'fetching', now());
+insert into public.results (analysis_id, organization_id, commit, parsed, detection) values
+  ('00000000-0000-0000-0000-00000000000a', 'org_a', repeat('a', 40), '{}', '{}'),
+  ('00000000-0000-0000-0000-00000000000b', 'org_b', repeat('b', 40), '{}', '{}');
 
 -- AC-04, C-01: every table has row-level access enforced, all of them.
 select ok(
@@ -144,7 +147,8 @@ delete from public.organizations where id = 'org_a';
 reset role;
 select is(
   (select count(*) from public.analyses where organization_id = 'org_a')
-    + (select count(*) from public.runs where organization_id = 'org_a'),
+    + (select count(*) from public.runs where organization_id = 'org_a')
+    + (select count(*) from public.results where organization_id = 'org_a'),
   0::bigint,
   'AC-06: none of the deleted organization''s rows remain'
 );

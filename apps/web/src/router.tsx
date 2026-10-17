@@ -11,7 +11,7 @@ export function getRouter() {
 
     scrollRestoration: true,
     // Hovering or focusing a link loads its page ahead. A preload is kept for
-    // the router's default 30 s (a route can keep it longer, as /sample does);
+    // the router's default 30 s (a route can keep it longer);
     // 0 is for apps whose data cache is TanStack Query's, not the router's.
     defaultPreload: "intent",
     // One look for every not-found, error and slow page, set once here.

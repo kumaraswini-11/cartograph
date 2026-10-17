@@ -42,6 +42,23 @@ export function isSourceFile(path: string): boolean {
 }
 
 /**
+ * True when the parser or detection reads `path`'s contents: source files,
+ * `pnpm-workspace.yaml`, and every `.json`, since `package.json` and the
+ * tsconfig files are JSON and a tsconfig may extend any JSON file. Every
+ * other file matters to them only by existing (an import of `./logo.svg`
+ * resolves when the file is there), so a copy of a repository needs these
+ * files' contents and only the others' names (spec 008, plan D-03).
+ */
+export function isReadFile(path: string): boolean {
+  const name = fileName(path)
+  return (
+    isSourceFile(name) ||
+    name.endsWith(".json") ||
+    name === "pnpm-workspace.yaml"
+  )
+}
+
+/**
  * Any source extension, for building a regular expression: `\.(?:ts|tsx|…)`.
  * One source with `SOURCE_EXTENSIONS`, so a pattern never drifts from it.
  */

@@ -14,13 +14,23 @@ import { createRequire } from "node:module"
 import { dirname, join } from "node:path"
 import { parseArgs } from "node:util"
 
-/** Sample repositories, each with the state of its latest run. */
-const SAMPLES: Array<[repository: string, state: string | null]> = [
+/** Sample repositories, each with its latest run as the dashboard shows it. */
+const SAMPLES: Array<[repository: string, run: string | null]> = [
   ["shadcn-ui/taxonomy", "done"],
   ["lujakob/nestjs-realworld-example-app", "parsing"],
   ["hagopj13/node-express-boilerplate", "failed"],
+  ["expressjs/express", "stale"],
   ["date-fns/date-fns", null],
 ]
+
+/** Each sample run's columns, as the schema requires them together. */
+const RUNS: Record<string, string> = {
+  done: `'done', null, 'Done', now(), now()`,
+  parsing: `'parsing', null, 'Parsing', now(), null`,
+  failed: `'failed', 'fetching', 'The repository doesn''t exist or isn''t public', now(), now()`,
+  // Unfinished for longer than STALE_RUN_AFTER (spec 008, FR-013).
+  stale: `'parsing', null, 'Parsing', now() - interval '1 hour', null`,
+}
 
 const { values } = parseArgs({
   options: {
@@ -44,13 +54,13 @@ const samples = wanted
 
 const statements = organizations.flatMap((organization) => [
   `insert into public.organizations (id) values ('${organization}') on conflict do nothing;`,
-  ...samples.flatMap(([repository, state]) => [
+  ...samples.flatMap(([repository, run]) => [
     `insert into public.analyses (organization_id, repository) values ('${organization}', '${repository}') on conflict do nothing;`,
-    ...(state === null
+    ...(run === null
       ? []
       : [
-          `insert into public.runs (organization_id, analysis_id, state, finished_at)
-           select '${organization}', id, '${state}', ${state === "done" || state === "failed" ? "now()" : "null"}
+          `insert into public.runs (organization_id, analysis_id, state, failed_stage, message, started_at, finished_at)
+           select '${organization}', id, ${RUNS[run]}
            from public.analyses
            where organization_id = '${organization}' and repository = '${repository}'
              and not exists (select 1 from public.runs r where r.analysis_id = analyses.id);`,

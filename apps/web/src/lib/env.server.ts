@@ -24,13 +24,16 @@ export const serverEnvSchema = z.object({
     .string()
     .regex(/^whsec_/, "must start with whsec_"),
   // Storage: Supabase (spec 006; tables from 007). A person's requests
-  // carry their Clerk token, so the publishable key is all those need.
-  SUPABASE_URL: z.url(),
-  SUPABASE_PUBLISHABLE_KEY: z
+  // carry their Clerk token, so the publishable key is all those need. Both
+  // are public, read by the browser too, to hear a run's stages (spec 008,
+  // plan D-10).
+  VITE_SUPABASE_URL: z.url(),
+  VITE_SUPABASE_PUBLISHABLE_KEY: z
     .string()
     .regex(/^sb_publishable_/, "must start with sb_publishable_"),
-  // Deleting an organization's rows when Clerk says it's gone: no person
-  // asks, so the secret key, read by that webhook alone (plan D-07).
+  // For the requests no person makes: deleting an organization's rows when
+  // Clerk says it's gone (spec 007, D-07), and a run's writes after the
+  // response (spec 008, D-06). Server only.
   SUPABASE_SECRET_KEY: z
     .string()
     .regex(/^sb_secret_/, "must start with sb_secret_"),
