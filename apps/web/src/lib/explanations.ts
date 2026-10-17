@@ -1,6 +1,12 @@
 import type { Explained } from "@workspace/ai"
 
 /**
+ * What to explain: a file by its path, or a box by its id, the folder it
+ * stands for ("" for the root).
+ */
+export type ExplainSubject = { kind: "file" | "box"; path: string }
+
+/**
  * What explaining gives the tab: the explanation, or why there is none
  * (spec 009). Shared by the server, which makes it, and the browser, which
  * shows it.

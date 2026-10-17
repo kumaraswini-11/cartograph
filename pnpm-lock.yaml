@@ -294,6 +294,9 @@ importers:
       '@ai-sdk/google':
         specifier: 'catalog:'
         version: 4.0.95(zod@4.6.5)
+      '@workspace/frameworks':
+        specifier: workspace:*
+        version: link:../frameworks
       '@workspace/parser':
         specifier: workspace:*
         version: link:../parser

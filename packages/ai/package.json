@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "catalog:",
+    "@workspace/frameworks": "workspace:*",
     "@workspace/parser": "workspace:*",
     "ai": "catalog:",
     "langsmith": "catalog:",

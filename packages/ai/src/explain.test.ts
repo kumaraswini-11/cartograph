@@ -1,21 +1,33 @@
 import { APICallError } from "ai"
 import { describe, expect, it, vi } from "vitest"
 
+import { UNIDENTIFIED } from "@workspace/frameworks/taxonomy"
+
 import {
   EXPLAIN_MAX_LINES,
   answerSchema,
+  boxCacheKey,
+  boxPrompt,
+  explainBox,
   explainFile,
   fileCacheKey,
   filePrompt,
 } from "./explain.ts"
-import type { Ask, ExplainDeps, Explained, FileToExplain } from "./explain.ts"
+import type {
+  Ask,
+  BoxToExplain,
+  Explained,
+  FileExplainDeps,
+  FileToExplain,
+} from "./explain.ts"
 import { pathIndex } from "./grounding.ts"
 
 const FILE: FileToExplain = {
   repository: "expressjs/express",
   path: "lib/application.js",
   hash: "f".repeat(64),
-  detectedRole: "unidentified",
+  // The role `002` really gives, from its one source.
+  detectedRole: UNIDENTIFIED,
   dependencies: ["lib/router/index.js"],
   dependents: ["index.js"],
   analysisPaths: pathIndex([
@@ -33,7 +45,7 @@ function deps(answers: Array<unknown>, cache = new Map<string, Explained>()) {
     const next = answers.shift()
     return next instanceof Error ? Promise.reject(next) : Promise.resolve(next)
   }
-  const all: ExplainDeps = {
+  const all: FileExplainDeps = {
     traced: (_name, fn) => fn,
     read: (key) => Promise.resolve(cache.get(key) ?? null),
     write: (key, explanation) => {
@@ -167,5 +179,95 @@ describe("the prompt (spec 009, C-05)", () => {
     expect(prompt).toContain("line 500")
     expect(prompt).not.toContain("line 501")
     expect(prompt).toMatch(/<<<SOURCE\n[\s\S]*\nSOURCE>>>$/)
+  })
+})
+
+const BOX: BoxToExplain = {
+  repository: "expressjs/express",
+  folder: "lib/router",
+  folders: ["lib/router"],
+  files: [
+    { path: "lib/router/route.js", hash: "a".repeat(64), role: UNIDENTIFIED },
+    { path: "lib/router/index.js", hash: "b".repeat(64), role: UNIDENTIFIED },
+  ],
+  incoming: [{ from: "lib/application.js", to: "lib/router/index.js" }],
+  outgoing: [],
+  analysisPaths: pathIndex([
+    "lib/application.js",
+    "lib/router/index.js",
+    "lib/router/route.js",
+  ]),
+}
+
+describe("explaining a box (spec 009, FR-002)", () => {
+  it("writes about the folder from its files and the imports across its edge", async () => {
+    const { all, asked, cache } = deps([
+      {
+        body: "Routing; `lib/application.js` uses `lib/router/index.js`.",
+        inferredRole: "service",
+      },
+    ])
+    expect(await explainBox(BOX, all)).toMatchObject({
+      status: "explained",
+      cached: false,
+      // A box has no role to infer.
+      explanation: { inferredRole: null },
+    })
+    expect(cache.size).toBe(1)
+    // Its facts only: no source is fetched for a box.
+    expect(all.source).not.toHaveBeenCalled()
+    expect(asked[0]?.system).toMatch(/one box/)
+    expect(asked[0]?.prompt).toContain("Folders in it: `lib/router`")
+    expect(asked[0]?.prompt).toContain(
+      "- `lib/application.js` imports `lib/router/index.js`"
+    )
+    expect(asked[0]?.prompt).toContain(
+      "Imports out of it, to files outside:\nnone"
+    )
+  })
+
+  it("refuses an answer naming a file outside the analysis (FR-006)", async () => {
+    const { all, cache } = deps([
+      { body: "See `lib/ghost.js`.", inferredRole: null },
+      { body: "See `lib/phantom.js`.", inferredRole: null },
+    ])
+    expect(await explainBox(BOX, all)).toEqual({ status: "ungrounded" })
+    expect(cache.size).toBe(0)
+  })
+
+  it("misses the cache when a file or an edge changes, and never matches a file's key", () => {
+    const key = boxCacheKey(BOX)
+    expect(boxCacheKey({ ...BOX, files: [...BOX.files].reverse() })).toBe(key)
+    expect(
+      boxCacheKey({
+        ...BOX,
+        files: [{ ...BOX.files[0]!, hash: "c".repeat(64) }, BOX.files[1]!],
+      })
+    ).not.toBe(key)
+    expect(boxCacheKey({ ...BOX, incoming: [] })).not.toBe(key)
+    expect(boxCacheKey({ ...BOX, folders: ["lib/router", "lib/x"] })).not.toBe(
+      key
+    )
+    expect(key).not.toBe(fileCacheKey(FILE))
+  })
+
+  it("names at most the limit of each list, and counts the rest", () => {
+    const files = Array.from({ length: 70 }, (_, i) => ({
+      path: `src/f${String(i).padStart(2, "0")}.js`,
+      hash: "d".repeat(64),
+      role: "component",
+    }))
+    const prompt = boxPrompt({
+      ...BOX,
+      folder: "",
+      folders: ["", "src"],
+      files,
+    })
+    expect(prompt).toContain("Box: (the repository's root)")
+    expect(prompt).toContain("Folders in it: (the repository's root), `src`")
+    expect(prompt).toContain("Files: 70, by role: component 70")
+    expect(prompt).toContain("src/f59.js")
+    expect(prompt).not.toContain("src/f60.js")
+    expect(prompt).toContain("…and 10 more")
   })
 })

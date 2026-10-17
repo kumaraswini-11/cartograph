@@ -1,4 +1,4 @@
-import { SOURCE_EXTENSIONS, fileName } from "@workspace/parser/paths"
+import { SOURCE_EXTENSIONS, fileName, folderOf } from "@workspace/parser/paths"
 
 import { parseExplanation } from "./text.ts"
 
@@ -22,22 +22,37 @@ export function looksLikePath(text: string, inCode: boolean): boolean {
 
 /**
  * The analysis's files, indexed once so every lookup is constant time: by
- * path, and by file name, with a name several files share marked as such.
+ * path, and by file name, with a name several files share marked as such;
+ * and every folder that holds them.
  */
 export type PathIndex = {
   paths: ReadonlySet<string>
   /** A file name's one path, or null when several files share the name. */
   byName: ReadonlyMap<string, string | null>
+  /**
+   * Every folder of the analysis, for grounding only: a folder named like
+   * a file (`packages/socket.io`) is real, but never a link to a file.
+   */
+  folders: ReadonlySet<string>
 }
 
 export function pathIndex(paths: Iterable<string>): PathIndex {
   const all = new Set(paths)
   const byName = new Map<string, string | null>()
+  const folders = new Set<string>()
   for (const path of all) {
     const name = fileName(path)
     byName.set(name, byName.has(name) ? null : path)
+    // Each folder is walked up once: a seen one's parents are seen too.
+    for (
+      let folder = folderOf(path);
+      folder !== "" && !folders.has(folder);
+      folder = folderOf(folder)
+    ) {
+      folders.add(folder)
+    }
   }
-  return { paths: all, byName }
+  return { paths: all, byName, folders }
 }
 
 /**
@@ -76,6 +91,9 @@ export function ungroundedPaths(text: string, index: PathIndex): Array<string> {
     }
   }
   return [...named].filter(
-    (name) => !index.paths.has(name) && !index.byName.has(name)
+    (name) =>
+      !index.paths.has(name) &&
+      !index.byName.has(name) &&
+      !index.folders.has(name)
   )
 }

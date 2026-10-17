@@ -90,8 +90,8 @@ explanations (
   neighbours, `MODEL` and `PROMPT_VERSION` (FR-010):
   - for a file, its content is its stored hash, and its neighbours are the
     sorted paths of its dependencies and dependents;
-  - for a box, both are the sorted paths and hashes of its files and the
-    edges into it.
+  - for a box, its content is its folders and the sorted paths and hashes
+    of its files, and its neighbours are the edges into and out of it.
 
   A re-run that changes nothing hits the cache. A changed file, a changed
   import, a new model or a new prompt misses it.
@@ -161,7 +161,10 @@ the short form.
   - The schema's enum is `INFERRED_ROLES`, so a surface role can't come back
     (C-02, AC-07).
   - A role is asked for only when the file's detected role is
-    "unidentified".
+    `UNIDENTIFIED`, imported from `@workspace/frameworks/taxonomy`, the one
+    source. A copy in `@workspace/ai` once spelled it in lower case, so no
+    real file was ever asked; T05 removed it, and a web test now runs on
+    `002`'s real detection.
 - **D-07 Grounding, and paths as links.**
   - The prompt asks the model to write every file path in inline code,
     exactly as given.
@@ -195,6 +198,19 @@ the short form.
     without a request.
   - The server's cache makes a fresh visit cheap too, but only on request
     (the tab's button), so nothing is spent unasked.
+- **D-12 A box is the map's own box, explained from facts only (FR-002).**
+  - Its files come from `buildBoxes` over the stored result, the function
+    the map draws with, so the box explained is the box on screen.
+    Considered: every file under the folder's path. Rejected: folding
+    (CONTEXT.md) keeps a big subfolder as its own box, so a prefix would
+    count files the box doesn't hold.
+  - No source is sent, only the box's folders, its files with their roles,
+    and the edges across its edge, each list capped at 60 with the rest
+    counted. Considered: the sources of its files. Rejected: a box can hold
+    hundreds of files, far past the free tier's 250K tokens a minute
+    (D-02), and FR-002 asks what the folder is for, which its files' roles
+    and its imports answer.
+  - A box never gets an inferred role: roles are a file's (FR-009).
 
 ## Thresholds
 

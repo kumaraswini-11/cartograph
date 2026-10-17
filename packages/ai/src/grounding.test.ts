@@ -14,6 +14,15 @@ const index = pathIndex([
 ])
 
 describe("grounding (spec 009, FR-005, plan D-07)", () => {
+  it("accepts a real folder named like a file, without making it a link", () => {
+    const named = pathIndex(["packages/socket.io/lib/index.js"])
+    expect(ungroundedPaths("The `packages/socket.io` box.", named)).toEqual([])
+    expect(resolvePath("packages/socket.io", named)).toBeNull()
+    expect(ungroundedPaths("See `packages/ghost.io`.", named)).toEqual([
+      "packages/ghost.io",
+    ])
+  })
+
   it("accepts paths the analysis has, written as code or plain", () => {
     expect(
       ungroundedPaths(

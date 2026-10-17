@@ -3,6 +3,10 @@ export {
   PROMPT_VERSION,
   answerSchema,
   askModel,
+  boxCacheKey,
+  boxPrompt,
+  boxSystemPrompt,
+  explainBox,
   explainFile,
   fileCacheKey,
   filePrompt,
@@ -10,7 +14,9 @@ export {
 } from "./explain.ts"
 export type {
   Ask,
+  BoxToExplain,
   ExplainDeps,
+  FileExplainDeps,
   ExplainOutcome,
   Explained,
   FileToExplain,
@@ -23,7 +29,7 @@ export {
 } from "./grounding.ts"
 export type { PathIndex } from "./grounding.ts"
 export { MODEL, MODEL_OPTIONS, languageModel } from "./model.ts"
-export { INFERRED_ROLES, UNIDENTIFIED } from "./roles.ts"
+export { INFERRED_ROLES } from "./roles.ts"
 export type { InferredRole } from "./roles.ts"
 export { createTracing, tracing } from "./tracing.ts"
 export type { Tracing, TracingConfig } from "./tracing.ts"

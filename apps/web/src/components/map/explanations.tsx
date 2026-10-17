@@ -1,22 +1,26 @@
 import { createContext, use, useMemo, useState } from "react"
 import type { ReactNode } from "react"
 
-import type { ExplainResult } from "@/lib/explanations"
+import type { ExplainResult, ExplainSubject } from "@/lib/explanations"
 
 type Explanations = {
   analysisId: string
-  /** What was explained this session, by path (spec 009, FR-004). */
+  /** What was explained this session, by subject (spec 009, FR-004). */
   results: ReadonlyMap<string, ExplainResult>
-  remember: (path: string, result: ExplainResult) => void
+  remember: (subject: ExplainSubject, result: ExplainResult) => void
 }
+
+/** A subject's key in the results: a file and a box can share a path. */
+export const subjectKey = (subject: ExplainSubject) =>
+  `${subject.kind}:${subject.path}`
 
 const ExplanationsContext = createContext<Explanations | null>(null)
 
 /**
  * The explanations asked for while this map is open (spec 009, FR-004,
- * plan D-11): when the selection comes back to a file, its explanation
- * shows again without another request. Only explanations are kept; a
- * limit or a failure can be tried again.
+ * plan D-11): when the selection comes back to a file or a box, its
+ * explanation shows again without another request. Only explanations are
+ * kept; a limit or a failure can be tried again.
  */
 export function ExplanationsProvider({
   analysisId,
@@ -32,8 +36,10 @@ export function ExplanationsProvider({
     () => ({
       analysisId,
       results,
-      remember: (path, result) =>
-        setResults((previous) => new Map(previous).set(path, result)),
+      remember: (subject, result) =>
+        setResults((previous) =>
+          new Map(previous).set(subjectKey(subject), result)
+        ),
     }),
     [analysisId, results]
   )

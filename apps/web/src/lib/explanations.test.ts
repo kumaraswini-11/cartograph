@@ -78,7 +78,10 @@ const bytes = (text: string) => new TextEncoder().encode(text)
 describe("explaining a selection (spec 009, plan Approach)", () => {
   it("refuses a source that isn't the analysed file, before any model call", async () => {
     vi.mocked(fileAtCommit).mockResolvedValue(bytes("// tampered\n"))
-    const result = await explainSelection("a1", "lib/app.js")
+    const result = await explainSelection("a1", {
+      kind: "file",
+      path: "lib/app.js",
+    })
     expect(result).toMatchObject({ status: "failed" })
     expect(result.status === "failed" && result.message).toMatch(
       /doesn't match what was analysed/
@@ -98,12 +101,18 @@ describe("explaining a selection (spec 009, plan Approach)", () => {
       inferredRole: "service",
     })
 
-    const result = await explainSelection("a1", "lib/app.js")
+    const result = await explainSelection("a1", {
+      kind: "file",
+      path: "lib/app.js",
+    })
     expect(result).toMatchObject({
       status: "explained",
       cached: false,
       traced: false,
+      // No convention identified it, as `002` really says so (FR-009).
+      explanation: { inferredRole: "service" },
     })
+    expect(ask.mock.calls[0]?.[0].system).toMatch(/No convention identified/)
     // Fetched at the analysed commit, not the branch's head.
     expect(vi.mocked(fileAtCommit).mock.calls[0]?.slice(0, 3)).toEqual([
       "owner/demo",
@@ -125,7 +134,36 @@ describe("explaining a selection (spec 009, plan Approach)", () => {
   })
 
   it("says so when the analysis has no such file", async () => {
-    const result = await explainSelection("a1", "lib/ghost.js")
+    const result = await explainSelection("a1", {
+      kind: "file",
+      path: "lib/ghost.js",
+    })
+    expect(result).toMatchObject({ status: "failed" })
+    expect(ask).not.toHaveBeenCalled()
+  })
+
+  it("explains the map's own box, from its files and the edges across it, with no fetch", async () => {
+    ask.mockResolvedValue({
+      body: "The app's folder, imported by `index.js`.",
+      inferredRole: null,
+    })
+    const result = await explainSelection("a1", { kind: "box", path: "" })
+    expect(result).toMatchObject({ status: "explained", cached: false })
+    expect(fileAtCommit).not.toHaveBeenCalled()
+    // Three files fold into the root's box: the map's folding, not a guess.
+    const prompt: string = ask.mock.calls[0]?.[0].prompt
+    expect(prompt).toContain("Box: (the repository's root)")
+    // `lib` folds into the root, as on the map.
+    expect(prompt).toContain("Folders in it: (the repository's root), `lib`")
+    expect(prompt).toContain("Files: 2")
+    expect(prompt).toContain("Imports into it, from files outside:\nnone")
+    expect(store).toHaveBeenCalledWith(
+      expect.objectContaining({ subject: "", kind: "box" })
+    )
+  })
+
+  it("says so when the map has no such box", async () => {
+    const result = await explainSelection("a1", { kind: "box", path: "lib" })
     expect(result).toMatchObject({ status: "failed" })
     expect(ask).not.toHaveBeenCalled()
   })

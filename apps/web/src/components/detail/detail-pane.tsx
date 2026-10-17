@@ -1,9 +1,8 @@
 import { startTransition, useEffect, useRef, useState } from "react"
-import { SparklesIcon, XIcon } from "lucide-react"
+import { XIcon } from "lucide-react"
 import { ROOT_LABEL } from "@workspace/graph"
 import type { Direction, Selection } from "@workspace/graph"
 import { fileName, folderOf } from "@workspace/parser/paths"
-import { EmptyState } from "@workspace/ui/components/empty-state"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
 import {
   Sidebar,
@@ -172,15 +171,13 @@ function SelectionDetail({
           )}
         </TabsContent>
         <TabsContent value="explanation">
-          {selection.file !== undefined ? (
-            <ExplanationTab path={selection.file} />
-          ) : (
-            <EmptyState
-              icon={<SparklesIcon />}
-              title="No explanation yet"
-              description="An explanation of this box, written from its real neighbours, will appear here."
-            />
-          )}
+          <ExplanationTab
+            subject={
+              selection.file !== undefined
+                ? { kind: "file", path: selection.file }
+                : { kind: "box", path: selection.box }
+            }
+          />
         </TabsContent>
       </Tabs>
     </>

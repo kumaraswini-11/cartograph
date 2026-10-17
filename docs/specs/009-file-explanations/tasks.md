@@ -88,18 +88,19 @@ AC-07, AC-09, D-04 to D-08, D-11
 
 ## T05 — A box explained
 
-**Status:** Todo
+**Status:** In progress: built and tested; the browser check waits for
+Gemini's quota
 **Blocked by:** T04
 **Covers:** FR-002, AC-04
 
-**What to build:** the box prompt and its cache key: the folder's files,
-their roles, and the edges into it.
+**What to build:** the box prompt and its cache key: the box's folders, its
+files and their roles, and the edges into and out of it (plan D-12).
 
 **Done when:**
 
 - [ ] Locally, a box's explanation is about the folder, not one file in it
       (AC-04).
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T06 — Stale explanations
 

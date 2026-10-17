@@ -13,9 +13,9 @@ import { Skeleton } from "@workspace/ui/components/shadcn-ui/skeleton"
 
 import { useFileButton } from "@/components/detail/use-file-button"
 import { useMapData } from "@/components/map/map-data"
-import { useExplanations } from "@/components/map/explanations"
+import { subjectKey, useExplanations } from "@/components/map/explanations"
 import { explain } from "@/lib/explanations.functions"
-import type { ExplainResult } from "@/lib/explanations"
+import type { ExplainResult, ExplainSubject } from "@/lib/explanations"
 
 /** Why there's no explanation, in words, for each way it can fail. */
 function notice(result: ExplainResult): string | null {
@@ -32,12 +32,12 @@ function notice(result: ExplainResult): string | null {
 }
 
 /**
- * A file's Explanation tab (spec 009, FR-001, FR-003 to FR-008): asked for
- * with a button, so nothing is spent unasked, then the paragraph in its
+ * A file's or box's Explanation tab (spec 009, FR-001 to FR-008): asked
+ * for with a button, so nothing is spent unasked, then the paragraph in its
  * three formats, every path in it a way to that file on the map. An
  * explanation asked for this session shows again at once (FR-004).
  */
-export function ExplanationTab({ path }: { path: string }) {
+export function ExplanationTab({ subject }: { subject: ExplainSubject }) {
   const explanations = useExplanations()
   const { input } = useMapData()
   const index = useMemo(
@@ -56,13 +56,13 @@ export function ExplanationTab({ path }: { path: string }) {
       />
     )
   }
-  const result = explanations.results.get(path)
+  const result = explanations.results.get(subjectKey(subject))
   const request = () =>
     startTransition(async () => {
       let answer: ExplainResult
       try {
         answer = await ask({
-          data: { analysisId: explanations.analysisId, path },
+          data: { analysisId: explanations.analysisId, subject },
         })
       } catch {
         answer = {
@@ -71,7 +71,7 @@ export function ExplanationTab({ path }: { path: string }) {
           message: "The explanation couldn't be written. Try again later.",
         }
       }
-      explanations.remember(path, answer)
+      explanations.remember(subject, answer)
     })
 
   return (
@@ -99,7 +99,11 @@ export function ExplanationTab({ path }: { path: string }) {
             className="self-start"
             onClick={request}
           >
-            {result === undefined ? "Explain this file" : "Try again"}
+            {result !== undefined
+              ? "Try again"
+              : subject.kind === "file"
+                ? "Explain this file"
+                : "Explain this box"}
           </Button>
         </>
       )}

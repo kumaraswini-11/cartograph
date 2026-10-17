@@ -15,6 +15,3 @@ export const INFERRED_ROLES = [
 ] as const
 
 export type InferredRole = (typeof INFERRED_ROLES)[number]
-
-/** The role `002` gives a file no adapter identified. */
-export const UNIDENTIFIED = "unidentified"

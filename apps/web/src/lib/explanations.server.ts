@@ -7,12 +7,13 @@ import {
   MODEL,
   PROMPT_VERSION,
   askModel,
+  explainBox,
   explainFile,
   languageModel,
   pathIndex,
   tracing,
 } from "@workspace/ai"
-import type { InferredRole } from "@workspace/ai"
+import type { ExplainDeps, ExplainOutcome, InferredRole } from "@workspace/ai"
 import {
   explanationWriter,
   readAnalysis,
@@ -20,11 +21,12 @@ import {
   readResult,
 } from "@workspace/database"
 import { detection } from "@workspace/frameworks"
+import { buildBoxes, toMapInput } from "@workspace/graph"
 import { GitHubError, fileAtCommit } from "@workspace/github"
 import { MAX_FILE_BYTES, isTooLarge, parseResult } from "@workspace/parser"
 
 import { currentOrganization } from "./analyses.server"
-import type { ExplainResult } from "./explanations"
+import type { ExplainResult, ExplainSubject } from "./explanations"
 import { getServerEnv } from "./env.server"
 import { requestStorage } from "./storage.server"
 
@@ -32,17 +34,15 @@ const isInferredRole = (role: string | null): role is InferredRole =>
   role !== null && (INFERRED_ROLES as ReadonlyArray<string>).includes(role)
 
 /**
- * A file of the member's organization's analysis, explained (spec 009,
- * plan Approach). The analysis, its stored result and the cache are read
- * with the member's token, so another organization's are simply not there;
- * the file's neighbours come from the stored result, never the request, so
- * no one can have an explanation written from neighbours that aren't real.
- * The source is fetched only on a cache miss, at the analysed commit, and
- * refused unless it matches the hash the parser recorded (D-04).
+ * A file or box of the member's organization's analysis, explained (spec
+ * 009, plan Approach). The analysis, its stored result and the cache are
+ * read with the member's token, so another organization's are simply not
+ * there; the facts come from the stored result, never the request, so no
+ * one can have an explanation written from neighbours that aren't real.
  */
 export async function explainSelection(
   analysisId: string,
-  path: string
+  subject: ExplainSubject
 ): Promise<ExplainResult> {
   const organizationId = await currentOrganization()
   const env = getServerEnv()
@@ -52,91 +52,133 @@ export async function explainSelection(
     endpoint: env.LANGSMITH_ENDPOINT,
     project: env.LANGSMITH_PROJECT,
   })
+  const failed = (message: string): ExplainResult => ({
+    traced: traces.enabled,
+    status: "failed",
+    message,
+  })
   const storage = await requestStorage()
 
   const analysis = await readAnalysis(storage, analysisId)
   const stored = await readResult(storage, analysisId)
   if (analysis === null || stored === null) {
-    return {
-      traced: traces.enabled,
-      status: "failed",
-      message: "This analysis has no map yet.",
-    }
+    return failed("This analysis has no map yet.")
   }
   const parsed = parseResult.parse(stored.parsed)
   if (isTooLarge(parsed)) throw new Error(`Analysis ${analysisId} has no files`)
-  const record = parsed.files.find((file) => file.path === path)
-  if (record === undefined) {
-    return {
-      traced: traces.enabled,
-      status: "failed",
-      message: `${path} isn't in this analysis.`,
-    }
-  }
-  const role =
-    detection.parse(stored.detection).files.find((file) => file.path === path)
-      ?.role ?? "unidentified"
+  // The map's own input, so a box here is the box the member sees.
+  const input = toMapInput(
+    { repository: analysis.repository, commit: stored.commit },
+    parsed,
+    detection.parse(stored.detection)
+  )
+  const analysisPaths = pathIndex(input.files.map((file) => file.path))
 
   const writer = explanationWriter({
     url: env.VITE_SUPABASE_URL,
     secretKey: env.SUPABASE_SECRET_KEY,
   })
-  try {
-    const outcome = await explainFile(
-      {
-        repository: analysis.repository,
-        path,
-        hash: record.hash,
-        detectedRole: role,
-        dependencies: parsed.edges
-          .filter((edge) => edge.from === path)
-          .map((edge) => edge.to),
-        dependents: parsed.edges
-          .filter((edge) => edge.to === path)
-          .map((edge) => edge.from),
-        analysisPaths: pathIndex(parsed.files.map((file) => file.path)),
-      },
-      {
-        traced: traces.traced,
-        read: async (cacheKey) => {
-          const cached = await readExplanation(storage, cacheKey)
-          if (cached === null) return null
-          return {
-            body: cached.body,
-            inferredRole: isInferredRole(cached.inferredRole)
-              ? cached.inferredRole
-              : null,
-          }
-        },
-        write: (cacheKey, explanation) =>
-          writer.store({
-            organizationId,
-            analysisId,
-            cacheKey,
-            subject: path,
-            kind: "file",
-            body: explanation.body,
-            inferredRole: explanation.inferredRole,
-            model: MODEL,
-            promptVersion: PROMPT_VERSION,
-          }),
-        source: () =>
-          sourceAtCommit(analysis.repository, stored.commit, record),
-        ask: askModel(languageModel(env.GEMINI_API_KEY)),
+  const deps: ExplainDeps = {
+    traced: traces.traced,
+    read: async (cacheKey) => {
+      const cached = await readExplanation(storage, cacheKey)
+      if (cached === null) return null
+      return {
+        body: cached.body,
+        inferredRole: isInferredRole(cached.inferredRole)
+          ? cached.inferredRole
+          : null,
       }
-    )
-    return { traced: traces.enabled, ...outcome }
-  } catch (error) {
-    console.error(`Explaining ${path} of analysis ${analysisId} failed:`, error)
-    return {
-      traced: traces.enabled,
-      status: "failed",
-      message: failureMessage(error),
+    },
+    write: (cacheKey, explanation) =>
+      writer.store({
+        organizationId,
+        analysisId,
+        cacheKey,
+        subject: subject.path,
+        kind: subject.kind,
+        body: explanation.body,
+        inferredRole: explanation.inferredRole,
+        model: MODEL,
+        promptVersion: PROMPT_VERSION,
+      }),
+    ask: askModel(languageModel(env.GEMINI_API_KEY)),
+  }
+
+  let outcome: ExplainOutcome
+  try {
+    if (subject.kind === "file") {
+      const path = subject.path
+      const record = parsed.files.find((file) => file.path === path)
+      const role = input.files.find((file) => file.path === path)?.role
+      if (record === undefined || role === undefined) {
+        return failed(`${path} isn't in this analysis.`)
+      }
+      outcome = await explainFile(
+        {
+          repository: analysis.repository,
+          path,
+          hash: record.hash,
+          detectedRole: role,
+          dependencies: input.edges
+            .filter((edge) => edge.from === path)
+            .map((edge) => edge.to),
+          dependents: input.edges
+            .filter((edge) => edge.to === path)
+            .map((edge) => edge.from),
+          analysisPaths,
+        },
+        {
+          ...deps,
+          // Fetched only on a miss, at the analysed commit, and refused
+          // unless it matches the hash the parser recorded (D-04).
+          source: () =>
+            sourceAtCommit(analysis.repository, stored.commit, record),
+        }
+      )
+    } else {
+      const box = buildBoxes(input.files, input.edges).byId.get(subject.path)
+      if (box === undefined) {
+        return failed("This box isn't on the analysis's map.")
+      }
+      const inBox = new Set(box.files)
+      const hashes = new Map(parsed.files.map((file) => [file.path, file.hash]))
+      outcome = await explainBox(
+        {
+          repository: analysis.repository,
+          folder: box.id,
+          folders: box.folders,
+          files: input.files
+            .filter((file) => inBox.has(file.path))
+            .map((file) => {
+              const hash = hashes.get(file.path)
+              if (hash === undefined) {
+                throw new Error(`${file.path} has no hash`)
+              }
+              return { path: file.path, hash, role: file.role }
+            }),
+          incoming: input.edges
+            .filter((edge) => inBox.has(edge.to) && !inBox.has(edge.from))
+            .map(({ from, to }) => ({ from, to })),
+          outgoing: input.edges
+            .filter((edge) => inBox.has(edge.from) && !inBox.has(edge.to))
+            .map(({ from, to }) => ({ from, to })),
+          analysisPaths,
+        },
+        deps
+      )
     }
+  } catch (error) {
+    console.error(
+      `Explaining ${subject.kind} ${subject.path} of analysis ${analysisId} failed:`,
+      error
+    )
+    return failed(failureMessage(error))
   } finally {
     // A serverless function can end as soon as it responds (plan D-03).
     await traces.flush()
   }
+  return { traced: traces.enabled, ...outcome }
 }
 
 /** Why a file's source can't be used: it isn't what was parsed. */

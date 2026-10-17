@@ -61,6 +61,19 @@ nothing of storage or GitHub.
   once more, then refused, and nothing is cached (FR-006).
 - A refusal for the model's request limit returns `limited` at once; it
   isn't retried.
+- A role is asked for only when the file's role is `UNIDENTIFIED`, taken
+  from `@workspace/frameworks/taxonomy`, never spelled again here.
+
+## Explaining a box
+
+`explainBox(box, deps)` takes the same steps, with no source to fetch: the
+box's folders, its files and their roles, and the imports across its edge
+(spec 009, FR-002, plan D-12). The caller builds the box with the map's own
+`buildBoxes`, so it's the box on screen. Each list is capped at 60, with
+the rest counted. A box never gets an inferred role.
+
+## Shared by both
+
 - Two browser-safe subpaths: `@workspace/ai/text` reads an explanation into
   its three formats (code, bold, bullets) and drops any other mark (FR-007);
   `@workspace/ai/grounding` turns a named path into the analysis's file, for
