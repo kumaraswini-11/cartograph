@@ -55,7 +55,8 @@ AC-08, AC-11, D-06 to D-08, D-12
 
 ## T03 — A submitted address becomes a stored map
 
-**Status:** Todo
+**Status:** Done, but for the pages seen signed in, which T04's browser
+check covers
 **Blocked by:** T01, T02
 **Covers:** FR-001 to FR-009, FR-014, FR-015, AC-02, AC-03, AC-08, AC-10,
 D-04, D-05, D-13
@@ -74,13 +75,16 @@ D-04, D-05, D-13
 
 **Done when:**
 
-- [ ] The spike's result is recorded in the plan, as D-05 asks.
-- [ ] Locally, `expressjs/express` and `facebook/react` each end done, and
-      their stored map shows. The stored result names its commit.
-- [ ] A missing repository fails at fetching with its sentence, and the
-      dashboard reads failed. Submitting a known address lands on its
-      analysis. Re-run starts a new run of the same analysis.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] The spike's result is recorded in the plan, as D-05 asks.
+- [x] Locally, `expressjs/express` (3 s) and `facebook/react` (33 s) each
+      end done, through the real run, worker and storage, and the stored
+      result names the commit read. Their maps, seen signed in, move into
+      T04's browser check.
+- [x] A missing repository fails at fetching with its sentence. Submitting a
+      known address returns its analysis and starts no run, and a re-run
+      starts a new run of the same analysis (Vitest and pgTAP). Seen
+      signed in, in T04's browser check.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T04 — Progress, pushed
 
@@ -98,6 +102,10 @@ D-11
 - Live stages on the analysis page and on the dashboard.
 
 **Done when:**
+
+- [ ] Signed in, locally: T03's pages work end to end. An address becomes
+      its map, a known address opens its analysis, a missing repository
+      reads failed, a GitLab address is refused, and re-run starts a run.
 
 - [ ] pgTAP passes AC-06: another organization's member reads no message on
       the topic.

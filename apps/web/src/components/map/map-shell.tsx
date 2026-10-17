@@ -1,3 +1,5 @@
+import type { ReactNode } from "react"
+
 import type { MapInput } from "@workspace/graph"
 import { Badge } from "@workspace/ui/components/shadcn-ui/badge"
 import {
@@ -19,8 +21,17 @@ import { ThemeToggle } from "@/components/theme/theme-toggle"
  * FR-002): the rail, the map and the detail pane, at every width. Both side
  * columns are shadcn Sidebars kept always open, so their widths are fixed
  * before the map draws (FR-022) and the pane is never an overlay.
+ * `actions` sit in the header, beside the theme toggle: what the page the
+ * map is on lets a member do with it (spec 008: back to the dashboard, the
+ * latest run, re-run).
  */
-export function MapShell({ input }: { input: MapInput }) {
+export function MapShell({
+  input,
+  actions,
+}: {
+  input: MapInput
+  actions?: ReactNode
+}) {
   return (
     <MapDataProvider input={input}>
       <MapStateProvider>
@@ -35,7 +46,10 @@ export function MapShell({ input }: { input: MapInput }) {
                     {input.commit.slice(0, 7)}
                   </Badge>
                 </div>
-                <ThemeToggle />
+                <div className="flex shrink-0 items-center gap-2">
+                  {actions}
+                  <ThemeToggle />
+                </div>
               </header>
               <h2 className="sr-only">Dependency map</h2>
               <div className="p-2 empty:hidden">

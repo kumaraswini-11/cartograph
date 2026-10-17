@@ -18,6 +18,7 @@ import { Route as IdentitySignedInDashboardRouteImport } from "./routes/_identit
 import { Route as IdentitySignedInOrganizationRouteImport } from "./routes/_identity/_signed-in/organization"
 import { Route as IdentitySignInSplatRouteImport } from "./routes/_identity/sign-in.$"
 import { Route as ApiWebhooksClerkRouteImport } from "./routes/api/webhooks/clerk"
+import { Route as IdentitySignedInAnalysesAnalysisIdRouteImport } from "./routes/_identity/_signed-in/analyses.$analysisId"
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
@@ -64,6 +65,12 @@ const ApiWebhooksClerkRoute = ApiWebhooksClerkRouteImport.update({
   path: "/api/webhooks/clerk",
   getParentRoute: () => rootRouteImport,
 } as any)
+const IdentitySignedInAnalysesAnalysisIdRoute =
+  IdentitySignedInAnalysesAnalysisIdRouteImport.update({
+    id: "/analyses/$analysisId",
+    path: "/analyses/$analysisId",
+    getParentRoute: () => IdentitySignedInRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByFullPath {
   "/organization": typeof IdentitySignedInOrganizationRoute
   "/sign-in/$": typeof IdentitySignInSplatRoute
   "/api/webhooks/clerk": typeof ApiWebhooksClerkRoute
+  "/analyses/$analysisId": typeof IdentitySignedInAnalysesAnalysisIdRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
   "/organization": typeof IdentitySignedInOrganizationRoute
   "/sign-in/$": typeof IdentitySignInSplatRoute
   "/api/webhooks/clerk": typeof ApiWebhooksClerkRoute
+  "/analyses/$analysisId": typeof IdentitySignedInAnalysesAnalysisIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -94,6 +103,7 @@ export interface FileRoutesById {
   "/_identity/_signed-in/organization": typeof IdentitySignedInOrganizationRoute
   "/_identity/sign-in/$": typeof IdentitySignInSplatRoute
   "/api/webhooks/clerk": typeof ApiWebhooksClerkRoute
+  "/_identity/_signed-in/analyses/$analysisId": typeof IdentitySignedInAnalysesAnalysisIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
     | "/organization"
     | "/sign-in/$"
     | "/api/webhooks/clerk"
+    | "/analyses/$analysisId"
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | "/organization"
     | "/sign-in/$"
     | "/api/webhooks/clerk"
+    | "/analyses/$analysisId"
   id:
     | "__root__"
     | "/"
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
     | "/_identity/_signed-in/organization"
     | "/_identity/sign-in/$"
     | "/api/webhooks/clerk"
+    | "/_identity/_signed-in/analyses/$analysisId"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -200,17 +213,27 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ApiWebhooksClerkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/_identity/_signed-in/analyses/$analysisId": {
+      id: "/_identity/_signed-in/analyses/$analysisId"
+      path: "/analyses/$analysisId"
+      fullPath: "/analyses/$analysisId"
+      preLoaderRoute: typeof IdentitySignedInAnalysesAnalysisIdRouteImport
+      parentRoute: typeof IdentitySignedInRoute
+    }
   }
 }
 
 interface IdentitySignedInRouteChildren {
   IdentitySignedInDashboardRoute: typeof IdentitySignedInDashboardRoute
   IdentitySignedInOrganizationRoute: typeof IdentitySignedInOrganizationRoute
+  IdentitySignedInAnalysesAnalysisIdRoute: typeof IdentitySignedInAnalysesAnalysisIdRoute
 }
 
 const IdentitySignedInRouteChildren: IdentitySignedInRouteChildren = {
   IdentitySignedInDashboardRoute: IdentitySignedInDashboardRoute,
   IdentitySignedInOrganizationRoute: IdentitySignedInOrganizationRoute,
+  IdentitySignedInAnalysesAnalysisIdRoute:
+    IdentitySignedInAnalysesAnalysisIdRoute,
 }
 
 const IdentitySignedInRouteWithChildren =

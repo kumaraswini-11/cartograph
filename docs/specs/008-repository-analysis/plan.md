@@ -57,6 +57,8 @@ detection and the map never know which services are in use.
 | `apps/web/src/lib/run-messages.ts`                                  | Every stage's and failure's sentence, in one place (D-13).                                                                                                                                                                                                                                                                                                   |
 | `apps/web/src/lib/analyses.functions.ts`                            | `submitRepository` and `rerunAnalysis`, POST: the organization comes from `auth()`, never from the request. The run is started with `runAfterResponse`. `getAnalysis` (GET) returns the analysis page's data.                                                                                                                                                |
 | `apps/web/src/lib/background.server.ts`                             | `runAfterResponse(promise)`: hands the promise to the current request's `waitUntil`, as Nitro provides it on every host (D-04).                                                                                                                                                                                                                              |
+| `apps/web/src/lib/analyses.server.ts`                               | `submitAddress`, `rerun` and `analysisPage`, behind the server functions: the session's organization, the run started after the response, and the stored results read back through the parser's and detection's schemas into the map's input (D-12).                                                                                                         |
+| `apps/web/src/components/analysis/`                                 | `RunProgress` (the stages by name, and the sentence as a live region), `RunBadge` (a run's state in words, shared by the dashboard and the map's header) and `RerunButton`.                                                                                                                                                                                  |
 | `apps/web/src/lib/progress.ts`                                      | `useStages(topic)`: the browser's Supabase client with Clerk's `getToken` as its `accessToken`. It reloads the route once subscribed and again when a run ends (D-11).                                                                                                                                                                                       |
 | `apps/web/src/routes/_identity/_signed-in/dashboard.tsx`            | The address form (FR-001), and the list with live stages and a stale mark (FR-010, FR-013).                                                                                                                                                                                                                                                                  |
 | `apps/web/src/routes/_identity/_signed-in/analyses.$analysisId.tsx` | An unfinished run's stages; a failed run's stage and reason; the stored map with its coverage banner (FR-014). The re-run button sits on the analysis (FR-003).                                                                                                                                                                                              |
@@ -213,11 +215,26 @@ runs` calls `realtime.send` once for each topic (D-09).
     Vercel's Fluid compute sends other requests to the same instance, so that
     blocking would stall every one of them (Node.js: "Don't block the event
     loop"). Only the result, a structured clone, crosses back.
-  - T03 starts with a spike: does the production build emit the worker's
-    entry, does `oxc-parser`'s native binding load inside it, and does
-    `getRequest()` carry Nitro's `waitUntil` (D-04)?
-  - _If any fails:_ the parse runs on the main thread, the cost goes under
-    Risks, and this decision is revisited before T03 is done.
+  - _How:_ `parse.worker.ts` is its own worker. The server loads it with a
+    dynamic `import()`, so the build gives it a chunk of its own, and
+    `parseInWorker` starts a `Worker` on that same file (`import.meta.url`).
+    Inside the worker, the module finds `workerData` and does the job. No
+    separate worker entry is needed, so nothing depends on the bundler.
+  - _Spike, 2026-10-17, on the production build:_
+    - The worker chunk is emitted (`_ssr/parse.worker-….mjs`), and oxc's
+      native binding loads inside it.
+    - The oxc packages must stay outside the bundle. The `ssr` environment
+      marks them external, Nitro's `traceDeps` copies them and their
+      platform's binary into the output, and `web` declares them so pnpm
+      lets Nitro resolve them.
+    - Parsing `date-fns` (1,785 files, 2.4 s): a 10 ms timer on the main
+      thread fired 0 times when the parse ran there, and kept firing (145
+      ticks, Windows' timer resolution) when it ran in the worker.
+    - `getRequest()` carries `waitUntil` (D-04). The Node build's is srvx's,
+      and work scheduled with it ran after the response. The Vercel build
+      chooses Nitro's `web` entry, which sets `req.waitUntil` from Vercel's
+      function context, with `maxDuration` 300. That one is seen running on
+      the deployment (T07).
 - **D-06** **Every write goes through the server with the secret key.**
   - The organization comes from Clerk's verified session (`auth()`), never
     from the request.
