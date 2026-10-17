@@ -55,8 +55,7 @@ AC-08, AC-11, D-06 to D-08, D-12
 
 ## T03 — A submitted address becomes a stored map
 
-**Status:** Done, but for the pages seen signed in, which T04's browser
-check covers
+**Status:** Done
 **Blocked by:** T01, T02
 **Covers:** FR-001 to FR-009, FR-014, FR-015, AC-02, AC-03, AC-08, AC-10,
 D-04, D-05, D-13
@@ -121,7 +120,8 @@ D-11
 
 ## T05 — The samples go
 
-**Status:** Todo
+**Status:** Done; the map page's blocking time and target size carried to
+`012`
 **Blocked by:** T03
 **Covers:** C-07, FR-014, AC-07, D-14
 
@@ -133,14 +133,19 @@ D-11
 
 **Done when:**
 
-- [ ] Nothing in the repository reads a checked-in map. A repository with
+- [x] Nothing in the repository reads a checked-in map. A repository with
       path aliases or a nested app, analysed locally, shows the coverage
-      banner with its figure.
-- [ ] A 5,000-file map's page response is measured against Vercel's 4.5 MB,
-      and the result is recorded in the plan.
-- [ ] Lighthouse on the home page and an analysis page still meets `012`'s
-      thresholds.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+      banner with its figure: `t3-oss/create-t3-app`, "Coverage 48.2%",
+      mapped from the dashboard on the production build, its stages passing
+      on the page with no reload.
+- [x] A 5,000-file map's page response is measured against Vercel's 4.5 MB,
+      and the result is recorded in the plan: about 2.8 MB.
+- [x] Lighthouse on the home page and an analysis page, recorded in the
+      plan (Risks). Home meets `012`'s thresholds. The analysis page meets
+      LCP and CLS, but its blocking time (the map's drawing, as before 008)
+      and the map's target size on a phone don't: both carried to `012`
+      AC-13.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T06 — Migrations reach production on merge
 

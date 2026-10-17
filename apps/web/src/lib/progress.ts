@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react"
 import { useAuth } from "@clerk/tanstack-react-start"
 import { useRouter } from "@tanstack/react-router"
 
-import { storageClient, subscribeToStages } from "@workspace/database"
 import type { RunSummary, StageChange } from "@workspace/database"
 
 /** A run's two ends: after either, what the page shows is storage's again. */
@@ -21,7 +20,8 @@ const ENDS: ReadonlySet<string> = new Set(["done", "failed"])
  *
  * The browser's storage client carries the member's Clerk token, renewed
  * on every Realtime heartbeat, so the database's policy decides whether
- * they may listen (FR-012, C-04).
+ * they may listen (FR-012, C-04). It's loaded once the page is interactive,
+ * not with it: nothing needs it before, and it's the page's largest script.
  */
 export function useStages(
   topic: string,
@@ -43,25 +43,38 @@ export function useStages(
     // Until Clerk has loaded in the browser, there's no token to give: the
     // client would ask for one at once and be refused.
     if (!isLoaded || !isSignedIn) return
-    const storage = storageClient({
-      url: import.meta.env.VITE_SUPABASE_URL,
-      publishableKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-      getToken: () => getToken(),
-    })
-    const stop = subscribeToStages(storage, topic, {
-      onJoined: () => void router.invalidate(),
-      onStage: (change) => {
-        setChanges((previous) =>
-          new Map(previous).set(change.analysisId, change)
+    let stop: (() => void) | undefined
+    let left = false
+    import("@workspace/database/follow")
+      .then(({ followStages }) => {
+        if (left) return
+        stop = followStages(
+          {
+            url: import.meta.env.VITE_SUPABASE_URL,
+            publishableKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            getToken: () => getToken(),
+          },
+          topic,
+          {
+            onJoined: () => void router.invalidate(),
+            onStage: (change) => {
+              setChanges((previous) =>
+                new Map(previous).set(change.analysisId, change)
+              )
+              if (ENDS.has(change.stage) || !known.current(change.analysisId)) {
+                void router.invalidate()
+              }
+            },
+          }
         )
-        if (ENDS.has(change.stage) || !known.current(change.analysisId)) {
-          void router.invalidate()
-        }
-      },
-    })
+      })
+      .catch((error: unknown) => {
+        // The page still shows what storage held; it just won't move live.
+        console.error(`Couldn't load the live progress for ${topic}:`, error)
+      })
     return () => {
-      stop()
-      void storage.realtime.disconnect()
+      left = true
+      stop?.()
     }
   }, [topic, getToken, router, isLoaded, isSignedIn])
 

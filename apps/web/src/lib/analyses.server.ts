@@ -81,7 +81,7 @@ export async function rerun(analysisId: string): Promise<void> {
  * An analysis and its stored map, read with the member's token, so another
  * organization's analysis is simply not there (spec 007, C-02). The stored
  * results are read back through the parser's and detection's own schemas,
- * then turned into the map's input as the samples were (plan D-12).
+ * then turned into the map's input (plan D-12).
  */
 export async function analysisPage(
   analysisId: string

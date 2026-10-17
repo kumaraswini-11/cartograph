@@ -12,8 +12,6 @@ import { Route as rootRouteImport } from "./routes/__root"
 import { Route as IndexRouteImport } from "./routes/index"
 import { Route as IdentityRouteImport } from "./routes/_identity"
 import { Route as IdentitySignedInRouteImport } from "./routes/_identity/_signed-in"
-import { Route as SampleIndexRouteImport } from "./routes/sample.index"
-import { Route as SampleNameRouteImport } from "./routes/sample.$name"
 import { Route as IdentitySignedInDashboardRouteImport } from "./routes/_identity/_signed-in/dashboard"
 import { Route as IdentitySignedInOrganizationRouteImport } from "./routes/_identity/_signed-in/organization"
 import { Route as IdentitySignInSplatRouteImport } from "./routes/_identity/sign-in.$"
@@ -32,16 +30,6 @@ const IdentityRoute = IdentityRouteImport.update({
 const IdentitySignedInRoute = IdentitySignedInRouteImport.update({
   id: "/_signed-in",
   getParentRoute: () => IdentityRoute,
-} as any)
-const SampleIndexRoute = SampleIndexRouteImport.update({
-  id: "/sample/",
-  path: "/sample/",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SampleNameRoute = SampleNameRouteImport.update({
-  id: "/sample/$name",
-  path: "/sample/$name",
-  getParentRoute: () => rootRouteImport,
 } as any)
 const IdentitySignedInDashboardRoute =
   IdentitySignedInDashboardRouteImport.update({
@@ -74,8 +62,6 @@ const IdentitySignedInAnalysesAnalysisIdRoute =
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
-  "/sample/$name": typeof SampleNameRoute
-  "/sample/": typeof SampleIndexRoute
   "/dashboard": typeof IdentitySignedInDashboardRoute
   "/organization": typeof IdentitySignedInOrganizationRoute
   "/sign-in/$": typeof IdentitySignInSplatRoute
@@ -84,8 +70,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
-  "/sample/$name": typeof SampleNameRoute
-  "/sample": typeof SampleIndexRoute
   "/dashboard": typeof IdentitySignedInDashboardRoute
   "/organization": typeof IdentitySignedInOrganizationRoute
   "/sign-in/$": typeof IdentitySignInSplatRoute
@@ -97,8 +81,6 @@ export interface FileRoutesById {
   "/": typeof IndexRoute
   "/_identity": typeof IdentityRouteWithChildren
   "/_identity/_signed-in": typeof IdentitySignedInRouteWithChildren
-  "/sample/$name": typeof SampleNameRoute
-  "/sample/": typeof SampleIndexRoute
   "/_identity/_signed-in/dashboard": typeof IdentitySignedInDashboardRoute
   "/_identity/_signed-in/organization": typeof IdentitySignedInOrganizationRoute
   "/_identity/sign-in/$": typeof IdentitySignInSplatRoute
@@ -109,8 +91,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | "/"
-    | "/sample/$name"
-    | "/sample/"
     | "/dashboard"
     | "/organization"
     | "/sign-in/$"
@@ -119,8 +99,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
-    | "/sample/$name"
-    | "/sample"
     | "/dashboard"
     | "/organization"
     | "/sign-in/$"
@@ -131,8 +109,6 @@ export interface FileRouteTypes {
     | "/"
     | "/_identity"
     | "/_identity/_signed-in"
-    | "/sample/$name"
-    | "/sample/"
     | "/_identity/_signed-in/dashboard"
     | "/_identity/_signed-in/organization"
     | "/_identity/sign-in/$"
@@ -143,8 +119,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   IdentityRoute: typeof IdentityRouteWithChildren
-  SampleNameRoute: typeof SampleNameRoute
-  SampleIndexRoute: typeof SampleIndexRoute
   ApiWebhooksClerkRoute: typeof ApiWebhooksClerkRoute
 }
 
@@ -170,20 +144,6 @@ declare module "@tanstack/react-router" {
       fullPath: "/"
       preLoaderRoute: typeof IdentitySignedInRouteImport
       parentRoute: typeof IdentityRoute
-    }
-    "/sample/": {
-      id: "/sample/"
-      path: "/sample"
-      fullPath: "/sample/"
-      preLoaderRoute: typeof SampleIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/sample/$name": {
-      id: "/sample/$name"
-      path: "/sample/$name"
-      fullPath: "/sample/$name"
-      preLoaderRoute: typeof SampleNameRouteImport
-      parentRoute: typeof rootRouteImport
     }
     "/_identity/_signed-in/dashboard": {
       id: "/_identity/_signed-in/dashboard"
@@ -256,8 +216,6 @@ const IdentityRouteWithChildren = IdentityRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   IdentityRoute: IdentityRouteWithChildren,
-  SampleNameRoute: SampleNameRoute,
-  SampleIndexRoute: SampleIndexRoute,
   ApiWebhooksClerkRoute: ApiWebhooksClerkRoute,
 }
 export const routeTree = rootRouteImport

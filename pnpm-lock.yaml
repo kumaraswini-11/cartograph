@@ -252,9 +252,6 @@ importers:
       '@workspace/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@workspace/golden':
-        specifier: workspace:*
-        version: link:../../packages/golden
       '@workspace/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config

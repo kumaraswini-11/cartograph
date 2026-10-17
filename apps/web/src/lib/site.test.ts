@@ -15,12 +15,12 @@ const content = (meta: ReadonlyArray<Tag>, key: string) =>
 
 describe("search and share tags", () => {
   it("gives every page Open Graph's four required tags, absolute", () => {
-    const page = seo({ title: "T", description: "D", path: "/sample" })
+    const page = seo({ title: "T", description: "D", path: "/sign-in" })
     const meta = [...siteMeta(), ...page.meta]
     expect(content(meta, "og:title")).toBe("T")
     expect(content(meta, "og:type")).toBe("website")
-    expect(content(meta, "og:url")).toBe(absoluteUrl("/sample"))
-    expect(content(meta, "twitter:url")).toBe(absoluteUrl("/sample"))
+    expect(content(meta, "og:url")).toBe(absoluteUrl("/sign-in"))
+    expect(content(meta, "twitter:url")).toBe(absoluteUrl("/sign-in"))
     expect(content(meta, "og:image")).toMatch(/^https?:\/\/.+\/og\.png$/)
     expect(content(meta, "og:image:alt")).toBe(SITE.image.alt)
   })

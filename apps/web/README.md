@@ -32,7 +32,7 @@ changing that file.
 Sign-in is Clerk's (spec 006): `/sign-in` signs in and up, and every page
 under `src/routes/_identity/_signed-in/` is protected, read from the session token
 (`src/lib/session.ts`) without asking Clerk. Clerk loads only under
-`src/routes/_identity/`: home and the samples are public and never load it.
+`src/routes/_identity/`: home is public and never loads it.
 
 Storage is `@workspace/database` (spec 007): the dashboard lists the current
 organization's analyses through it, with the signed-in person's token, so
@@ -41,10 +41,13 @@ the database's policies decide whose rows they are. Locally, point
 db:start`) and fill it with `db:seed --organization <your Clerk
 organization's ID>`; see that package's README.
 
-`/sample/$name` shows the map of one of three fixed repositories
-(`src/sample/samples.ts`) until spec 008 stores real analyses. Not-found,
-error and loading pages are set once, in `src/router.tsx`. Search and share
-tags come from `src/lib/site.ts`.
+A member maps a repository from the dashboard (spec 008): the run starts
+after the response (`src/lib/run.server.ts`, `background.server.ts`), parses
+in a worker thread (`parse.worker.ts`), and its stages are pushed to
+`/analyses/$analysisId` and the dashboard as storage records them
+(`src/lib/progress.ts`). Every map is a stored analysis; none is checked in.
+Not-found, error and loading pages are set once, in `src/router.tsx`. Search
+and share tags come from `src/lib/site.ts`.
 
 ## Status
 

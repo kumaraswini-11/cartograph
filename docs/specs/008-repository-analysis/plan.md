@@ -51,7 +51,8 @@ detection and the map never know which services are in use.
 | `packages/database/supabase/tests/`                                 | pgTAP: AC-05, AC-06, AC-08, AC-11, and `results` covered by the existing tests that read every table from the catalog.                                                                                                                                                                                                                                       |
 | `packages/database/src/runs.ts`                                     | `runWriter(access)`, with the secret key, server-only: `startAnalysis`, `rerunAnalysis`, `advanceRun`, `failRun`, `finishRun` (D-06). Each takes the organization or the run it acts on and nothing else, and the client behind them is never handed out.                                                                                                    |
 | `packages/database/src/analyses.ts`                                 | `listAnalyses` gains each latest run's `stale`. `readAnalysis(storage, id)` returns the analysis with its latest run, and `readResult(storage, id)` its stored results, each with the member's token.                                                                                                                                                        |
-| `packages/database/src/progress.ts`                                 | `organizationTopic`, `analysisTopic`, and `subscribeToStages(storage, topic, onStage)`: a private channel and its `stage` events, `{ analysisId, stage, message }` (D-09).                                                                                                                                                                                   |
+| `packages/database/src/progress.ts`                                 | `organizationTopic`, `analysisTopic` and `stageChangeFrom`: the topics, and a push read as `{ analysisId, stage, message }` (D-09).                                                                                                                                                                                                                          |
+| `packages/database/src/follow.ts` (`@workspace/database/follow`)    | `subscribeToStages` and `followStages`: a private channel and its `stage` events. Kept out of the package's entry, so a page imports Supabase's client once it's interactive.                                                                                                                                                                                |
 | `apps/web/src/lib/run.server.ts`                                    | `runAnalysis(run)`: fetching, then parsing, then storing, each stage written before it starts. Any error ends the run as failed in the stage it reached, with its sentence (FR-006, FR-007).                                                                                                                                                                 |
 | `apps/web/src/lib/parse.worker.ts`                                  | `parseRepository` then `detectFrameworks` on the extracted directory, in a worker thread (D-05).                                                                                                                                                                                                                                                             |
 | `apps/web/src/lib/run-messages.ts`                                  | Every stage's and failure's sentence, in one place (D-13).                                                                                                                                                                                                                                                                                                   |
@@ -424,6 +425,24 @@ By the repository's owner:
 - **Previews write to production's data** (007 D-05, until staging exists).
   Runs started from a preview are real analyses, owned by the organization
   that started them.
-- **A large map's page nears 4.5 MB.** T05 measures a 5,000-file map. If it's
-  over, how the page carries the map is decided here, with the measurement,
-  before T05 is done.
+- **A large map's page nears 4.5 MB.** Measured in T05 (2026-10-17): the map's
+  input runs from 316 to 551 bytes per file (`TypeScript-Website`,
+  `facebook/react` 3,536 files at 1.4 MB, `withastro/astro`,
+  `microsoft/playwright`, `trpc/trpc`, `nestjs/nest` the densest). At
+  `MAX_FILES`, that's about 2.8 MB, which the page carries once, under the
+  4.5 MB with room to spare, and about 150 kB gzipped. Vercel's limit names no
+  exception for streamed responses, so it's treated as hard.
+- **The map page's main thread (`012` AC-13).** Measured in T05 on the
+  production build, Lighthouse 13.5.0's mobile profile, median of 5:
+  - Home: performance 100, LCP 0.71 s, TBT 86 ms, CLS 0, accessibility 100.
+  - An analysis's map (`t3-oss/create-t3-app`, 182 files): LCP 1.62 s and
+    CLS 0.001 within `012`'s thresholds, but TBT 1,126 ms, against the
+    200 ms that `INP_MAX` implies. Nearly all of it is hydrating the page
+    and laying out the map on the main thread, which is `003`'s drawing,
+    not 008's: the sample map measured 365 to 1,200 ms before 008.
+  - Accessibility 96: the map's folder boxes fall under WCAG 2.2's 24 px
+    target size (2.5.8) when the map zooms out to fit a phone's width.
+
+  Both are carried to `012`, whose AC-13 measures the map at `MAX_FILES` on
+  this profile. Supabase's client stays off the page's critical path:
+  `@workspace/database/follow` is imported once the page is interactive.

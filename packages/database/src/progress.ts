@@ -1,6 +1,5 @@
 import type { RunState } from "./analyses.ts"
 import { RUN_STATES } from "./analyses.ts"
-import type { StorageClient } from "./client.ts"
 
 /**
  * A run's stage change as storage pushes it (spec 008, FR-011): the stage
@@ -38,48 +37,4 @@ export function stageChangeFrom(payload: unknown): StageChange | null {
     return null
   }
   return { analysisId, stage: stage as RunState, message }
-}
-
-/**
- * Follows `topic`'s stage changes (FR-010, FR-011), on a private channel
- * that the storage client joins with the signed-in person's token, so the
- * database's policy decides whether they may (FR-012, C-04). `onJoined` is
- * called each time the channel is joined, rejoins after a lost connection
- * included: a page reads storage again then, for anything it missed while
- * not listening (plan D-11). Returns the way to stop.
- */
-export function subscribeToStages(
-  storage: StorageClient,
-  topic: string,
-  handlers: {
-    onStage: (change: StageChange) => void
-    onJoined: () => void
-  }
-): () => void {
-  const channel = storage
-    .channel(topic, { config: { private: true } })
-    .on("broadcast", { event: "stage" }, ({ payload }) => {
-      const change = stageChangeFrom(payload)
-      if (change !== null) handlers.onStage(change)
-    })
-  // The token goes to Realtime before the channel asks to join, so the
-  // policy reads the member's organization (Supabase: Realtime
-  // authorization).
-  let stopped = false
-  storage.realtime
-    .setAuth()
-    .then(() => {
-      if (stopped) return
-      channel.subscribe((status) => {
-        if (status === "SUBSCRIBED") handlers.onJoined()
-      })
-    })
-    .catch((error: unknown) => {
-      // The page still shows what storage held; it just won't move live.
-      console.error(`Couldn't follow ${topic}:`, error)
-    })
-  return () => {
-    stopped = true
-    void storage.removeChannel(channel)
-  }
 }
