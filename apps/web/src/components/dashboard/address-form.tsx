@@ -15,7 +15,13 @@ import { Spinner } from "@workspace/ui/components/shadcn-ui/spinner"
 
 import { submitRepository } from "@/lib/analyses.functions"
 
-type FormState = { error?: string }
+/**
+ * What the form shows after a submission: why it was refused, with the
+ * address as it was typed. React resets a form once its action ends, and
+ * the field takes `address` back as its default value, so a refusal never
+ * empties it.
+ */
+type FormState = { error?: string; address?: string }
 
 /**
  * A repository's address in, its analysis out (spec 008, FR-001, FR-002):
@@ -31,17 +37,17 @@ export function AddressForm() {
     async (_previous: FormState, form: FormData): Promise<FormState> => {
       const address = String(form.get("address") ?? "")
       const read = repositoryFrom(address)
-      if ("refusal" in read) return { error: read.refusal }
+      if ("refusal" in read) return { error: read.refusal, address }
       try {
         const result = await submit({ data: { address } })
-        if ("refusal" in result) return { error: result.refusal }
+        if ("refusal" in result) return { error: result.refusal, address }
         await navigate({
           to: "/analyses/$analysisId",
           params: { analysisId: result.analysisId },
         })
         return {}
       } catch {
-        return { error: "The analysis didn't start. Try again." }
+        return { error: "The analysis didn't start. Try again.", address }
       }
     },
     {}
@@ -56,6 +62,7 @@ export function AddressForm() {
           id={`${id}-address`}
           name="address"
           type="text"
+          defaultValue={state.address}
           inputMode="url"
           required
           autoComplete="off"

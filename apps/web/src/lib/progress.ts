@@ -16,7 +16,10 @@ const ENDS: ReadonlySet<string> = new Set(["done", "failed"])
  *   data is read again, catching what changed while nothing listened;
  * - when a run ends, or a change names an analysis the page doesn't have
  *   (`isKnown`), the route reads storage again, for the map, the failure
- *   or the new analysis.
+ *   or the new analysis;
+ * - once a read is back, the changes held when it began give way to it:
+ *   storage's answer is at least as new as they are. Changes pushed during
+ *   the read stay, as they may be newer still.
  *
  * The browser's storage client carries the member's Clerk token, renewed
  * on every Realtime heartbeat, so the database's policy decides whether
@@ -32,6 +35,8 @@ export function useStages(
   const [changes, setChanges] = useState<ReadonlyMap<string, StageChange>>(
     () => new Map()
   )
+  // The same changes, for reading when a reload begins and ends.
+  const held = useRef<ReadonlyMap<string, StageChange>>(new Map())
   // Read at each change, so a new render's answer is used without
   // joining the channel again.
   const known = useRef(isKnown)
@@ -45,6 +50,19 @@ export function useStages(
     if (!isLoaded || !isSignedIn) return
     let stop: (() => void) | undefined
     let left = false
+    const hold = (next: ReadonlyMap<string, StageChange>) => {
+      held.current = next
+      setChanges(next)
+    }
+    // Reads the route again; once storage has answered, drops the changes
+    // that were held when the read began and haven't been replaced since.
+    const reread = () => {
+      const before = held.current
+      void router.invalidate().then(() => {
+        if (left) return
+        hold(afterRead(before, held.current))
+      })
+    }
     import("@workspace/database/follow")
       .then(({ followStages }) => {
         if (left) return
@@ -56,13 +74,11 @@ export function useStages(
           },
           topic,
           {
-            onJoined: () => void router.invalidate(),
+            onJoined: reread,
             onStage: (change) => {
-              setChanges((previous) =>
-                new Map(previous).set(change.analysisId, change)
-              )
+              hold(new Map(held.current).set(change.analysisId, change))
               if (ENDS.has(change.stage) || !known.current(change.analysisId)) {
-                void router.invalidate()
+                reread()
               }
             },
           }
@@ -92,4 +108,20 @@ export function withChange<TRun extends RunSummary & { message?: string }>(
 ): TRun {
   if (change === undefined) return run
   return { ...run, state: change.stage, stale: false, message: change.message }
+}
+
+/**
+ * The changes still worth showing once a read from storage is back: those
+ * held when it began give way to storage's answer, unless a newer push has
+ * replaced them since (plan D-11).
+ */
+export function afterRead(
+  before: ReadonlyMap<string, StageChange>,
+  now: ReadonlyMap<string, StageChange>
+): ReadonlyMap<string, StageChange> {
+  const next = new Map(now)
+  for (const [analysisId, change] of before) {
+    if (next.get(analysisId) === change) next.delete(analysisId)
+  }
+  return next
 }

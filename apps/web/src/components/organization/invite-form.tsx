@@ -14,7 +14,12 @@ import { Spinner } from "@workspace/ui/components/shadcn-ui/spinner"
 import { refusalReason } from "@/lib/invitations"
 import { inviteMember } from "@/lib/invitations.functions"
 
-type FormState = { sent?: string; error?: string }
+/**
+ * What the form shows after a submission. React resets a form once its
+ * action ends, and the field takes `email` back as its default value, so a
+ * refusal keeps the address and a sent invitation clears it.
+ */
+type FormState = { sent?: string; error?: string; email?: string }
 
 /**
  * An admin's invitation form (spec 006, FR-007): an email address in, an
@@ -29,9 +34,9 @@ export function InviteForm({ organization }: { organization: string }) {
       const email = String(form.get("email") ?? "").trim()
       try {
         const result = await invite({ data: { email } })
-        return result.sent ? { sent: email } : { error: result.reason }
+        return result.sent ? { sent: email } : { error: result.reason, email }
       } catch {
-        return { error: refusalReason(undefined) }
+        return { error: refusalReason(undefined), email }
       }
     },
     {}
@@ -46,6 +51,7 @@ export function InviteForm({ organization }: { organization: string }) {
           id={`${id}-email`}
           name="email"
           type="email"
+          defaultValue={state.email}
           required
           autoComplete="off"
           aria-invalid={invalid}
