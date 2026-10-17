@@ -1,7 +1,7 @@
 # 007 — Organization dashboard: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** Not started
+**Build status:** In progress
 
 ## T01 — `006`'s preview checks, carried over
 
@@ -18,7 +18,7 @@
 
 ## T02 — The database package and its schema
 
-**Status:** Todo
+**Status:** In progress (its CI job runs on the first push)
 **Blocked by:** none
 **Covers:** FR-001 to FR-005, C-01, C-03, AC-03 to AC-06, AC-08, D-01 to
 D-04, D-06
@@ -33,7 +33,7 @@ CI.
 
 - [ ] `supabase test db` passes AC-03 to AC-06 and AC-08 locally and in CI,
       and `supabase db advisors` reports no error.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T03 — Staging and production
 
