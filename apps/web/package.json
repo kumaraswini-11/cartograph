@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "sample": "node scripts/sample.ts",
+    "clerk:check": "node --env-file=.env.local scripts/clerk-check.ts",
     "og-image": "node scripts/og-image.ts"
   },
   "dependencies": {
@@ -33,6 +34,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@clerk/backend": "catalog:",
     "@fontsource-variable/inter": "catalog:",
     "@tanstack/devtools-vite": "catalog:",
     "@tanstack/react-devtools": "catalog:",

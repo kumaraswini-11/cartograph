@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from "./routes/__root"
 import { Route as IndexRouteImport } from "./routes/index"
 import { Route as SignedInRouteImport } from "./routes/_signed-in"
 import { Route as SignedInDashboardRouteImport } from "./routes/_signed-in/dashboard"
+import { Route as SignedInOrganizationRouteImport } from "./routes/_signed-in/organization"
 import { Route as SampleIndexRouteImport } from "./routes/sample.index"
 import { Route as SampleNameRouteImport } from "./routes/sample.$name"
 import { Route as SignInSplatRouteImport } from "./routes/sign-in.$"
@@ -28,6 +29,11 @@ const SignedInRoute = SignedInRouteImport.update({
 const SignedInDashboardRoute = SignedInDashboardRouteImport.update({
   id: "/dashboard",
   path: "/dashboard",
+  getParentRoute: () => SignedInRoute,
+} as any)
+const SignedInOrganizationRoute = SignedInOrganizationRouteImport.update({
+  id: "/organization",
+  path: "/organization",
   getParentRoute: () => SignedInRoute,
 } as any)
 const SampleIndexRoute = SampleIndexRouteImport.update({
@@ -49,6 +55,7 @@ const SignInSplatRoute = SignInSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/dashboard": typeof SignedInDashboardRoute
+  "/organization": typeof SignedInOrganizationRoute
   "/sample/$name": typeof SampleNameRoute
   "/sign-in/$": typeof SignInSplatRoute
   "/sample/": typeof SampleIndexRoute
@@ -56,6 +63,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/dashboard": typeof SignedInDashboardRoute
+  "/organization": typeof SignedInOrganizationRoute
   "/sample/$name": typeof SampleNameRoute
   "/sign-in/$": typeof SignInSplatRoute
   "/sample": typeof SampleIndexRoute
@@ -65,20 +73,34 @@ export interface FileRoutesById {
   "/": typeof IndexRoute
   "/_signed-in": typeof SignedInRouteWithChildren
   "/_signed-in/dashboard": typeof SignedInDashboardRoute
+  "/_signed-in/organization": typeof SignedInOrganizationRoute
   "/sample/$name": typeof SampleNameRoute
   "/sign-in/$": typeof SignInSplatRoute
   "/sample/": typeof SampleIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/" | "/dashboard" | "/sample/$name" | "/sign-in/$" | "/sample/"
+  fullPaths:
+    | "/"
+    | "/dashboard"
+    | "/organization"
+    | "/sample/$name"
+    | "/sign-in/$"
+    | "/sample/"
   fileRoutesByTo: FileRoutesByTo
-  to: "/" | "/dashboard" | "/sample/$name" | "/sign-in/$" | "/sample"
+  to:
+    | "/"
+    | "/dashboard"
+    | "/organization"
+    | "/sample/$name"
+    | "/sign-in/$"
+    | "/sample"
   id:
     | "__root__"
     | "/"
     | "/_signed-in"
     | "/_signed-in/dashboard"
+    | "/_signed-in/organization"
     | "/sample/$name"
     | "/sign-in/$"
     | "/sample/"
@@ -115,6 +137,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof SignedInDashboardRouteImport
       parentRoute: typeof SignedInRoute
     }
+    "/_signed-in/organization": {
+      id: "/_signed-in/organization"
+      path: "/organization"
+      fullPath: "/organization"
+      preLoaderRoute: typeof SignedInOrganizationRouteImport
+      parentRoute: typeof SignedInRoute
+    }
     "/sample/": {
       id: "/sample/"
       path: "/sample"
@@ -141,10 +170,12 @@ declare module "@tanstack/react-router" {
 
 interface SignedInRouteChildren {
   SignedInDashboardRoute: typeof SignedInDashboardRoute
+  SignedInOrganizationRoute: typeof SignedInOrganizationRoute
 }
 
 const SignedInRouteChildren: SignedInRouteChildren = {
   SignedInDashboardRoute: SignedInDashboardRoute,
+  SignedInOrganizationRoute: SignedInOrganizationRoute,
 }
 
 const SignedInRouteWithChildren = SignedInRoute._addFileChildren(

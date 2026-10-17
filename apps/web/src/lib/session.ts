@@ -10,9 +10,13 @@ export type CurrentOrganization = {
   admin: boolean
 }
 
-export type Session =
-  | { signedIn: false }
-  | { signedIn: true; userId: string; organization: CurrentOrganization }
+export type SignedInSession = {
+  signedIn: true
+  userId: string
+  organization: CurrentOrganization
+}
+
+export type Session = { signedIn: false } | SignedInSession
 
 /** The parts of Clerk's auth object a session is read from. */
 export type AuthClaims = {
@@ -23,8 +27,9 @@ export type AuthClaims = {
   sessionClaims?: { org_name?: string } | null
 }
 
-/** The admin role, Clerk's default (FR-009). */
+/** The two roles, Clerk's defaults (FR-009): an admin manages members. */
 export const ADMIN_ROLE = "org:admin"
+export const MEMBER_ROLE = "org:member"
 
 /**
  * The session from the token's claims. A session with no organization

@@ -38,6 +38,7 @@ the risks below), and one finding changed the spec.
 | `apps/web/src/routes/_signed-in/dashboard.tsx`                   | `/dashboard`, where every sign-in lands (FR-002): the current organization in the first paint (FR-011), the switcher (FR-006) and, for an admin, the invitation form (FR-007). `007` fills the rest. |
 | `apps/web/src/routes/sign-in.$.tsx`                              | `/sign-in`: Clerk's `<SignIn />`, which also signs up and accepts an invitation's ticket (C-02, FR-008); afterwards, `/dashboard`.                                                                   |
 | `apps/web/src/lib/invitations.functions.ts`, `.server.ts`        | `inviteMember({ email })`: checks the token's admin claim itself (a route guard doesn't protect a server function), then creates the invitation with `/sign-in` as its redirect (D-06).              |
+| `apps/web/src/routes/_signed-in/organization.tsx`                | `/organization`, where the switcher's "Manage" goes: an admin's invitation form, or for a member, that only an admin invites (D-06).                                                                 |
 | `apps/web/src/components/organization/`                          | The switcher over a fallback of the same size (D-05), and the invitation form (shadcn `Field`, `Input`, `Button`).                                                                                   |
 | `apps/web/src/components/account/account-header.tsx`             | The signed-in pages' header: the app's name, the theme and Clerk's account button over a fallback of its size.                                                                                       |
 | `apps/web/src/lib/storage.ts`                                    | `storageClient(getToken)`: the one way to make a Supabase client, its `accessToken` the Clerk token (FR-013, C-03, C-04). No table, no query (C-05).                                                 |
@@ -159,7 +160,10 @@ tasks name which they need:
 - **Supabase:** a project, with Clerk added as a third-party provider, and
   its own sign-up turned off, so Clerk is the only way in (C-03).
 - **Configuration:** the four variables in `apps/web/.env.local`, and in
-  Vercel for preview and production.
+  Vercel for preview and production. Previews take the development
+  instance's keys and production the production instance's: an invitation
+  leads to the deployment that sent it (D-06), and a production instance
+  accepts redirects only to its own domain, not to a preview's address.
 
 ## Testing
 

@@ -48,7 +48,7 @@ paint.
 
 ## T03 — Switching and inviting
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T02
 **Covers:** FR-006 to FR-009, the spec's edge cases, AC-02, AC-06, AC-08
 
@@ -58,11 +58,11 @@ that organization; the `clerk:check` script (D-09).
 
 **Done when:**
 
-- [ ] An invitation to a second account lands it in that organization, and
-      an expired one says it no longer applies.
-- [ ] `clerk:check` shows the claim change on a switch and the default
+- [x] An invitation to a second account lands it in that organization, and
+      a revoked one says it no longer applies.
+- [x] `clerk:check` shows the claim change on a switch and the default
       roles only.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T04 — Storage carries the token
 
