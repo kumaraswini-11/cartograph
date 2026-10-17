@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { storageClient } from "./storage"
+import { NO_TOKEN, storageClient } from "./storage"
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
 
 /** Every request the client makes, by its headers; nothing leaves the test. */
 function recordRequests() {
@@ -48,7 +51,23 @@ describe("the storage client (spec 006, FR-013, AC-09)", () => {
     ])
   })
 
+  it("sends nothing without a token, rather than ask as no one (C-04)", async () => {
+    const seen = recordRequests()
+    // Supabase's realtime part warns of the missing token as it starts.
+    vi.spyOn(console, "warn").mockImplementation(() => {})
+    // A failed read is retried with backoff; fake time runs through it.
+    vi.useFakeTimers()
+    const pending = Promise.resolve(
+      storageClient(access(null)).from("anything").select()
+    )
+    await vi.runAllTimersAsync()
+    const result = await pending
+    vi.useRealTimers()
+    expect(result.error?.message).toContain(NO_TOKEN)
+    expect(seen).toHaveLength(0)
+  })
+
   it("has no sign-in of its own: one session system (C-03)", () => {
-    expect(() => storageClient(access(null)).auth.getSession()).toThrow()
+    expect(() => storageClient(access("token")).auth.getSession()).toThrow()
   })
 })

@@ -57,6 +57,9 @@ async function roles(): Promise<Array<string>> {
   const response = await fetch("https://api.clerk.com/v1/organization_roles", {
     headers: { Authorization: `Bearer ${secretKey}` },
   })
+  if (!response.ok) {
+    throw new Error(`organization_roles: ${await response.text()}`)
+  }
   const body = await response.json()
   return (body.data as Array<{ key: string }>).map((r) => r.key).sort()
 }

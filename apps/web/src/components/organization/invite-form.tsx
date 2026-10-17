@@ -49,13 +49,14 @@ export function InviteForm({ organization }: { organization: string }) {
           required
           autoComplete="off"
           aria-invalid={invalid}
-          aria-describedby={`${id}-help`}
+          // The refusal is read with the field, not only announced once.
+          aria-describedby={invalid ? `${id}-help ${id}-error` : `${id}-help`}
         />
         <FieldDescription id={`${id}-help`}>
           They&apos;ll get an email inviting them into {organization} as a
           member.
         </FieldDescription>
-        {invalid && <FieldError>{state.error}</FieldError>}
+        {invalid && <FieldError id={`${id}-error`}>{state.error}</FieldError>}
       </Field>
       <Button type="submit" disabled={pending} className="self-start">
         {pending && <Spinner />}
