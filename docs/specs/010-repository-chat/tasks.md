@@ -1,12 +1,14 @@
 # 010 — Repository chat: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** Todo
+**Build status:** Built; the browser checks are carried into the next
+phase (see T06)
 
 ## T01 — The checks carried from 009
 
-**Status:** Todo; the browser rows wait for Gemini's quota (midnight
-Pacific time), the production rows for the owner's sign-in
+**Status:** Carried into the next phase, still the owner's: `009`'s
+browser rows, then every `009` row on production with its carried `008`,
+`007` and `006` checks
 **Blocked by:** none
 **Covers:** `009` AC-01, AC-03, AC-04, AC-06, AC-08, AC-09 locally, then
 every `009` row on production with `009` T01's carried `008`, `007` and
@@ -71,8 +73,8 @@ the CSRF filter widened.
 
 ## T05 — The Chat tab
 
-**Status:** Built and tested; the browser checks and the `interface-review`
-skill are the owner's
+**Status:** Built and tested; its browser checks and the `interface-review`
+skill are carried (T06)
 **Blocked by:** T04
 **Covers:** FR-004, FR-008, FR-009, FR-011, FR-012, C-02, AC-01, AC-06,
 AC-09, D-09
@@ -92,7 +94,18 @@ the registry first; the conversation's state for the page's life.
 
 ## T06 — Acceptance
 
-**Status:** Todo
+**Status:** Carried into the next phase, by the owner's decision on
+2026-10-18: the PR is raised with the test rows passing and the browser
+rows still to check. Chat runs on `gemini-3.5-flash-lite`, with its own
+free quota, so they needn't wait for 3.6 Flash's reset.
+
+| Row                                      | How it's checked | State                                                    |
+| ---------------------------------------- | ---------------- | -------------------------------------------------------- |
+| AC-02, AC-03, AC-04, AC-05, AC-07, AC-08 | test             | Pass                                                     |
+| AC-01, AC-06, AC-09                      | browser, local   | Carried: three questions in the Chat tab, signed in      |
+| T05's `interface-review`                 | the owner        | Carried: `/interface-review` in Claude Code, not a route |
+| Every row on production                  | browser          | Carried, after merge, with T01                           |
+
 **Blocked by:** T02 to T05
 **Covers:** AC-01 to AC-09
 

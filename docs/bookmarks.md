@@ -40,6 +40,9 @@ comes from the shadcn registry first (AGENTS.md: Interface).
 - [UI Skills](https://www.ui-skills.com/): design-engineering skills for accessibility, motion, frontend craft and interface quality.
 - [GTC design tokens](https://buninux.com/design-tokens): a design-token naming convention, with its taxonomy and architecture.
 - [UI/UX Showcase](https://uiuxshowcase.com/): web design inspiration, design resources and AI tools.
+- [UI Discovery](https://uidiscovery.com/): UI inspiration from thousands of real websites, iOS apps and UI sections, with their palettes and fonts, and prompts for coding agents.
+- [Logo Domains](https://logo.domains/): free SVG logos of popular brands, to search, copy as SVG or download as PNG.
+- [Design.com](https://www.design.com/): AI design platform for logos, websites, business cards, social posts and presentations.
 
 ### Other tools
 
