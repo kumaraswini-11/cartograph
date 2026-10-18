@@ -26,6 +26,20 @@ const config = defineConfig(({ command }) => {
   }
   return {
     resolve: { tsconfigPaths: true },
+    // The Chat tab loads lazily (spec 010, plan D-09), so the dev server's
+    // first scan never reaches its dependencies. Found on first use, they
+    // were bundled again against a second copy of React, and its hooks
+    // failed ("Invalid hook call"). Listed here, they're bundled at start,
+    // with the page's React. Dev only: a build has no optimizer.
+    optimizeDeps: {
+      include: [
+        "@ai-sdk/react",
+        "ai",
+        // The scroller's package belongs to the UI package, so it's
+        // reached through it.
+        "@workspace/ui > @shadcn/react/message-scroller",
+      ],
+    },
     // The parser's oxc packages load a native binary for the platform they
     // run on, which a bundle can't hold: the server build leaves them as
     // imports, and Nitro copies them into its output (traceDeps, below).
