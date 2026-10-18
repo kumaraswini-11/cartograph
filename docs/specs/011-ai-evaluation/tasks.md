@@ -38,7 +38,7 @@ archive file; the analysis; the rules that pick subjects and derive facts;
 
 ## T03 — The scores
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** FR-003 to FR-005, C-01, AC-02, AC-07, AC-08, D-05
 
@@ -47,8 +47,8 @@ an empty output.
 
 **Done when:**
 
-- [ ] Tests pass for AC-02, AC-07, AC-08 and an empty output.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests pass for AC-02, AC-07, AC-08 and an empty output.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T04 — Running the cases
 

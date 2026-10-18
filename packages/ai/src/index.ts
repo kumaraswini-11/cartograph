@@ -44,6 +44,7 @@ export type {
 } from "./explain.ts"
 export {
   looksLikePath,
+  namedPaths,
   pathIndex,
   resolvePath,
   ungroundedPaths,
