@@ -13,11 +13,13 @@ import { KEPT_QUESTIONS } from "./limits.ts"
 export function recentText<TMessage extends UIMessage>(
   messages: ReadonlyArray<TMessage>
 ): Array<TMessage> {
+  // Text first, then the limit: a reply with no text (declined, limited)
+  // takes no place an earlier question and answer could have.
   return messages
-    .slice(-(KEPT_QUESTIONS * 2 + 1))
     .map((message) => ({
       ...message,
       parts: message.parts.filter((part) => part.type === "text"),
     }))
     .filter((message) => message.parts.length > 0)
+    .slice(-(KEPT_QUESTIONS * 2 + 1))
 }

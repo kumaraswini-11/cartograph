@@ -212,7 +212,8 @@ export function Reply({ message }: { message: ChatMessage }) {
 }
 
 /**
- * The question box: Enter asks, Shift+Enter starts a new line. Labelled
+ * The question box: Enter asks, Shift+Enter starts a new line, and Enter
+ * while composing characters only confirms them. Labelled
  * for screen readers; asking waits while an answer is on its way.
  */
 function QuestionBox({
@@ -254,7 +255,13 @@ function QuestionBox({
           placeholder="What breaks if a file changes?"
           onChange={(event) => setText(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
+            // Enter while an input method is composing (Japanese, Chinese,
+            // Korean) confirms the characters; it never sends.
+            if (
+              event.key === "Enter" &&
+              !event.shiftKey &&
+              !event.nativeEvent.isComposing
+            ) {
               event.preventDefault()
               ask()
             }
