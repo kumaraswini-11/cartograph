@@ -13,13 +13,20 @@ getServerEnv()
 
 export default createServerEntry({
   async fetch(request, opts) {
+    let response: Response
     try {
-      return await handler.fetch(request, opts)
+      response = await handler.fetch(request, opts)
     } catch (error) {
-      // An error the app didn't answer is answered here, by Start, outside
-      // the request middleware: the security headers go on that response
-      // too (spec 012, FR-004). Start's catch, kept as it advises.
-      return withSecurityHeaders(handleStartError(error), newNonce())
+      // An error nothing answered: Start's own response, as it advises.
+      response = handleStartError(error)
     }
+    // Start makes some responses after the request middleware has finished:
+    // a thrown Response (a redirect), a server function's failure, in the
+    // form its browser half reads, or the error above. Those get the
+    // security headers here (spec 012, FR-004); the middleware's own carry
+    // them already, with the nonce the page was rendered with.
+    return response.headers.has("X-Content-Type-Options")
+      ? response
+      : withSecurityHeaders(response, newNonce())
   },
 })

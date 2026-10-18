@@ -32,6 +32,7 @@ import {
 } from "@workspace/graph"
 import type { BoxMap, Layout, MapEdge, Selection } from "@workspace/graph"
 import { fileName } from "@workspace/parser/paths"
+import { EmptyState } from "@workspace/ui/components/empty-state"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
 import { ButtonGroup } from "@workspace/ui/components/shadcn-ui/button-group"
 
@@ -40,6 +41,7 @@ import { useMapState } from "@/components/map/map-state"
 import { BoxView, PanelView } from "@/components/map/map-boxes"
 import type { BoxElement, PanelElement } from "@/components/map/map-boxes"
 import { MapPlaceholder } from "@/components/map/map-view"
+import { reportBrowserError } from "@/lib/telemetry.browser"
 import type { LayoutReply, LayoutRequest } from "@/components/map/layout.worker"
 
 const ELEMENT_TYPES = { box: BoxView, panel: PanelView }
@@ -101,14 +103,17 @@ type LaidOut = { layout: Layout; open: ReadonlySet<string> }
  * after that, the last one stays drawn while the next is made, and a
  * layout overtaken by a newer request is dropped. It's drawn in a
  * transition, so React renders the map in slices rather than one long task.
+ * A worker that fails (its script doesn't load, the layout throws, a reply
+ * can't be read) is reported and said, never left loading.
  */
 function useLayout(
   boxMap: BoxMap,
   edges: ReadonlyArray<MapEdge>,
   open: ReadonlySet<string>,
   pinned: string | undefined
-): LaidOut | null {
+): { laidOut: LaidOut | null; failed: boolean } {
   const [laidOut, setLaidOut] = useState<LaidOut | null>(null)
+  const [failed, setFailed] = useState(false)
   const worker = useRef<Worker | null>(null)
   const asked = useRef({ id: 0, open })
 
@@ -122,6 +127,22 @@ function useLayout(
       const laidOutWith = asked.current.open
       startTransition(() => setLaidOut({ layout, open: laidOutWith }))
     })
+    const fail = (error: Error) => {
+      reportBrowserError(error)
+      setFailed(true)
+    }
+    made.addEventListener("error", (event) =>
+      fail(
+        event.error instanceof Error
+          ? event.error
+          : new Error(
+              `The map's layout failed: ${event.message || "no message"}`
+            )
+      )
+    )
+    made.addEventListener("messageerror", () =>
+      fail(new Error("A layout from the map's worker couldn't be read"))
+    )
     made.postMessage({ kind: "map", boxMap, edges } satisfies LayoutRequest)
     worker.current = made
     return () => {
@@ -140,7 +161,7 @@ function useLayout(
     } satisfies LayoutRequest)
   }, [boxMap, edges, open, pinned])
 
-  return laidOut
+  return { laidOut, failed }
 }
 
 function Drawing() {
@@ -156,7 +177,17 @@ function Drawing() {
     const files = boxMap.byId.get(selection.box)?.files ?? []
     return files.indexOf(file) >= PANEL_ROW_LIMIT ? file : undefined
   }, [boxMap, selection])
-  const laidOut = useLayout(boxMap, input.edges, open, pinned)
+  const { laidOut, failed } = useLayout(boxMap, input.edges, open, pinned)
+  if (failed) {
+    // The rest of the page, the detail pane and the chat, still works.
+    return (
+      <EmptyState
+        className="size-full"
+        title="The map couldn't be drawn"
+        description="Reload the page to try again. The files and their details are still in the pane."
+      />
+    )
+  }
   if (laidOut === null) return <MapPlaceholder />
   return <Picture layout={laidOut.layout} open={laidOut.open} />
 }
