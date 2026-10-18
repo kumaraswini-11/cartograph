@@ -2,6 +2,7 @@
 // detection (spec 002): each downloaded once at its pinned commit, and its
 // counts printed beside the ones its spec pins. The network belongs here,
 // never to the packages these scripts check.
+import { randomUUID } from "node:crypto"
 import { existsSync, readFileSync, renameSync, rmSync } from "node:fs"
 import { join } from "node:path"
 import process, { stdout } from "node:process"
@@ -72,9 +73,10 @@ export async function checkout(
 
   // Extracted beside the cache entry, then renamed into place: the entry
   // exists only once complete, so an interrupted run never leaves one
-  // half-filled that a later run would trust.
-  const staging = join(CACHE, `${name}.partial`)
-  rmSync(staging, { recursive: true, force: true })
+  // half-filled that a later run would trust. Each extraction stages in a
+  // folder of its own: test files run in parallel processes, and two
+  // sharing one would delete each other's half-written files.
+  const staging = join(CACHE, `${name}.partial-${randomUUID()}`)
   try {
     await extractArchive(
       repository,
@@ -84,10 +86,12 @@ export async function checkout(
         ? {}
         : { fetch: () => Promise.resolve(new Response(readFileSync(archive))) }
     )
-    renameSync(staging, directory)
+    // Another process may have finished first: its entry is as good.
+    if (!existsSync(directory)) renameSync(staging, directory)
   } catch (error) {
+    if (!existsSync(directory)) throw error
+  } finally {
     rmSync(staging, { recursive: true, force: true })
-    throw error
   }
   return directory
 }
