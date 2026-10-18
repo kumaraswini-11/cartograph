@@ -21,6 +21,11 @@ import { cn } from "@workspace/ui/lib/utils"
 `src/components/shadcn-ui` holds registry output only: adjust a component at
 the call site with `className`, never by editing its file.
 
+Beside it, `src/components` holds the shared compositions, made once the same
+one appears a third time (AGENTS.md): `EmptyState`, the page and pane
+empty, error and not-found states. `@workspace/ui/hooks/use-mobile` is
+shadcn's `useIsMobile`, which its sidebar needs.
+
 ## Adding components
 
 Check the registry first (`shadcn search`, `shadcn docs`): never hand-build a

@@ -195,8 +195,8 @@ _Avoid_: orphan, dead file, unused file
 ### Organizations
 
 **Organization**:
-A team. Every analysis belongs to one, and membership decides what a person
-can see.
+The people who share analyses. Every analysis belongs to one, and membership
+decides what a person can see.
 _Avoid_: team, workspace, tenant, account
 
 **Member**:
@@ -253,3 +253,38 @@ _Avoid_: outdated, expired
 One pinned input to the evaluation: a file or box to explain, or a question
 to ask, at a repository commit, with the facts its output must contain.
 _Avoid_: test, sample, prompt
+
+### Running it
+
+**Limit**:
+How much an organization may do in a window: start 20 runs an hour, and make
+100 model calls a day. Past it, what's asked is refused, with when it's
+allowed again; a chat answer refused for it is paused.
+_Avoid_: quota, rate limit, throttle
+
+**Model call**:
+One request to a model on an organization's behalf: an explanation's, or a
+chat question's. What the daily limit counts; a cached explanation makes
+none.
+_Avoid_: request, token, credit
+
+**Release**:
+The build that is running, named by the commit it was built from. Every
+error report carries it.
+_Avoid_: version, deploy
+
+**Error report**:
+An unhandled error, sent with its release and nothing of a repository's
+content: its name, message and where it happened.
+_Avoid_: crash, log, exception
+
+**Product event**:
+A record that something happened (a sign-in, a submitted analysis, a run
+done or failed, an explanation asked for, a chat question asked), carrying
+ids, counts and outcomes, never text.
+_Avoid_: analytics, tracking, metric
+
+**Ship criterion**:
+One of the project doc's checks that must pass before release, each checked
+as its acceptance criterion says.
+_Avoid_: requirement, definition of done

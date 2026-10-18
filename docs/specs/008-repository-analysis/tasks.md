@@ -1,7 +1,7 @@
 # 008 — Repository analysis: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** In progress
+**Build status:** Built; the deployed checks (T07) are carried into `012`'s T01
 
 ## T01 — Addresses and archives
 
@@ -149,7 +149,7 @@ D-11
 
 ## T06 — Migrations reach production on merge
 
-**Status:** Todo, the owner's, once, before this branch merges
+**Status:** Done but for the schema's diff, the owner's (2026-10-19)
 **Blocked by:** none
 **Covers:** `007` T03, `007` AC-09
 
@@ -161,10 +161,11 @@ together.
 
 **Done when:**
 
-- [ ] The secrets are in place before the merge.
-- [ ] After the merge, the workflow's run on `main` passes, and production
+- [x] The secrets are in place before the merge.
+- [x] After the merge, the workflow's run on `main` passes, and production
       answers `/rest/v1/analyses` with a permission error, not "table not
-      found".
+      found": "Database migrations" passed on the merges of #14 and #15, and
+      production answers 401 (`42501`), checked 2026-10-19.
 - [ ] Production's schema matches the migrations: `supabase db diff --linked`
       is empty (`007` AC-09), and `007`'s T03 says so.
 

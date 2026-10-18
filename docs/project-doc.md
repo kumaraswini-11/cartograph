@@ -95,7 +95,7 @@ tool drifts toward becoming a code reviewer. Both are refused.
 - The map: folders folding into boxes, expanding into files, selection,
   highlighting, and a detail panel.
 - Blast radius and dependency chain, as arithmetic over the edge list.
-- Explaining a file, with a cache that isn't optional.
+- Explaining a file or a folder's box, with a cache that isn't optional.
 - Labelling files that convention couldn't identify.
 - Coverage reporting — how much of the repository was parsed, and why the rest
   wasn't.
@@ -104,6 +104,9 @@ tool drifts toward becoming a code reviewer. Both are refused.
 - A chat panel answered by an agent that looks facts up rather than recalling
   them.
 - A check on whether the AI ever names a file that doesn't exist.
+- Running it in public: error reports and product events that carry no
+  repository content, security headers, fair limits per organization, and
+  speed and accessibility measured rather than assumed.
 
 ## Out of scope, and why
 
@@ -121,8 +124,9 @@ like an improvement. The reason matters more than the refusal.
 - **Approximate routes.** If a route's method and full path can't both be
   recovered from the syntax, show nothing. A wrong route is the same failure as
   an invented edge.
-- **Queues, containers, workers.** One deployable application. If a repository
-  is too large to parse in a request, that is a limit to state honestly, not an
+- **Queues, containers, separate worker services.** One deployable
+  application: a run happens after the response, inside it. If a repository is
+  too large to parse there, that is a limit to state honestly, not an
   architecture to build around.
 - **Languages beyond TypeScript and JavaScript.** Not because it's hard, but
   because getting one language genuinely right is the entire proposition.
@@ -216,7 +220,9 @@ place loud reporting wins over a tidy interface.
 **Measuring whether the AI output is any good.** Reading a few outputs and
 judging them fine is not measurement. The requirement is that answer quality
 becomes a number; the method for producing that number is genuinely open at the
-time of writing, and it is the least settled part of this plan.
+time of writing, and it is the least settled part of this plan. (Settled since,
+in spec 011: fixed cases pinned to commits, scored by arithmetic, and a run
+that fails when quality drops.)
 
 ## What has to be true before this ships
 

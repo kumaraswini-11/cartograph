@@ -14,9 +14,10 @@ also reads (spec 010).
 
 Graph calculations are pure functions over a list of files and a list of
 edges, with nothing to fetch and nothing to mock (`docs/project-doc.md`).
-Kept apart from the interface, the same arithmetic serves the map and the
-detail pane in the browser now, and insights and chat later (specs 005,
-010). It imports no React, no React Flow and no storage.
+Kept apart from the interface, the same arithmetic serves the map, the
+detail pane, the insights and the chat's lookups (specs 003 to 005, 010),
+and the map's layout runs in a Web Worker in the app (spec 012, D-08) with
+no change here. It imports no React, no React Flow and no storage.
 
 ## Use
 

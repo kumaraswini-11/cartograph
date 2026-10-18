@@ -7,7 +7,9 @@ the pinned ones, so any change that moves a number is caught.
 
 ## Why a separate package
 
-The parser's and detection's golden scripts both need it. One package keeps
+The parser's and detection's golden scripts both need it, and so does the
+evaluation (`@workspace/evals`), which checks its pinned repositories out
+the same way. One package keeps
 one copy (AGENTS.md: shared code goes in a package once a second package
 needs it), and keeps the network out of the parser, which must never touch
 it (spec 001, C-01).
@@ -26,10 +28,15 @@ repository, into `.cache/` beside this file, which git ignores. With
 `{ archive }`, `checkout` unpacks GitHub's archive of the commit from a
 file instead, with no network, as `@workspace/evals` does (spec 011).
 
+`runGolden` runs a golden script's repositories in turn and reports each,
+`timed` measures a step, and `compareList` compares a list of names as
+`compareCounts` compares counts.
+
 ## Status
 
-Internal and dev-only: other packages list it under `devDependencies`, and
-nothing the app runs imports it.
+Internal, and never part of the app: the parser and detection list it under
+`devDependencies`, for their golden scripts; `@workspace/evals` under
+`dependencies`, as `pnpm eval` runs it. Nothing the app runs imports it.
 
 ## Docs
 
