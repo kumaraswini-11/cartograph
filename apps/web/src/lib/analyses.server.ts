@@ -1,7 +1,7 @@
 import "@tanstack/react-start/server-only"
 
 import { readAnalysis } from "@workspace/database"
-import type { AnalysisDetail } from "@workspace/database"
+import type { AnalysisDetail, RunDetail } from "@workspace/database"
 import { repositoryFrom } from "@workspace/github/address"
 import type { MapInput } from "@workspace/graph"
 
@@ -73,6 +73,18 @@ export async function rerun(analysisId: string): Promise<void> {
       runAnalysis({ runId, repository: analysis.repository }, runDeps(writer))
     )
   }
+}
+
+/**
+ * An analysis's latest run alone, with no stored map (spec 008, plan
+ * D-11): what a page checks when it starts following, to know whether it
+ * missed anything. Null with no run, or no such analysis for the member.
+ */
+export async function latestRunOf(
+  analysisId: string
+): Promise<RunDetail | null> {
+  const analysis = await readAnalysis(await requestStorage(), analysisId)
+  return analysis?.latestRun ?? null
 }
 
 /**

@@ -1,5 +1,4 @@
 import { Link, createFileRoute, notFound } from "@tanstack/react-router"
-import { z } from "zod"
 
 import { STAGES, analysisTopic } from "@workspace/database"
 import type { RunDetail } from "@workspace/database"
@@ -12,8 +11,9 @@ import { RunProgress } from "@/components/analysis/run-progress"
 import { ChatProvider } from "@/components/map/chat"
 import { ExplanationsProvider } from "@/components/map/explanations"
 import { MapShell } from "@/components/map/map-shell"
-import { getAnalysis } from "@/lib/analyses.functions"
-import { useStages, withChange } from "@/lib/progress"
+import { getAnalysis, getLatestRun } from "@/lib/analyses.functions"
+import { isUuid } from "@/lib/ids"
+import { sameRun, useStages, withChange } from "@/lib/progress"
 import { pageTitle } from "@/lib/site"
 
 /**
@@ -28,7 +28,7 @@ export const Route = createFileRoute(
   "/_identity/_signed-in/analyses/$analysisId"
 )({
   loader: async ({ params }) => {
-    if (!z.uuid().safeParse(params.analysisId).success) throw notFound()
+    if (!isUuid(params.analysisId)) throw notFound()
     const page = await getAnalysis({
       data: { analysisId: params.analysisId },
     })
@@ -55,7 +55,14 @@ function AnalysisRoute() {
   const changes = useStages(
     analysisTopic(session.organization.id, analysis.id),
     // A first run arriving reads storage again for the whole run.
-    (id) => id === analysis.id && analysis.latestRun !== null
+    (id) => id === analysis.id && analysis.latestRun !== null,
+    // On joining, the map is read again only if the run has moved since
+    // the page was read: the map is the page's largest data (plan D-11).
+    async () =>
+      sameRun(
+        await getLatestRun({ data: { analysisId: analysis.id } }),
+        analysis.latestRun
+      )
   )
   const run =
     analysis.latestRun === null

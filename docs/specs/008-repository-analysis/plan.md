@@ -303,6 +303,13 @@ runs` calls `realtime.send` once for each topic (D-09).
   - After hydration it subscribes. Once the channel reports `SUBSCRIBED`, it
     reloads the route's data once, which catches any change made between the
     render and the subscription.
+  - Amended 2026-10-18 (spec 010's audit): the analysis page first asks for
+    its latest run alone (`getLatestRun`, one small row) and reloads only if
+    that run differs from the one it rendered (`sameRun`). Before, every
+    visit read the stored map twice, once on the server and once on joining,
+    and sent it to the browser twice; a large repository's map is its
+    largest data. If the check fails, it reloads, as before. The dashboard's
+    list is small and still reloads.
   - When a push says the run is done or failed, the route reloads, so the
     stored map or the failure comes from storage too (C-02).
   - Nothing renders differently in the browser, so no `ClientOnly` is

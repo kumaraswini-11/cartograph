@@ -2,7 +2,12 @@ import { createServerFn } from "@tanstack/react-start"
 import { listAnalyses } from "@workspace/database"
 import { z } from "zod"
 
-import { analysisPage, rerun, submitAddress } from "./analyses.server"
+import {
+  analysisPage,
+  latestRunOf,
+  rerun,
+  submitAddress,
+} from "./analyses.server"
 import { requestStorage } from "./storage.server"
 
 /**
@@ -31,6 +36,11 @@ export const submitRepository = createServerFn({ method: "POST" })
 export const rerunAnalysis = createServerFn({ method: "POST" })
   .validator(z.object({ analysisId: z.uuid() }))
   .handler(({ data }) => rerun(data.analysisId))
+
+/** An analysis's latest run, without its map: a cheap check (plan D-11). */
+export const getLatestRun = createServerFn({ method: "GET" })
+  .validator(z.object({ analysisId: z.uuid() }))
+  .handler(({ data }) => latestRunOf(data.analysisId))
 
 /**
  * An analysis's page: the analysis with its latest run, and its stored map

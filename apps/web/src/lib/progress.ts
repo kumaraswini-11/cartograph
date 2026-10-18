@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { useAuth } from "@clerk/tanstack-react-start"
 import { useRouter } from "@tanstack/react-router"
 
-import type { RunSummary, StageChange } from "@workspace/database"
+import type { RunDetail, RunSummary, StageChange } from "@workspace/database"
 
 /** A run's two ends: after either, what the page shows is storage's again. */
 const ENDS: ReadonlySet<string> = new Set(["done", "failed"])
@@ -14,6 +14,8 @@ const ENDS: ReadonlySet<string> = new Set(["done", "failed"])
  *
  * - once the channel is joined, and again after any rejoin, the route's
  *   data is read again, catching what changed while nothing listened;
+ *   with `isCurrent`, only when it says something did, so a page whose
+ *   data is large (an analysis's map) isn't read twice for nothing;
  * - when a run ends, or a change names an analysis the page doesn't have
  *   (`isKnown`), the route reads storage again, for the map, the failure
  *   or the new analysis;
@@ -28,7 +30,9 @@ const ENDS: ReadonlySet<string> = new Set(["done", "failed"])
  */
 export function useStages(
   topic: string,
-  isKnown: (analysisId: string) => boolean
+  isKnown: (analysisId: string) => boolean,
+  /** Whether storage still holds what the page was read with. */
+  isCurrent?: () => Promise<boolean>
 ): ReadonlyMap<string, StageChange> {
   const { getToken, isLoaded, isSignedIn } = useAuth()
   const router = useRouter()
@@ -40,8 +44,10 @@ export function useStages(
   // Read at each change, so a new render's answer is used without
   // joining the channel again.
   const known = useRef(isKnown)
+  const current = useRef(isCurrent)
   useEffect(() => {
     known.current = isKnown
+    current.current = isCurrent
   })
 
   useEffect(() => {
@@ -76,7 +82,20 @@ export function useStages(
           },
           topic,
           {
-            onJoined: reread,
+            onJoined: () => {
+              const check = current.current
+              if (check === undefined) return reread()
+              // Read again only if the cheap check says something moved;
+              // if it can't say, read again, as without it.
+              check().then(
+                (unchanged) => {
+                  if (!unchanged && !left) reread()
+                },
+                () => {
+                  if (!left) reread()
+                }
+              )
+            },
             onStage: (change) => {
               hold(new Map(held.current).set(change.analysisId, change))
               if (ENDS.has(change.stage) || !known.current(change.analysisId)) {
@@ -97,6 +116,20 @@ export function useStages(
   }, [topic, getToken, router, isLoaded, isSignedIn])
 
   return changes
+}
+
+/**
+ * Whether two reads saw the same run, as far as a page shows it: the same
+ * run, in the same state, as stale, and finished at the same time.
+ */
+export function sameRun(a: RunDetail | null, b: RunDetail | null): boolean {
+  if (a === null || b === null) return a === b
+  return (
+    a.id === b.id &&
+    a.state === b.state &&
+    a.stale === b.stale &&
+    a.finishedAt === b.finishedAt
+  )
 }
 
 /**
