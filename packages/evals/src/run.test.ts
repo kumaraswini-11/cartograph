@@ -106,7 +106,9 @@ describe("running the cases (spec 011, plan D-06)", () => {
     })
   }, 60_000)
 
-  it("scores a question that names an invented file at zero groundedness", async () => {
+  // Plan D-05: the chat refused both answers, so no invented file was
+  // shown; the refusal covers nothing, so it still costs.
+  it("scores a refused answer as grounded, covering nothing", async () => {
     if (express === undefined) throw new Error("no pin")
     const analysis = await analyse(express)
     const c = first("question", "blast_radius")
@@ -124,7 +126,7 @@ describe("running the cases (spec 011, plan D-06)", () => {
     })
     expect(result).toMatchObject({
       ended: "ungrounded",
-      scores: { grounded: 0, coverage: 0, lookupUse: 0 },
+      scores: { grounded: 1, coverage: 0, lookupUse: 0 },
     })
   }, 60_000)
 

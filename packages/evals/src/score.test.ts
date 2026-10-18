@@ -87,4 +87,31 @@ describe("the scores (spec 011, C-01)", () => {
       )
     ).toEqual({ grounded: 1, coverage: 1, lookupUse: 1 })
   })
+
+  // Plan D-05: the safety net worked, so no invented file was shown, but
+  // nothing was answered either.
+  it("scores a refused answer as grounded, covering nothing", () => {
+    expect(
+      scoreCase(
+        {
+          kind: "answer",
+          text: null,
+          refused: true,
+          declined: false,
+          shown: new Set(),
+        },
+        facts,
+        false,
+        index
+      )
+    ).toEqual({ grounded: 1, coverage: 0, lookupUse: 0 })
+    expect(
+      scoreCase(
+        { kind: "explanation", text: null, refused: true },
+        facts,
+        false,
+        index
+      )
+    ).toEqual({ grounded: 1, coverage: 0 })
+  })
 })

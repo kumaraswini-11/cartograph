@@ -96,8 +96,19 @@ None in storage. The evaluation's records are files in the repository:
   - Lookup use, questions only: an answer passes if every file it names was
     returned by a lookup it showed (AC-08). Score: passing answers over all.
   - A declined question's facts are covered if it was declined; an output
-    that's empty, refused or limited scores zero on every score (the spec's
-    edge case).
+    that's empty, limited or unavailable scores zero on every score (the
+    spec's edge case).
+  - **A refused answer counts as members see it** (owner's decision,
+    2026-10-18, after the second run): when the model names a file that
+    doesn't exist twice, `009` and `010` refuse the answer (FR-006), so no
+    invented file is shown. It scores grounded, but zero coverage and zero
+    lookup use, so the slip still lowers the scores and the regression gate
+    catches a worse model; the report counts refusals per kind.
+    - Considered: counting it as ungrounded, the model's attempt before the
+      safety net. Rejected: with `GROUNDED_REQUIRED` at 100%, one slip in
+      28 fails the run, so runs fail on model noise alone.
+    - Considered: that strict count with a 95% gate. Rejected: it lets a
+      model that invents files now and then through.
 - **D-06 The code that ships, with the cache left out.** Explanations read
   no cache and write none; the source comes from the unpacked archive,
   checked against the parser's hash as in production.

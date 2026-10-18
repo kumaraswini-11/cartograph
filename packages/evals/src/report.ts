@@ -15,6 +15,8 @@ export const RERUN_VARIANCE = 0.03
 /** One group's scores, each 0 to 1; lookup use only where questions are. */
 export type Scores = {
   cases: number
+  /** Answers refused for naming a file that doesn't exist (plan D-05). */
+  refused: number
   grounded: number
   coverage: number
   lookupUse?: number
@@ -44,6 +46,7 @@ export function scoresOf(results: ReadonlyArray<CaseResult>): Scores {
   const questions = results.filter((r) => r.scores.lookupUse !== undefined)
   return {
     cases: results.length,
+    refused: results.filter((r) => r.ended === "ungrounded").length,
     grounded: mean(results.map((r) => r.scores.grounded)),
     coverage: mean(results.map((r) => r.scores.coverage)),
     ...(questions.length > 0 && {
@@ -118,7 +121,7 @@ const signed = (value: number) =>
 /** A run's scores as printed (AC-01): per kind, then overall. */
 export function scoreLines(run: RunRecord): Array<string> {
   const row = (label: string, s: Scores) =>
-    `${label.padEnd(10)} ${String(s.cases).padStart(3)} cases  ${SCORES.map(
+    `${label.padEnd(10)} ${String(s.cases).padStart(3)} cases, ${String(s.refused)} refused  ${SCORES.map(
       (score) =>
         `${NAMES[score]} ${s[score] === undefined ? "  -  " : percent(s[score]).padStart(6)}`
     ).join("  ")}`

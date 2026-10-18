@@ -85,6 +85,7 @@ function pathsIn(value: unknown, facts: AnalysisFacts, into: Set<string>) {
 const explained = (outcome: ExplainOutcome): Output => ({
   kind: "explanation",
   text: outcome.status === "explained" ? outcome.explanation.body : null,
+  refused: outcome.status === "ungrounded",
 })
 
 /** A question asked as a member asks it, read from the chat's stream. */
@@ -127,6 +128,7 @@ async function ask(
     output: {
       kind: "answer",
       text: ended === "answered" ? text : null,
+      refused: ended === "ungrounded",
       declined: ended === "declined",
       shown,
     },

@@ -39,11 +39,17 @@ describe("the report (spec 011, FR-006)", () => {
   it("scores per kind and overall, lookup use for questions only", () => {
     expect(good.overall).toEqual({
       cases: 4,
+      refused: 0,
       grounded: 1,
       coverage: 0.75,
       lookupUse: 1,
     })
-    expect(good.byKind.file).toEqual({ cases: 1, grounded: 1, coverage: 1 })
+    expect(good.byKind.file).toEqual({
+      cases: 1,
+      refused: 0,
+      grounded: 1,
+      coverage: 1,
+    })
     expect(good.byKind.question?.coverage).toBe(0.75)
     const lines = scoreLines(good)
     expect(lines[0]).toContain("gemini-3.6-flash, prompt 1")

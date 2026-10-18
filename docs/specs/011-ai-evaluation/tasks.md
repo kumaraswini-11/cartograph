@@ -82,7 +82,14 @@ source from the archive, paced per model, traced to `cartograph-evals`;
 
 ## T06 — Acceptance
 
-**Status:** Todo
+**Status:** In progress. The first accepted run is
+`runs/2026-10-18T14-17-49-948Z.json`: groundedness 100%, fact coverage
+92.9%, lookup use 95.0%, one refusal. The second run, for AC-03 and AC-05,
+waits for 3.6 Flash's daily requests to reset (midnight Pacific time). Two
+earlier runs taught two fixes, both made: a busy model (HTTP 503) is tried
+again (plan D-09), and a refused answer counts as members see it (D-05); the
+first run, scored by the outage, was discarded, and the second re-scored by
+D-05's rule before it was accepted.
 **Blocked by:** T02 to T05
 **Covers:** AC-01 to AC-08
 
