@@ -248,6 +248,9 @@ function QuestionBox({
           value={text}
           maxLength={QUESTION_MAX_LENGTH}
           rows={2}
+          // It grows with the question up to about six lines, then scrolls
+          // inside, so the conversation and the Ask button stay in view.
+          className="max-h-32 overflow-y-auto"
           placeholder="What breaks if a file changes?"
           onChange={(event) => setText(event.target.value)}
           onKeyDown={(event) => {
