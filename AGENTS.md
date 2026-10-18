@@ -54,8 +54,10 @@ by its package name, never by a relative path into it.
 ### Packages
 
 - A package does one job and knows nothing it doesn't need: the parser and the
-  graph arithmetic import no framework, interface or storage code, so they can
-  be reused and tested on their own.
+  graph arithmetic import no web framework, interface or storage code, so they
+  can be reused and tested on their own. (The graph reads
+  `@workspace/frameworks`'s taxonomy: that's Cartograph's own data, not a web
+  framework.)
 - Shared code goes in a package once a second package needs it; code one
   package needs stays in that package.
 - One source for each concern: a rule, a type or a helper is defined once and
@@ -90,9 +92,12 @@ by its package name, never by a relative path into it.
 - Pages render on the server by default. Set a route's `ssr` to `false` or
   `'data-only'` only when it can't render on the server, and say why in a
   comment.
-- Read and change data through `createServerFn`; keep secrets and
-  server-only code behind `createServerOnlyFn`. Code is isomorphic by default,
-  so nothing server-only goes in a module the browser also loads.
+- Read and change data through `createServerFn`. Server-only code and
+  secrets live in `*.server.ts` files, which begin with
+  `import "@tanstack/react-start/server-only"`, so the build refuses them in
+  the browser; `createServerOnlyFn` is for one function that must never run
+  there. Code is isomorphic by default, so nothing server-only goes in a
+  module the browser also loads.
 - Load the matching TanStack skill first (`pnpm exec intent list`), for
   example `start-core/server-functions`, `start-core/execution-model` or
   `router-core/data-loading`.
@@ -113,6 +118,68 @@ by its package name, never by a relative path into it.
   `interface-review` before a change is done; for speed, `core-web-vitals` and
   `performance`.
 
+## How work is done
+
+### Decisions
+
+- **Each decision as a table:** the item, what the repository has now
+  (checked, not remembered), what the official docs say (the deciding
+  sentence, quoted), and the recommendation; then the decisions that are the
+  owner's, and the sources.
+- **Decide on merit:** what's best for the project and its future scope.
+  Effort is information, never the reason, and "it's already built" isn't a
+  reason either.
+- **Ask only the owner's calls.** Where official docs or established practice
+  settle a choice, take it and say so. Money, accounts, domains, product scope
+  and the owner's own time are theirs to decide; put the recommended option
+  first.
+- **Write every decision down as it's made:** every option considered, what
+  each costs and needs, why one won, and how to change it later. One that's
+  hard to reverse gets an ADR in `docs/adr/` (context, decision,
+  alternatives considered, consequences, sources); a smaller one goes in the
+  spec's `plan.md` Decisions.
+- **Name and cite.** A practice a document relies on ([YAGNI](https://martinfowler.com/bliki/Yagni.html),
+  the rule of three, …) is named and linked where it's used, and every link
+  is checked before it's committed.
+
+### Versions and tooling
+
+- Runtimes and packages stay on their LTS or actively supported stable line,
+  checked on the project's own release schedule; type packages match the
+  runtime's major. A dependency added or upgraded takes the newest release
+  at least two weeks old, through the catalog.
+- No editor-specific configuration (`.vscode/`, `.idea/`): settings live in
+  tool-neutral files (Prettier, ESLint, `package.json` scripts), and CI
+  enforces them. Each developer's editor setup is their own.
+- For the interface's behaviour (keyboard, focus, ARIA, open and closed
+  states), [Base UI](https://base-ui.com)'s docs are the source, as shadcn's
+  components are built on it; for look, variants and composition, shadcn's.
+
+### Commits, branches and pull requests
+
+- **One identity.** Commits carry the owner's identity alone, from the
+  repository's local git config, and nothing else is credited: no co-author or
+  tool attribution lines in commits or pull request text, and no bot pull
+  requests (dependency updates are the owner's own commits). A new clone sets
+  `user.name`, `user.email` and its push account
+  (`credential.https://github.com.username`) locally before its first commit.
+- **Branches.** Work happens on the branch that's checked out; a new one only
+  when the owner asks, named for the work (`feat/`, `fix/`, `docs/`,
+  `chore/`), never for a spec's number.
+- **Audit, then commit.** Nothing is committed until the diff is reviewed and
+  the checks below pass. Commit the paths you mean, in logical pieces, never
+  with `git add -A`.
+- **Within a spec:** a task, its audit, its commit, then the next, without a
+  pause between; stop only for the owner's calls, or for a check that needs
+  them (a sign-in, a quota).
+- **Pull request text** (a title and description, saying who it's written
+  for) once a spec is complete, every task and check included; while anything
+  is open, say what's left instead.
+- **Merging.** Into `main` locally, with `git merge --ff-only` after rebasing
+  the branch on `main`, then a push; never GitHub's merge button, which makes
+  GitHub the committer. `main`'s required check is already passed by the
+  commits fast-forwarded.
+
 ## Before saying a change is done
 
 Run the same checks as CI, from the repository root:
@@ -121,6 +188,15 @@ Run the same checks as CI, from the repository root:
 pnpm format:check
 pnpm turbo run lint typecheck test build
 pnpm audit
+```
+
+A change to the database also runs CI's database checks, with Docker Desktop
+running:
+
+```bash
+pnpm --filter @workspace/database db:test      # the pgTAP tests
+pnpm --filter @workspace/database db:advisors  # Supabase's security and performance checks
+pnpm --filter @workspace/database db:types     # then no diff in src/database.types.ts
 ```
 
 <!-- BEGIN:turborepo-agent-rules -->

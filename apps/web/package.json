@@ -12,7 +12,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "clerk:check": "node --env-file=.env.local scripts/clerk-check.ts",
-    "og-image": "node scripts/og-image.ts"
+    "og-image": "node scripts/og-image.ts",
+    "browser-check": "node scripts/browser-check.ts",
+    "lighthouse-summary": "node scripts/lighthouse-summary.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "catalog:",
