@@ -8,3 +8,14 @@ export { coverage, grounded, lookupUse, scoreCase } from "./score.ts"
 export type { CaseScores, Output } from "./score.ts"
 export { runCase, runCases } from "./run.ts"
 export type { CaseResult, RunDeps } from "./run.ts"
+export {
+  GROUNDED_REQUIRED,
+  RERUN_VARIANCE,
+  SCORE_REGRESSION_TOLERANCE,
+  comparisonLines,
+  failures,
+  recordOf,
+  scoreLines,
+} from "./report.ts"
+export type { RunRecord, Scores } from "./report.ts"
+export { acceptRun, acceptedRun, readRun, storeRun } from "./runs.ts"

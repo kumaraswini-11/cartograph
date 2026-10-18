@@ -8,6 +8,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "eval": "node --env-file=../../apps/web/.env.local src/cli.ts",
     "cases": "node src/cases-cli.ts",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",

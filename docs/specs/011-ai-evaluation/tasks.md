@@ -68,7 +68,7 @@ source from the archive, paced per model, traced to `cartograph-evals`;
 
 ## T05 — The report, the runs and the gate
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T04
 **Covers:** FR-006 to FR-009, AC-01, AC-04, AC-05, D-02, D-10
 
@@ -77,8 +77,8 @@ source from the archive, paced per model, traced to `cartograph-evals`;
 
 **Done when:**
 
-- [ ] Tests pass for AC-04 and AC-05.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests pass for AC-04 and AC-05.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T06 — Acceptance
 
