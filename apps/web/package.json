@@ -23,6 +23,7 @@
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
     "@tanstack/react-virtual": "catalog:",
+    "@vercel/speed-insights": "catalog:",
     "@workspace/ai": "workspace:*",
     "@workspace/database": "workspace:*",
     "@workspace/frameworks": "workspace:*",

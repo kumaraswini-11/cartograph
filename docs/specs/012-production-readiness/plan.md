@@ -181,6 +181,29 @@ organization and start time.
   AC-13, and Speed Insights for the 75th percentile of real page loads.
   `008`'s map-page findings (total blocking time about 1.1 s, small tap
   targets on mobile) are the first to fix.
+  - **What the profile showed** (the map of `t3-oss/create-t3-app`, 182
+    files, at Lighthouse's 4× CPU slowdown): dagre's layout was 612 ms of
+    the map's 981, in one call during the render; React's hydrating and
+    drawing 1,368 ms; Clerk's script and components about 1,300 ms, which
+    a signed-in page needs, as it keeps the session's token fresh.
+  - **The layout runs in a Web Worker** (`layout.worker.ts`): sent the map
+    once, then asked for each layout by its open panels and pinned file.
+    The last layout stays drawn while the next is made, a layout overtaken
+    by a newer request is dropped, and the map waits in its placeholder
+    until the first arrives. Opening a panel no longer blocks the page
+    either. Considered: laying it out on the server with the page; rejected,
+    as it adds the layout to every page's response time, and a panel
+    opened later still needs it in the browser.
+  - **The map is drawn in a transition**, so React renders it in slices.
+  - **The first view fits no smaller than 0.6**, where a box (40 px at
+    least) keeps WCAG 2.2's 24 px target (2.5.8): a map too large for the
+    view at that zoom opens at its centre, to be panned or zoomed out. A
+    refit for a panel (`003` FR-011) still zooms out as far as it must.
+  - **Speed Insights** (`@vercel/speed-insights/react`) in the root
+    document, by route pattern (`/analyses/$analysisId`), so every
+    analysis's map is one page. Its script and its reports are on this
+    origin; neither it nor the script Vercel serves uses a cookie or the
+    browser's storage (read, 2026-10-19).
 - **D-09 Known limits of this release.** The sign-in provider's
   development instance adds about 2 s of redirects on a first visit and
   shows a "Development mode" badge, Lighthouse's one contrast failure; both

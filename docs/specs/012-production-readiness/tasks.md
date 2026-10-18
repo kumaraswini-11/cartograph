@@ -90,7 +90,7 @@ what it finds.
 
 ## T06 — Speed
 
-**Status:** Todo
+**Status:** Done (Speed Insights' data: the owner turns it on, on Vercel)
 **Blocked by:** none
 **Covers:** FR-009, C-04, AC-13, D-08
 
@@ -98,10 +98,26 @@ what it finds.
 
 **Done when:**
 
-- [ ] Locally, Lighthouse on the production build shows the map page's
+- [x] Locally, Lighthouse on the production build shows the map page's
       total blocking time and tap targets improved, measured before and
-      after.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+      after: Lighthouse 13.4.1's mobile profile in a signed-in window, the
+      map of `t3-oss/create-t3-app` (182 files), median of the runs that
+      finished without a DevTools timeout (this machine is often busy, so
+      single runs vary widely: 486 ms to 6 s after, 743 ms to 2.1 s before).
+
+      | | Before | After |
+      | --- | --- | --- |
+      | Total blocking time (median) | 1,093 ms | 771 ms |
+      | Largest contentful paint | 1.56 s | 1.56 s |
+      | Layout shift | 0 | 0 |
+      | Targets under 24 px | 21 boxes | 1, partly under the zoom buttons |
+      | The map's own main-thread time (CPU profile, 4×) | 981 ms | 161 ms |
+
+      Left for AC-13 on production: Clerk's script and React's hydrating
+      (most of what remains), and the one box the zoom buttons can cover
+      while the map is panned.
+
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T07 — The README
 

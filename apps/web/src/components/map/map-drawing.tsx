@@ -3,6 +3,7 @@
 import "@xyflow/react/dist/base.css"
 
 import {
+  startTransition,
   useCallback,
   useEffect,
   useMemo,
@@ -20,16 +21,16 @@ import {
 import type { Edge } from "@xyflow/react"
 import { MaximizeIcon, MinusIcon, PlusIcon } from "lucide-react"
 import {
+  BOX_MIN_HEIGHT,
   PANEL_ROW_LIMIT,
   edgeEndKey,
   fullStrength,
   isBoxStrong,
   isRowStrong,
-  layoutMap,
   panelCounts,
   roleCounts,
 } from "@workspace/graph"
-import type { Selection } from "@workspace/graph"
+import type { BoxMap, Layout, MapEdge, Selection } from "@workspace/graph"
 import { fileName } from "@workspace/parser/paths"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
 import { ButtonGroup } from "@workspace/ui/components/shadcn-ui/button-group"
@@ -38,11 +39,22 @@ import { useMapData } from "@/components/map/map-data"
 import { useMapState } from "@/components/map/map-state"
 import { BoxView, PanelView } from "@/components/map/map-boxes"
 import type { BoxElement, PanelElement } from "@/components/map/map-boxes"
+import { MapPlaceholder } from "@/components/map/map-view"
+import type { LayoutReply, LayoutRequest } from "@/components/map/layout.worker"
 
 const ELEMENT_TYPES = { box: BoxView, panel: PanelView }
 const ANIMATION_MS = 200
 /** Room around what a fit shows, as a share of the view. */
 const FIT_PADDING = 0.1
+
+/**
+ * The least zoom the first view fits to: a box's button, at least
+ * `BOX_MIN_HEIGHT` tall, stays 24 px, WCAG 2.2's least target (2.5.8, spec
+ * 012, FR-010). A map too large for the view at that zoom opens at its
+ * centre, to be panned or zoomed out; a refit for a panel (FR-011) still
+ * zooms out as far as the panel needs.
+ */
+const FIRST_FIT_MIN_ZOOM = 24 / BOX_MIN_HEIGHT
 
 /**
  * React Flow turns pointer events off for a node that's neither draggable
@@ -80,14 +92,61 @@ function useReducedMotion(): boolean {
   )
 }
 
+/** A layout, and the open panels it was laid out with. */
+type LaidOut = { layout: Layout; open: ReadonlySet<string> }
+
+/**
+ * The map's layout, made in a worker (spec 012, FR-009, plan D-08): dagre
+ * was most of the map page's blocking time. Null until the first arrives;
+ * after that, the last one stays drawn while the next is made, and a
+ * layout overtaken by a newer request is dropped. It's drawn in a
+ * transition, so React renders the map in slices rather than one long task.
+ */
+function useLayout(
+  boxMap: BoxMap,
+  edges: ReadonlyArray<MapEdge>,
+  open: ReadonlySet<string>,
+  pinned: string | undefined
+): LaidOut | null {
+  const [laidOut, setLaidOut] = useState<LaidOut | null>(null)
+  const worker = useRef<Worker | null>(null)
+  const asked = useRef({ id: 0, open })
+
+  useEffect(() => {
+    const made = new Worker(new URL("./layout.worker.ts", import.meta.url), {
+      type: "module",
+    })
+    made.addEventListener("message", (event: MessageEvent<LayoutReply>) => {
+      const { id, layout } = event.data
+      if (id !== asked.current.id) return
+      const laidOutWith = asked.current.open
+      startTransition(() => setLaidOut({ layout, open: laidOutWith }))
+    })
+    made.postMessage({ kind: "map", boxMap, edges } satisfies LayoutRequest)
+    worker.current = made
+    return () => {
+      made.terminate()
+      worker.current = null
+    }
+  }, [boxMap, edges])
+
+  useEffect(() => {
+    asked.current = { id: asked.current.id + 1, open }
+    worker.current?.postMessage({
+      kind: "layout",
+      id: asked.current.id,
+      open,
+      pinned,
+    } satisfies LayoutRequest)
+  }, [boxMap, edges, open, pinned])
+
+  return laidOut
+}
+
 function Drawing() {
-  const { input, boxMap, tierOf } = useMapData()
-  const { state, actions } = useMapState()
-  const { selection, role, open } = state
-  const flow = useReactFlow()
-  const wrapper = useRef<HTMLDivElement>(null)
-  const reducedMotion = useReducedMotion()
-  const duration = reducedMotion ? 0 : ANIMATION_MS
+  const { input, boxMap } = useMapData()
+  const { state } = useMapState()
+  const { selection, open } = state
 
   // A selected file past its panel's row limit is listed anyway (spec 004,
   // FR-012); any other selection leaves the layout as it is.
@@ -97,10 +156,30 @@ function Drawing() {
     const files = boxMap.byId.get(selection.box)?.files ?? []
     return files.indexOf(file) >= PANEL_ROW_LIMIT ? file : undefined
   }, [boxMap, selection])
-  const layout = useMemo(
-    () => layoutMap(boxMap, input.edges, open, pinned),
-    [boxMap, input.edges, open, pinned]
-  )
+  const laidOut = useLayout(boxMap, input.edges, open, pinned)
+  if (laidOut === null) return <MapPlaceholder />
+  return <Picture layout={laidOut.layout} open={laidOut.open} />
+}
+
+/**
+ * A layout drawn. `open` is the panels it was laid out with, which may lag
+ * the state's while the next layout is made: what's drawn is what's read.
+ */
+function Picture({
+  layout,
+  open,
+}: {
+  layout: Layout
+  open: ReadonlySet<string>
+}) {
+  const { input, boxMap, tierOf } = useMapData()
+  const { state, actions } = useMapState()
+  const { selection, role } = state
+  const flow = useReactFlow()
+  const wrapper = useRef<HTMLDivElement>(null)
+  const reducedMotion = useReducedMotion()
+  const duration = reducedMotion ? 0 : ANIMATION_MS
+
   const strength = useMemo(
     () => (selection ? fullStrength(layout, selection) : null),
     [layout, selection]
@@ -329,7 +408,11 @@ function Drawing() {
         edges={edges}
         nodeTypes={ELEMENT_TYPES}
         fitView
-        fitViewOptions={{ padding: FIT_PADDING, maxZoom: 1 }}
+        fitViewOptions={{
+          padding: FIT_PADDING,
+          maxZoom: 1,
+          minZoom: FIRST_FIT_MIN_ZOOM,
+        }}
         minZoom={0.1}
         nodesDraggable={false}
         nodesConnectable={false}
