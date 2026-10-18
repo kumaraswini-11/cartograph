@@ -93,7 +93,7 @@ what it finds.
 
 ## T07 — The README
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** the owner's request (2026-10-18)
 
@@ -102,7 +102,7 @@ what it finds.
 
 **Done when:**
 
-- [ ] Format passes.
+- [x] Format passes.
 
 ## T08 — Acceptance and the ship criteria
 

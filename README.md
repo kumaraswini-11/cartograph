@@ -28,10 +28,11 @@ Paste a public TypeScript or JavaScript repository and get a map of it: folders
 as boxes, imports as lines between them. Every box and every line comes from
 parsing the real code; nothing on the map is guessed.
 
-Cartograph is being built as a monorepo. This repository holds the web
-app, its UI package, the parser, framework detection and the map so far.
+Cartograph is a monorepo: one web app and the packages it's built from: the
+parser, framework detection, the map's arithmetic, storage, GitHub access,
+the model and its tracing, and the evaluation of what the model writes.
 
-## Features (planned)
+## Features
 
 - **Real parsing**: imports, re-exports, dynamic imports and `require()` become edges. An import that can't be resolved is reported with a reason, never guessed.
 - **Coverage report**: how much of the repository was parsed, and why the rest wasn't.
@@ -41,6 +42,13 @@ app, its UI package, the parser, framework detection and the map so far.
 - **Repository chat**: an agent that looks facts up and shows its lookups before it answers. Graph walks are done by the same arithmetic that draws the map, never by the model.
 - **Organizations**: analyses belong to an organization; access is enforced by Postgres row-level security, not by application code.
 - **Live progress** while a repository is being parsed.
+- **Measured AI quality**: `pnpm eval` scores explanations and chat answers on fixed cases pinned to commits (groundedness, fact coverage, lookup use) by arithmetic, and fails on a regression.
+
+## What's next
+
+The last spec, [012 production readiness](docs/specs/012-production-readiness/spec.md), is in progress: error reporting, product events, security headers, per-organization limits, and measured speed and accessibility.
+
+After that, the ideas worth weighing are kept in [docs/future-improvements.md](docs/future-improvements.md): how Cartograph compares with other repository tools, and what could come next (opening a repository from its GitHub address, giving AI assistants the map's facts, exporting the map, plans and pricing), each checked against the rule that nothing on the map is guessed.
 
 ## Stack
 
@@ -160,6 +168,7 @@ repository.
 - [Specs](docs/specs/README.md): the thirteen capabilities, in build order
 - [Decision records](docs/adr/): hard-to-reverse choices, with the trade-off behind each
 - [AGENTS.md](AGENTS.md): how to work in this repository: the rules for packages, the interface, rendering, performance and accessibility
+- [Future improvements](docs/future-improvements.md): ideas for later, and how Cartograph compares with other repository tools
 - [Bookmarks](docs/bookmarks.md): useful external references, and the installed agent skills
 
 ## License
