@@ -1,4 +1,11 @@
-import { startTransition, useEffect, useRef, useState } from "react"
+import {
+  Suspense,
+  lazy,
+  startTransition,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 import { XIcon } from "lucide-react"
 import { ROOT_LABEL } from "@workspace/graph"
 import type { Direction, Selection } from "@workspace/graph"
@@ -26,12 +33,20 @@ import { useMapState } from "@/components/map/map-state"
 
 type Tab = "structure" | "explanation"
 
+// The chat's code loads when its tab is first opened, not with the page:
+// it starts closed, and the map's first load is what matters (spec 012).
+const ChatPanel = lazy(() => import("@/components/chat/chat-panel"))
+
+/** The pane's two views (spec 010, FR-011): the details, or the chat. */
+type View = "details" | "chat"
+
 /**
  * The detail pane (spec 003, FR-001, FR-002; spec 004): built on shadcn's
  * Sidebar, always open, so always a column and never an overlay. With
  * nothing selected it's the repository's summary (C-01); with a selection,
  * its Structure and Explanation tabs. The pane holds the open tab, so a new
- * selection keeps it (FR-009).
+ * selection keeps it (FR-009). Beside the details is the chat (spec 010,
+ * FR-011), so a question stays open while its answer's paths move the map.
  */
 export function DetailPane() {
   const scroller = useRef<HTMLDivElement>(null)
@@ -42,6 +57,7 @@ export function DetailPane() {
     state: { selection },
     actions,
   } = useMapState()
+  const [view, setView] = useState<View>("details")
   const [tab, setTab] = useState<Tab>("structure")
   // Blast radius or dependency chain, kept like the tab (plan D-04).
   const [reach, setReach] = useState<Direction | null>(null)
@@ -70,31 +86,52 @@ export function DetailPane() {
       }
     >
       <h2 id="pane-heading" className="sr-only">
-        Details
+        Details and chat
       </h2>
-      <SidebarContent ref={scroller}>
-        <PaneScrollContext value={scroller}>
-          {selection === null ? (
-            <Summary />
-          ) : (
-            <SelectionDetail
-              selection={selection}
-              tab={tab}
-              onTab={setTab}
-              reach={reach}
-              onReach={(direction) =>
-                // A long walk takes more than a frame to list: a transition,
-                // like the map state's, so the click paints first.
-                startTransition(() => setReach(direction))
-              }
-              onClear={() => {
-                focusSummary.current = true
-                actions.select(null)
-              }}
-            />
-          )}
-        </PaneScrollContext>
-      </SidebarContent>
+      <Tabs
+        value={view}
+        onValueChange={(value: View) => setView(value)}
+        className="min-h-0 flex-1 gap-0"
+      >
+        <SidebarGroup className="border-b">
+          <TabsList className="w-full">
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="chat">Chat</TabsTrigger>
+          </TabsList>
+        </SidebarGroup>
+        <TabsContent value="details" className="flex min-h-0 flex-col">
+          <SidebarContent ref={scroller}>
+            <PaneScrollContext value={scroller}>
+              {selection === null ? (
+                <Summary />
+              ) : (
+                <SelectionDetail
+                  selection={selection}
+                  tab={tab}
+                  onTab={setTab}
+                  reach={reach}
+                  onReach={(direction) =>
+                    // A long walk takes more than a frame to list: a
+                    // transition, like the map state's, so the click paints
+                    // first.
+                    startTransition(() => setReach(direction))
+                  }
+                  onClear={() => {
+                    focusSummary.current = true
+                    actions.select(null)
+                  }}
+                />
+              )}
+            </PaneScrollContext>
+          </SidebarContent>
+        </TabsContent>
+        <TabsContent value="chat" className="flex min-h-0 flex-col">
+          {/* The tab's own space while its code loads, so nothing shifts. */}
+          <Suspense fallback={<div className="min-h-0 flex-1" />}>
+            <ChatPanel />
+          </Suspense>
+        </TabsContent>
+      </Tabs>
     </Sidebar>
   )
 }

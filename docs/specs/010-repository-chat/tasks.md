@@ -71,7 +71,8 @@ the CSRF filter widened.
 
 ## T05 — The Chat tab
 
-**Status:** Todo
+**Status:** Built and tested; the browser checks and the `interface-review`
+skill are the owner's
 **Blocked by:** T04
 **Covers:** FR-004, FR-008, FR-009, FR-011, FR-012, C-02, AC-01, AC-06,
 AC-09, D-09
@@ -87,7 +88,7 @@ the registry first; the conversation's state for the page's life.
       path moves the map (AC-09).
 - [ ] The `interface-review` skill's checks pass, with nothing shifting as
       lookups and the answer arrive.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T06 — Acceptance
 

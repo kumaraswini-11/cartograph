@@ -111,7 +111,7 @@ function KindList({
 }
 
 /** An insight's fixed sentence, each file in it a button (FR-006, FR-009). */
-function Sentence({ insight }: { insight: Insight }) {
+export function Sentence({ insight }: { insight: Insight }) {
   return sentenceOf(insight).map((part, i) =>
     typeof part === "string" ? (
       <Fragment key={i}>{part}</Fragment>

@@ -1,6 +1,7 @@
 // A file's source as a model is handed it (spec 009, C-05; spec 010, C-03):
 // shortened to its first lines, and fenced off as data. One source, so an
-// explanation and a chat lookup show the model the same thing.
+// explanation and a chat lookup show the model the same thing. Pure, so
+// browser-safe at `@workspace/ai/source`.
 
 /** The most lines of a file sent to the model (spec 009). */
 export const EXPLAIN_MAX_LINES = 500

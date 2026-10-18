@@ -7,6 +7,7 @@ import {
   safeValidateUIMessages,
 } from "ai"
 import type {
+  InferUITools,
   LanguageModel,
   ModelMessage,
   UIMessage,
@@ -17,7 +18,8 @@ import type {
 import { isLimited } from "../explain.ts"
 import { ungroundedPaths } from "../grounding.ts"
 import { MODEL_OPTIONS } from "../model.ts"
-import { KEPT_QUESTIONS, MAX_LOOKUPS, MAX_STEPS } from "./limits.ts"
+import { recentText } from "./history.ts"
+import { MAX_LOOKUPS, MAX_STEPS } from "./limits.ts"
 import { lookupTools } from "./lookups.ts"
 import type { ChatAnalysis, LookupCount, LookupDeps } from "./lookups.ts"
 import { LIMIT_NOTE, chatSystemPrompt, ungroundedNote } from "./prompt.ts"
@@ -33,27 +35,19 @@ export type ChatOutcome =
   /** The model's request limit is reached (plan D-06). */
   | { kind: "limited" }
 
+/** The lookups as the browser knows them: each part typed by its tool. */
+export type ChatTools = InferUITools<ReturnType<typeof lookupTools>>
+
 /** A chat message as the stream and the browser know it. */
-export type ChatMessage = UIMessage<never, { outcome: ChatOutcome }>
+export type ChatMessage = UIMessage<never, { outcome: ChatOutcome }, ChatTools>
 
 export type ChatDeps = LookupDeps & { model: LanguageModel }
 
-/**
- * The conversation sent with a question (plan D-06): the last
- * `KEPT_QUESTIONS` questions and answers, and the new question, as text
- * only. Earlier lookups aren't sent: the answers stand for them, and the
- * model looks up again what it needs.
- */
+/** The conversation sent to the model with a question (plan D-06). */
 export function keptHistory(
   messages: ReadonlyArray<ChatMessage>
 ): Promise<Array<ModelMessage>> {
-  const kept = messages.slice(-(KEPT_QUESTIONS * 2 + 1)).map((message) => ({
-    role: message.role,
-    parts: message.parts.filter((part) => part.type === "text"),
-  }))
-  return convertToModelMessages(
-    kept.filter((message) => message.parts.length > 0)
-  )
+  return convertToModelMessages(recentText(messages))
 }
 
 /**

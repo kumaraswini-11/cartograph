@@ -9,7 +9,9 @@
     ".": "./src/index.ts",
     "./grounding": "./src/grounding.ts",
     "./text": "./src/text.ts",
-    "./chat/limits": "./src/chat/limits.ts"
+    "./chat/limits": "./src/chat/limits.ts",
+    "./chat/history": "./src/chat/history.ts",
+    "./source": "./src/source.ts"
   },
   "scripts": {
     "lint": "eslint",

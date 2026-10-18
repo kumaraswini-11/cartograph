@@ -125,12 +125,32 @@ and `009`'s `explanations` cache with the member's token.
 - **D-08 Every lookup is its own traced run** inside the question's, as well
   as the AI SDK's telemetry for each model call (FR-010), so AC-03 can be
   tested against a recording `traced` without LangSmith.
-- **D-09 The pane's tabs.** shadcn's `Tabs`, already installed, holds
-  Details and Chat. Chat's pieces come from the registry first; AI
-  Elements (Vercel's shadcn registry for chat interfaces) is weighed at T05
-  and recorded either way. Lookups are shown open, never collapsed by
-  default (C-02); a long list shows its first rows and "show all".
-  - The answer reuses `009`'s `Body`, imported, not copied.
+- **D-09 The pane's tabs, from the registry.** shadcn's `Tabs`, already
+  installed, holds Details and Chat. Chat is built from AI Elements, now part
+  of shadcn/ui, with its Base UI variant, each chosen for a need the spec
+  names:
+  - `trace`: one line per lookup, running, failed or done, with what it
+    returned below it. `defaultOpen`, so it's never collapsed by default
+    (C-02); its shimmer stops under reduced motion.
+  - `message-scroller`: follows the live edge as lookups arrive, never
+    pulls back a reader who has scrolled up, and announces each new row
+    once (`role="log"`, held by `aria-busy` while a turn streams).
+  - `message` and `bubble`: the question on one side, the reply on the
+    other.
+  - `input-group`: the question box (AI Elements' Prompt Input is only a
+    recipe of it), with a label its docs' example lacks.
+  - Considered and left out: Tool and Subagent (recipes over `trace`, not
+    components); Code Block (no lookup shows code, and it brings a
+    highlighter); Prompt Input's attachments and model menus (none here,
+    one fixed model); Suggestion, Stack Trace, Terminal, Test Results,
+    Reasoning, Sources and the rest (nothing the spec shows).
+  - A lookup's result renders with the pane's own pieces (`FileList`,
+    `FactList`, `WalkLevels`, `RoutesTable`, the insight `Sentence`),
+    and the answer with `009`'s text (`ExplanationText`), so the same
+    data looks the same in both tabs.
+  - The Chat tab's code loads when the tab is first opened, behind a
+    placeholder of the same size: the analysis page's first download fell
+    from 91 kB to 61 kB gzipped, and the chat's 31 kB comes on demand.
 
 ## Thresholds
 

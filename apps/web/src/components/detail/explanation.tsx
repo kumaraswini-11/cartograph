@@ -1,11 +1,6 @@
-import { useMemo } from "react"
 import { SparklesIcon } from "lucide-react"
 import { useServerFn } from "@tanstack/react-start"
 
-import { pathIndex, resolvePath } from "@workspace/ai/grounding"
-import type { PathIndex } from "@workspace/ai/grounding"
-import { parseExplanation } from "@workspace/ai/text"
-import type { Run } from "@workspace/ai/text"
 import { EmptyState } from "@workspace/ui/components/empty-state"
 import {
   Alert,
@@ -16,8 +11,7 @@ import { Badge } from "@workspace/ui/components/shadcn-ui/badge"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
 import { Skeleton } from "@workspace/ui/components/shadcn-ui/skeleton"
 
-import { useFileButton } from "@/components/detail/use-file-button"
-import { useMapData } from "@/components/map/map-data"
+import { ExplanationText } from "@/components/detail/explanation-text"
 import { subjectKey, useExplanations } from "@/components/map/explanations"
 import { explain, staleness } from "@/lib/explanations.functions"
 import type {
@@ -78,11 +72,6 @@ function staleNotice(
  */
 export function ExplanationTab({ subject }: { subject: ExplainSubject }) {
   const explanations = useExplanations()
-  const { input } = useMapData()
-  const index = useMemo(
-    () => pathIndex(input.files.map((file) => file.path)),
-    [input]
-  )
   const ask = useServerFn(explain)
   const check = useServerFn(staleness)
 
@@ -143,7 +132,7 @@ export function ExplanationTab({ subject }: { subject: ExplainSubject }) {
           <Skeleton className="h-4 w-4/5 motion-reduce:animate-none" />
         </div>
       ) : result?.status === "explained" ? (
-        <Body text={result.explanation.body} index={index} />
+        <ExplanationText text={result.explanation.body} />
       ) : (
         <>
           {result !== undefined && (
@@ -187,60 +176,5 @@ export function ExplanationTab({ subject }: { subject: ExplainSubject }) {
         </Alert>
       )}
     </section>
-  )
-}
-
-/** The explanation's blocks: paragraphs and bullets of runs (FR-007). */
-function Body({ text, index }: { text: string; index: PathIndex }) {
-  return (
-    <div className="flex flex-col gap-2 text-sm leading-relaxed">
-      {parseExplanation(text).map((block, b) =>
-        block.kind === "paragraph" ? (
-          <p key={b}>
-            <Runs runs={block.runs} index={index} />
-          </p>
-        ) : (
-          <ul key={b} className="flex list-disc flex-col gap-1 ps-5">
-            {block.items.map((runs, i) => (
-              <li key={i}>
-                <Runs runs={runs} index={index} />
-              </li>
-            ))}
-          </ul>
-        )
-      )}
-    </div>
-  )
-}
-
-function Runs({ runs, index }: { runs: ReadonlyArray<Run>; index: PathIndex }) {
-  return runs.map((run, i) => {
-    if (run.kind === "bold") return <strong key={i}>{run.text}</strong>
-    if (run.kind === "text") return <span key={i}>{run.text}</span>
-    const path = resolvePath(run.text, index)
-    return path === null ? (
-      <code key={i} className="font-mono text-path break-all">
-        {run.text}
-      </code>
-    ) : (
-      <PathLink key={i} path={path} label={run.text} />
-    )
-  })
-}
-
-/**
- * A path the explanation names, as a way to that file: choosing it moves
- * the map's selection there (FR-008), as the pane's file lists do.
- */
-function PathLink({ path, label }: { path: string; label: string }) {
-  const button = useFileButton(path)
-  return (
-    <button
-      type="button"
-      {...button}
-      className="font-mono text-path break-all underline underline-offset-4 hover:text-foreground data-[marked=true]:bg-accent"
-    >
-      {label}
-    </button>
   )
 }

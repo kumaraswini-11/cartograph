@@ -182,7 +182,7 @@ export function lookupTools(
     }),
     file_details: tool({
       description:
-        "A file's role, line count, fan-in (files importing it) and fan-out (files it imports).",
+        "A file's role, whether it's an entry point, its line count, and its counts of dependents (fan-in) and dependencies (fan-out).",
       inputSchema: pathInput,
       execute: counted("file_details", ({ path }: PathInput) => {
         const file = fileDetails(input.files, resolved(path) ?? path)
@@ -192,7 +192,7 @@ export function lookupTools(
     }),
     neighbours: tool({
       description:
-        "The files a file imports, and the files that import it, one edge away.",
+        "A file's dependencies (the files it imports) and dependents (the files that import it), one edge away.",
       inputSchema: pathInput,
       execute: counted("neighbours", ({ path }: PathInput) => {
         const found = resolved(path)
@@ -234,15 +234,12 @@ export function lookupTools(
         "Unimported, heavily imported and oversized files, and import cycles.",
       inputSchema: z.object({}),
       execute: counted("insights", () => ({
-        insights: insights(input).map((insight) => {
-          const parts = sentenceOf(insight)
-          return {
-            sentence: sentenceText(parts),
-            files: parts.flatMap((part) =>
-              typeof part === "string" ? [] : [part.file]
-            ),
-          }
-        }),
+        // Whole, for the browser to render as the pane does; the model
+        // reads the sentence.
+        insights: insights(input).map((insight) => ({
+          ...insight,
+          sentence: sentenceText(sentenceOf(insight)),
+        })),
       })),
       toModelOutput: asJson,
     }),

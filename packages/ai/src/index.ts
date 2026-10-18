@@ -18,7 +18,13 @@ export {
   keptHistory,
   readChatMessages,
 } from "./chat/answer.ts"
-export type { ChatDeps, ChatMessage, ChatOutcome } from "./chat/answer.ts"
+export type {
+  ChatDeps,
+  ChatMessage,
+  ChatOutcome,
+  ChatTools,
+} from "./chat/answer.ts"
+export { recentText } from "./chat/history.ts"
 export {
   KEPT_QUESTIONS,
   MAX_LOOKUPS,
