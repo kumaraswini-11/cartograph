@@ -1,5 +1,8 @@
 import { MAX_LOOKUPS } from "./limits.ts"
 
+/** Raised with every change to the chat's prompt (spec 011, FR-006). */
+export const CHAT_PROMPT_VERSION = 1
+
 /**
  * The chat's instructions (spec 010, C-01, C-03, C-04): answer only from
  * lookups made now, never from memory; never continue a walk; anything a

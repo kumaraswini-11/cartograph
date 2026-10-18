@@ -15,7 +15,7 @@ import type {
   UIMessageStreamWriter,
 } from "ai"
 
-import { isLimited } from "../explain.ts"
+import { isLimited, isUnavailable } from "../explain.ts"
 import { ungroundedPaths } from "../grounding.ts"
 import { MODEL_OPTIONS } from "../model.ts"
 import { recentText } from "./history.ts"
@@ -34,6 +34,8 @@ export type ChatOutcome =
   | { kind: "ungrounded" }
   /** The model's request limit is reached (plan D-06). */
   | { kind: "limited" }
+  /** The model's server was busy or failed: worth asking again soon. */
+  | { kind: "unavailable" }
 
 /** The lookups as the browser knows them: each part typed by its tool. */
 export type ChatTools = InferUITools<ReturnType<typeof lookupTools>>
@@ -149,6 +151,7 @@ async function ask(
     })
   } catch (error) {
     if (isLimited(error)) return { kind: "limited" }
+    if (isUnavailable(error)) return { kind: "unavailable" }
     throw error
   }
   // FR-007: whatever the model wrote, nothing it looked up is behind it.
@@ -174,6 +177,7 @@ async function ask(
       absent = ungroundedPaths(text, analysis.paths)
     } catch (error) {
       if (isLimited(error)) return { kind: "limited" }
+      if (isUnavailable(error)) return { kind: "unavailable" }
       throw error
     }
   }

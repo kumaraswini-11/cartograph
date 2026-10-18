@@ -72,6 +72,8 @@ function outcomeNote(outcome: ChatOutcome): string | null {
       return "The answer named files that aren't in this repository, so it isn't shown. Try asking another way."
     case "limited":
       return "The model's free request limit is reached. Try again later."
+    case "unavailable":
+      return "The model is busy right now. Try again in a minute."
   }
 }
 

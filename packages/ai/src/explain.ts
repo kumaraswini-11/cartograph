@@ -165,6 +165,24 @@ export function isLimited(error: unknown): boolean {
   return false
 }
 
+/**
+ * True when the model's server was busy or failed (HTTP 408 or 5xx): worth
+ * trying again later. Google: retry only "transient errors (like 429, 408,
+ * or 5xx)", with exponential backoff (Gemini API: troubleshooting). The
+ * request limit, 429, is `isLimited`'s: on the free tier it's the day's, so
+ * waiting minutes won't lift it.
+ */
+export function isUnavailable(error: unknown): boolean {
+  if (APICallError.isInstance(error)) {
+    const status = error.statusCode
+    return status === 408 || (status !== undefined && status >= 500)
+  }
+  if (error instanceof Error && "lastError" in error) {
+    return isUnavailable(error.lastError)
+  }
+  return false
+}
+
 /** One subject to explain, whatever it is: the steps every kind shares. */
 type Subject = {
   /** The traced run's name. */

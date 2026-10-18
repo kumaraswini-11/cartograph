@@ -1,5 +1,7 @@
 import "@tanstack/react-start/server-only"
 
+import { pathIndex } from "@workspace/ai"
+import type { AnalysisFacts } from "@workspace/ai"
 import { readAnalysis, readResult } from "@workspace/database"
 import type { AnalysisDetail, StorageClient } from "@workspace/database"
 import { detection } from "@workspace/frameworks"
@@ -45,5 +47,18 @@ export async function readStoredAnalysis(
         detection.parse(stored.detection)
       ),
     },
+  }
+}
+
+/** A stored result as explaining reads it (`@workspace/ai`'s facts). */
+export function analysisFacts(
+  repository: string,
+  result: MappedResult
+): AnalysisFacts {
+  return {
+    repository,
+    input: result.input,
+    hashes: new Map(result.parsed.files.map((file) => [file.path, file.hash])),
+    paths: pathIndex(result.input.files.map((file) => file.path)),
   }
 }

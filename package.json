@@ -10,7 +10,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "turbo typecheck",
-    "test": "turbo test"
+    "test": "turbo test",
+    "eval": "pnpm --filter @workspace/evals eval"
   },
   "devDependencies": {
     "@tanstack/intent": "catalog:",

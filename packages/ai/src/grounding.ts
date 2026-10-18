@@ -68,13 +68,19 @@ export function resolvePath(text: string, index: PathIndex): string | null {
 }
 
 /**
- * Every file an explanation names that isn't in the analysis (spec 009,
- * FR-005, plan D-07). The model is asked to write paths as code; the plain
- * words are checked too, in case it doesn't. A name several files share
- * counts as found: it isn't invented, only short. Each word is looked at
- * once, so this is linear in the explanation's length.
+ * Every path a text names (spec 009, FR-005, plan D-07): what the model
+ * wrote in code, and plain words shaped like a repository path, in case it
+ * didn't. `found` holds each one the analysis has, as its file's path;
+ * `absent`, each one it doesn't. A name several files share is neither: it
+ * isn't invented, only short, and it names no one file. A real folder isn't
+ * absent either. Each word is looked at once, so this is linear in the
+ * text's length. Grounding and the evaluation's scores (spec 011) read a
+ * text this one way.
  */
-export function ungroundedPaths(text: string, index: PathIndex): Array<string> {
+export function namedPaths(
+  text: string,
+  index: PathIndex
+): { found: Array<string>; absent: Array<string> } {
   const named = new Set<string>()
   for (const block of parseExplanation(text)) {
     const lines = block.kind === "paragraph" ? [block.runs] : block.items
@@ -90,10 +96,22 @@ export function ungroundedPaths(text: string, index: PathIndex): Array<string> {
       }
     }
   }
-  return [...named].filter(
-    (name) =>
-      !index.paths.has(name) &&
-      !index.byName.has(name) &&
-      !index.folders.has(name)
-  )
+  const found = new Set<string>()
+  const absent: Array<string> = []
+  for (const name of named) {
+    const path = resolvePath(name, index)
+    if (path !== null) found.add(path)
+    else if (!index.byName.has(name) && !index.folders.has(name)) {
+      absent.push(name)
+    }
+  }
+  return { found: [...found], absent }
+}
+
+/**
+ * Every file an explanation names that isn't in the analysis (spec 009,
+ * FR-005, plan D-07): what grounding refuses.
+ */
+export function ungroundedPaths(text: string, index: PathIndex): Array<string> {
+  return namedPaths(text, index).absent
 }

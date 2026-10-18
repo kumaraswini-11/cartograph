@@ -1,6 +1,6 @@
 # 011 — AI evaluation
 
-**Status:** Draft
+**Status:** Approved
 **Milestone:** M4 Intelligence
 **Depends on:** 009-file-explanations, 010-repository-chat
 
@@ -21,6 +21,10 @@ the parts that can be checked exactly.
 
 - **FR-001** The evaluation shall run over a fixed set of cases, each pinned to
   a repository and a commit: files and boxes to explain, and questions to ask.
+  Each run holds 8 explanation cases (6 files, 2 boxes) and 20 questions, from
+  three of the golden repositories already pinned (`001`, `002`):
+  `expressjs/express`, `vercel/commerce` and
+  `lujakob/nestjs-realworld-example-app`.
 - **FR-002** Each question case shall record facts its answer must contain,
   taken from the analysis's edges (for example the files in a blast radius),
   never written by hand from memory.
@@ -41,9 +45,11 @@ the parts that can be checked exactly.
 - **FR-007** The evaluation shall run from one command and print its scores.
 - **FR-008** The evaluation shall store each run's scores, so runs can be
   compared over time.
-- **FR-009** If groundedness is below `GROUNDED_REQUIRED`, or any score falls by
-  more than `SCORE_REGRESSION_TOLERANCE` from the last accepted run, then the
-  command shall exit with a failure.
+- **FR-009** If groundedness is below `GROUNDED_REQUIRED` (100%), or any
+  overall score falls by more than `SCORE_REGRESSION_TOLERANCE` (2 percentage
+  points) from the last accepted run, then the command shall exit with a
+  failure. Scores per kind are reported, not gated: with few cases of a kind,
+  one output moves them by many points.
 
 ## Constraints
 
@@ -63,16 +69,16 @@ the parts that can be checked exactly.
 
 ## Acceptance criteria
 
-| ID    | Given / When / Then                                                                                                          | Covers         | Verified by |
-| ----- | ---------------------------------------------------------------------------------------------------------------------------- | -------------- | ----------- |
-| AC-01 | Given the case set, when the command runs, then it prints groundedness, fact coverage and lookup use, per kind and overall   | FR-006, FR-007 | terminal    |
-| AC-02 | Given an output that names a file absent from the analysis, when it's scored, then it counts against groundedness            | FR-003, C-01   | test        |
-| AC-03 | Given the same cases, model and prompt, when the command runs twice, then the scores differ by no more than `RERUN_VARIANCE` | FR-001, C-02   | terminal    |
-| AC-04 | Given a prompt change that lowers a score by more than `SCORE_REGRESSION_TOLERANCE`, when the command runs, then it fails    | FR-009         | test        |
-| AC-05 | Given two stored runs, when they're compared, then each score's change and the model and prompt versions are shown           | FR-008         | terminal    |
-| AC-06 | Given the case set, when every recorded fact is checked against its pinned analysis, then each one follows from the edges    | FR-002         | test        |
-| AC-07 | Given an output holding three of a case's four facts, when it's scored, then its fact coverage is 75%                        | FR-004         | test        |
-| AC-08 | Given a chat answer claiming a fact that no shown lookup returned, when it's scored, then it counts against lookup use       | FR-005         | test        |
+| ID    | Given / When / Then                                                                                                                             | Covers         | Verified by |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ----------- |
+| AC-01 | Given the case set, when the command runs, then it prints groundedness, fact coverage and lookup use, per kind and overall                      | FR-006, FR-007 | terminal    |
+| AC-02 | Given an output that names a file absent from the analysis, when it's scored, then it counts against groundedness                               | FR-003, C-01   | test        |
+| AC-03 | Given the same cases, model and prompt, when the command runs twice, then the overall scores differ by no more than `RERUN_VARIANCE` (3 points) | FR-001, C-02   | terminal    |
+| AC-04 | Given a prompt change that lowers a score by more than `SCORE_REGRESSION_TOLERANCE`, when the command runs, then it fails                       | FR-009         | test        |
+| AC-05 | Given two stored runs, when they're compared, then each score's change and the model and prompt versions are shown                              | FR-008         | terminal    |
+| AC-06 | Given the case set, when every recorded fact is checked against its pinned analysis, then each one follows from the edges                       | FR-002         | test        |
+| AC-07 | Given an output holding three of a case's four facts, when it's scored, then its fact coverage is 75%                                           | FR-004         | test        |
+| AC-08 | Given a chat answer claiming a fact that no shown lookup returned, when it's scored, then it counts against lookup use                          | FR-005         | test        |
 
 ## Out of scope
 
@@ -80,13 +86,20 @@ the parts that can be checked exactly.
 
 ## Open questions
 
-- [NEEDS CLARIFICATION] `GROUNDED_REQUIRED`: proposed 100%, as the ship
-  criteria in `docs/project-doc.md` require no invented file at all.
-- [NEEDS CLARIFICATION] `SCORE_REGRESSION_TOLERANCE`: proposed 2 percentage
-  points.
-- [NEEDS CLARIFICATION] `RERUN_VARIANCE`: proposed 3 percentage points.
-- [NEEDS CLARIFICATION] Is a judged score (a rubric applied by a model or a
-  person) also wanted, beyond the three arithmetic scores? The project doc
-  calls the method genuinely open.
-- [NEEDS CLARIFICATION] The case set: which repositories and commits, and how
-  many cases of each kind.
+None. Resolved 2026-10-18:
+
+- `GROUNDED_REQUIRED` = 100%, as proposed: the ship criteria in
+  `docs/project-doc.md` allow no invented file at all.
+- `SCORE_REGRESSION_TOLERANCE` = 2 percentage points and `RERUN_VARIANCE` = 3,
+  as proposed, applied to the overall scores (FR-009, AC-03). Per kind, a few
+  cases make a score jump by a whole case's share, so those are reported but
+  not gated.
+- No judged score: the three arithmetic scores only (C-01). A rubric applied
+  by a model would spend the same free quota the cases need and vary between
+  runs; one applied by a person can be added later.
+- The case set (FR-001): 8 explanation cases and 20 questions a run, from
+  `expressjs/express`, `vercel/commerce` and
+  `lujakob/nestjs-realworld-example-app`, already pinned in `001` and `002`:
+  CommonJS, Next.js with routes, and NestJS. Explanations are the bound:
+  their model's free tier allows 20 requests a day, and AC-03's two runs,
+  with retries, must fit in one.

@@ -9,6 +9,7 @@ export {
   explainFile,
   fileCacheKey,
   isLimited,
+  isUnavailable,
   filePrompt,
   systemPrompt,
 } from "./explain.ts"
@@ -32,6 +33,7 @@ export {
   MODEL_LIST_LIMIT,
 } from "./chat/limits.ts"
 export { forModel, lookupTools } from "./chat/lookups.ts"
+export { CHAT_PROMPT_VERSION } from "./chat/prompt.ts"
 export type { ChatAnalysis, LookupDeps, LookupName } from "./chat/lookups.ts"
 export type {
   Ask,
@@ -44,13 +46,22 @@ export type {
 } from "./explain.ts"
 export {
   looksLikePath,
+  namedPaths,
   pathIndex,
   resolvePath,
   ungroundedPaths,
 } from "./grounding.ts"
 export type { PathIndex } from "./grounding.ts"
 export { EXPLAIN_MAX_LINES, fenced, shortenSource } from "./source.ts"
-export { CHAT_MODEL, MODEL, MODEL_OPTIONS, languageModel } from "./model.ts"
+export { boxToExplain, fileToExplain } from "./subjects.ts"
+export type { AnalysisFacts } from "./subjects.ts"
+export {
+  CHAT_MODEL,
+  MODEL,
+  MODEL_OPTIONS,
+  languageModel,
+  paced,
+} from "./model.ts"
 export type { ModelName } from "./model.ts"
 export { INFERRED_ROLES } from "./roles.ts"
 export type { InferredRole } from "./roles.ts"
