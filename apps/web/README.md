@@ -14,13 +14,15 @@ it.
 
 From the repository root:
 
-| Command                         | What it does                                                                                         |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `pnpm dev`                      | Starts the app at <http://localhost:3000>                                                            |
-| `pnpm build`                    | Builds it: a Node.js server in `.output`, or `.vercel/output` on Vercel                              |
-| `pnpm --filter web test`        | Runs its tests (Vitest)                                                                              |
-| `pnpm --filter web og-image`    | Redraws the share image, `public/og.png`                                                             |
-| `pnpm --filter web clerk:check` | Checks the session token's claims and roles on Clerk's development instance (spec 006, AC-06, AC-08) |
+| Command                                | What it does                                                                                         |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                             | Starts the app at <http://localhost:3000>                                                            |
+| `pnpm build`                           | Builds it: a Node.js server in `.output`, or `.vercel/output` on Vercel                              |
+| `pnpm --filter web test`               | Runs its tests (Vitest)                                                                              |
+| `pnpm --filter web og-image`           | Redraws the share image, `public/og.png`                                                             |
+| `pnpm --filter web browser-check`      | Checks pages in a real browser: `console`, `axe` or `profile` (below)                                |
+| `pnpm --filter web lighthouse-summary` | Each Lighthouse report's numbers, and the median of the runs                                         |
+| `pnpm --filter web clerk:check`        | Checks the session token's claims and roles on Clerk's development instance (spec 006, AC-06, AC-08) |
 
 Configuration is checked at start: a required value that is missing, blank
 or invalid stops the app, naming each one (`src/lib/config.ts`); the values
@@ -71,6 +73,50 @@ Production readiness (spec 012):
 - **Accessibility**: `src/a11y.test.tsx` renders every page through the
   router and audits it with axe-core for WCAG 2.2 AA.
 - **Speed Insights** in Vercel builds, by route pattern.
+
+<!-- ## Checking in a real browser
+
+The tests can't see what only a laid-out page shows: what the content
+security policy blocks, contrast and target size, where the main thread's
+time goes. `browser-check` drives Edge or Chrome (or the one `BROWSER` names)
+for that, against a production build, which is the only one that sends the
+policy:
+
+```bash
+# In apps/web: build, then serve it (PORT=3100 keeps 3000 free for pnpm dev).
+pnpm build && node --env-file=.env.local .output/server/index.mjs
+
+pnpm --filter web browser-check console http://localhost:3100 / /sign-in
+pnpm --filter web browser-check axe     http://localhost:3100 / /sign-in
+pnpm --filter web browser-check profile http://localhost:3100 /
+```
+
+- **Signed-in pages** need a browser someone has signed in to. Start Chrome
+  with a debugging port and a profile of its own (any free port, and any
+  empty folder), sign in there, then add `--port`:
+
+  ```bash
+  chrome --remote-debugging-port=9341 --user-data-dir=<an empty folder> http://localhost:3100/sign-in
+  pnpm --filter web browser-check axe http://localhost:3100 /dashboard --port 9341
+  ```
+
+  The check brings its tab to the front: a tab in the background doesn't lay
+  itself out, so a map stays unfitted.
+
+- **Lighthouse** runs in that same window, so it's signed in, and keeps its
+  cookies with `--disable-storage-reset`. One run varies widely on a busy
+  machine: run a page five times and compare the medians.
+
+  ```bash
+  npx lighthouse@13.4.1 http://localhost:3100/dashboard --port=9341 --disable-storage-reset --only-categories=performance,accessibility --output=json --output-path=run-1.json
+  pnpm --filter web lighthouse-summary run-*.json
+  ```
+
+- **Build with the database you run against.** `VITE_` values are built into
+  the page: a build made with the cloud project's address, served with the
+  local database's, has its browser dial the cloud, and the policy rightly
+  blocks it. Set the same `VITE_SUPABASE_URL` and
+  `VITE_SUPABASE_PUBLISHABLE_KEY` for `pnpm build` as for the server. -->
 
 ## Status
 

@@ -3,27 +3,17 @@
 // Edge or Chrome, or the one named by BROWSER. Run it when the brand changes;
 // the PNG is committed, so builds never need a browser.
 import { spawnSync } from "node:child_process"
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { createRequire } from "node:module"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { pathToFileURL } from "node:url"
 
 import { SHARE_IMAGE } from "../src/lib/share-image.ts"
+import { findBrowser } from "./browser.ts"
 
 const OUT = join(import.meta.dirname, "..", "public", "og.png")
-const BROWSERS = [
-  process.env.BROWSER,
-  "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
-  "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-  "/usr/bin/google-chrome",
-  "/usr/bin/chromium",
-  "/usr/bin/microsoft-edge",
-]
-const browser = BROWSERS.find((b) => b !== undefined && existsSync(b))
-if (!browser) throw new Error("No Chromium browser found: set BROWSER to one.")
+const browser = findBrowser()
 
 const font = pathToFileURL(
   createRequire(import.meta.url).resolve(
