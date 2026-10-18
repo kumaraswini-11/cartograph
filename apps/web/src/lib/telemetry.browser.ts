@@ -48,7 +48,8 @@ export function startErrorReports(): void {
   if (started !== undefined) return
   const key = import.meta.env.VITE_POSTHOG_KEY
   const host = import.meta.env.VITE_POSTHOG_HOST
-  if (key === undefined || host === undefined) {
+  // Empty counts as unset, as it does on the server (src/lib/config.ts).
+  if (!key || !host) {
     started = Promise.resolve(null)
     return
   }

@@ -111,18 +111,45 @@ organization and start time.
     or later, and the repository declares Node 24.x.
 - **D-03 The policy names each source.** `'self'`, the sign-in provider's
   frontend host, its image host, Cloudflare's challenge host, the storage
-  provider's address (data and Realtime), PostHog's EU hosts and Vercel's
-  Speed Insights endpoint, each exact (C-02).
-  - The sign-in provider's components need `style-src 'unsafe-inline'`
-    (Clerk: runtime CSS-in-JS); recorded as its one exception.
-  - Clerk's newer docs list `*.protect.clerk.com` for its fraud protection;
-    Cartograph doesn't use Clerk Protect, so it's left out rather than let a
-    wildcard in. Checked when the policy is tested on the preview.
-  - `frame-ancestors 'none'` forbids framing (FR-005).
+  provider's address (data and Realtime), and PostHog's ingestion host, each
+  exact (C-02). Speed Insights is served from this origin, so `'self'`
+  covers it.
+  - **Inline scripts carry a nonce**, new for every response: the router
+    writes it on its own (hydration data, head and body scripts, the theme's
+    `ScriptOnce`), from `ssr.nonce`, which reads it from the request's
+    context. No `'unsafe-inline'` or `'unsafe-eval'` for scripts.
+    Considered: `'strict-dynamic'`, which trusts what a nonced script loads;
+    rejected, as it makes the policy's host list meaningless, where C-02
+    wants each source named. Base UI writes inline scripts only when a
+    component asks for them (`renderBeforeHydration`), and none does.
+  - **Styles may be inline**: Clerk's components write theirs at run time
+    (its CSP guide), and React writes style attributes.
+  - **Clerk Protect** is on for every Clerk application (Device
+    Intelligence; only Clerk's support can turn it off) and probes a
+    subdomain of `client.protect.clerk.com` made for the session, on
+    several ports. Blocked, it refuses every sign-up when "Require Device
+    Intelligence checks" is on. So, as Clerk's CSP guide gives it,
+    `https://*.protect.clerk.com` for scripts and frames and
+    `https://*.protect.clerk.com:*` for connections: C-02's one wildcard,
+    amended with the owner (2026-10-18). Found in a browser, with the
+    policy enforced on a local production build.
+  - `data:` images (Clerk's components draw some) and `blob:` workers
+    (Clerk's) are the two scheme sources; neither can run a script in the
+    page.
+  - Clerk's development instance reports usage to clerk-telemetry.com; it's
+    turned off on the provider (`telemetry={false}`) rather than allowed.
+  - `frame-ancestors 'none'` forbids framing (FR-005), with
+    `X-Frame-Options: DENY` for browsers that predate it.
 - **D-04 Headers from the request middleware.** Every rendered page and
   server route passes through it, so one place sets them. Static assets are
   served by Vercel's CDN, which sends strict transport security for HTTPS
   itself.
+  - It's the outermost middleware, so CSRF's refusals and Clerk's
+    redirects get the headers too. The response is copied, as a redirect's
+    headers can't be changed.
+  - The policy is sent by a built app only: Vite's development server
+    writes its own inline scripts and opens its own socket, with no nonce.
+    The other headers are sent everywhere.
 - **D-05 Limits are counted, not cached.** A count over the window, in
   storage, at the moment of asking: no counter to drift, nothing to reset.
   The refusal says when the oldest counted run or call leaves the window

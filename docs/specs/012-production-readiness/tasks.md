@@ -34,7 +34,7 @@ release; the five events.
 
 ## T03 — Security headers
 
-**Status:** Todo
+**Status:** Done (signed-in pages: the owner's browser check)
 **Blocked by:** T02 (the policy lists PostHog's hosts)
 **Covers:** FR-004, FR-005, C-02, AC-09, D-03, D-04
 
@@ -43,10 +43,13 @@ them.
 
 **Done when:**
 
-- [ ] A test finds every header and no wildcard source.
-- [ ] Locally, the app signs in and loads with the policy enforced and the
-      console clear.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] A test finds every header and no wildcard source but C-02's one.
+- [x] Locally, the app loads with the policy enforced and the console clear:
+      a production build, in headless Edge, on home, sign-in (Clerk's
+      components, Protect and Cloudflare's check) and a missing page. Left:
+      Clerk's development-keys warning and its development cookie (D-09).
+      Signing in, and the signed-in pages, are the owner's browser check.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T04 — Limits
 

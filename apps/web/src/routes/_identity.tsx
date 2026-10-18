@@ -26,6 +26,10 @@ function IdentityLayout() {
       signInFallbackRedirectUrl={AFTER_SIGN_IN_PATH}
       signUpFallbackRedirectUrl={AFTER_SIGN_IN_PATH}
       afterSignOutUrl="/"
+      // Clerk's development instances report usage to clerk-telemetry.com;
+      // nothing of a member's goes anywhere the policy doesn't name (spec
+      // 012, C-01, C-02).
+      telemetry={false}
     >
       <Outlet />
     </ClerkProvider>

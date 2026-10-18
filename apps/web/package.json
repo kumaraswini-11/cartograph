@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@ai-sdk/react": "catalog:",
+    "@clerk/shared": "catalog:",
     "@clerk/tanstack-react-start": "catalog:",
     "@clerk/ui": "catalog:",
     "@tailwindcss/vite": "catalog:",

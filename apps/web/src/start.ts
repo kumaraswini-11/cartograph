@@ -9,10 +9,24 @@ import {
 import { csrfChecks } from "@/lib/csrf"
 import { SIGN_IN_PATH } from "@/lib/sign-in"
 
+/**
+ * Every response's security headers (spec 012, FR-004, D-04), outermost,
+ * so a refusal or a redirect from the middleware inside gets them too. The
+ * nonce goes into the request's context, where the router reads it for
+ * its own inline scripts (src/router.tsx). Loaded here, on the server, so
+ * none of it reaches the browser's bundle.
+ */
+const securityHeaders = createMiddleware().server(async ({ next }) => {
+  const { newNonce, withSecurityHeaders } = await import("@/lib/headers.server")
+  const nonce = newNonce()
+  const result = await next({ context: { nonce } })
+  return { ...result, response: withSecurityHeaders(result.response, nonce) }
+})
+
 // TanStack Start adds its own CSRF protection only while this file doesn't
-// exist, so it's added back here, first (spec 006 plan D-03): a server
-// function, or the chat's POST, is answered only for a request from this
-// site.
+// exist, so it's added back here, the first check (spec 006 plan D-03): a
+// server function, or the chat's POST, is answered only for a request from
+// this site.
 const csrfMiddleware = createCsrfMiddleware({ filter: csrfChecks })
 
 /**
@@ -47,12 +61,13 @@ const functionErrors = createMiddleware({ type: "function" }).server(
 )
 
 /**
- * Every request's middleware: CSRF protection, then Clerk's, which verifies
- * the session token so `auth()` can read it (spec 006, C-01), then error
- * reports.
+ * Every request's middleware: the security headers, CSRF protection, then
+ * Clerk's, which verifies the session token so `auth()` can read it (spec
+ * 006, C-01), then error reports.
  */
 export const startInstance = createStart(() => ({
   requestMiddleware: [
+    securityHeaders,
     csrfMiddleware,
     clerkMiddleware({ signInUrl: SIGN_IN_PATH }),
     requestErrors,

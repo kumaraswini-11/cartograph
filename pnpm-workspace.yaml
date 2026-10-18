@@ -38,6 +38,7 @@ catalog:
   "@ai-sdk/react": 4.0.143
   "@base-ui/react": 1.9.0
   "@clerk/backend": 3.24.0
+  "@clerk/shared": 4.40.0
   "@clerk/tanstack-react-start": 1.7.2
   "@clerk/ui": 1.40.2
   "@dagrejs/dagre": 3.1.1

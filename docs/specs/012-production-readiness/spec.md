@@ -67,9 +67,10 @@ what a public application needs before anyone else uses it.
   belongs to the repository's authors, and telemetry vendors aren't where it
   belongs. _Looks fine until:_ an error report captures a variable holding a
   file's source.
-- **C-02** The security policy lists sources, never wildcards. _Why:_ a wildcard
-  policy passes a header check and protects nothing. _Looks fine until:_ a
-  scanner reports "policy present".
+- **C-02** The security policy lists sources, never wildcards, but one: the
+  sign-in provider's fraud protection, on its own hosts, which it requires.
+  _Why:_ a wildcard policy passes a header check and protects nothing.
+  _Looks fine until:_ a scanner reports "policy present".
 - **C-03** Limits are per organization. _Why:_ fetching archives and calling
   models cost money per request. _Looks fine until:_ one organization re-runs a
   large repository in a loop.
@@ -100,7 +101,7 @@ The first six rows are the ship criteria of `docs/project-doc.md`.
 | AC-06 | Given a chat answer, when it's shown, then its lookups appear before it                                                                                                                                  | FR-008               | browser     |
 | AC-07 | Given an error thrown on the server and one in the browser, when they occur, then both are reported with the release                                                                                     | FR-001               | browser     |
 | AC-08 | Given the product events of one session, when they're inspected, then none holds source, explanation text or an email address                                                                            | FR-003               | test        |
-| AC-09 | Given the production address, when its headers are checked, then each header in FR-004 is present and the policy has no wildcard sources                                                                 | FR-004, C-02, FR-005 | terminal    |
+| AC-09 | Given the production address, when its headers are checked, then each header in FR-004 is present and the policy has no wildcard source but C-02's one                                                   | FR-004, C-02, FR-005 | terminal    |
 | AC-10 | Given an organization at `RUN_LIMIT`, when it starts another run, then it's refused with the time it can start                                                                                           | FR-006               | test        |
 | AC-11 | Given one session that signs in, submits an analysis, explains a file and asks a question, when its events are listed, then each event in FR-002 is there                                                | FR-002               | test        |
 | AC-12 | Given an organization at `MODEL_CALL_LIMIT`, when it asks for an explanation, then it's refused with the time it resumes                                                                                 | FR-007               | test        |
@@ -128,6 +129,11 @@ None. Resolved 2026-10-18:
 - Core Web Vitals' "good" thresholds, confirmed: 2.5 s, 200 ms, 0.1 (FR-009),
   measured from real page loads at the 75th percentile, and in a lab run on a
   mid-range mobile profile before release (AC-13).
+- Amended while building (T03): the sign-in provider's fraud protection is on
+  for every application and probes a host made for each session, on several
+  ports, so no exact list can name it. C-02 allows its one wildcard, on the
+  provider's own hosts, as the provider's guide gives it; every other source
+  stays exact.
 - Production stays on the sign-in provider's development instance, at $0,
   until there's a domain of our own: its extra sign-in redirects and its
   development badge are known limits of this release, recorded as such.
