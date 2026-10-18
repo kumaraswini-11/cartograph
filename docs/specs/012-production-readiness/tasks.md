@@ -1,7 +1,7 @@
 # 012 — Production readiness: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** Todo
+**Build status:** In progress
 
 ## T01 — The checks carried from 011, 010 and 009
 
@@ -50,7 +50,7 @@ them.
 
 ## T04 — Limits
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** FR-006, FR-007, C-03, AC-10, AC-12, D-05, D-06
 
@@ -59,8 +59,8 @@ before a run, an explanation and a chat question; the refusals.
 
 **Done when:**
 
-- [ ] Tests pass for AC-10 and AC-12; pgTAP covers `model_calls`.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests pass for AC-10 and AC-12; pgTAP covers `model_calls`.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T05 — Accessibility
 

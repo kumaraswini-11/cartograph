@@ -42,6 +42,7 @@ import type { LookupPart } from "@/components/chat/lookup"
 import { ExplanationText } from "@/components/detail/explanation-text"
 import { PaneScrollContext } from "@/components/detail/file-list"
 import { useChatHolder } from "@/components/map/chat"
+import { modelCallLimitMessage } from "@/lib/limits"
 
 /** A conversation about one analysis, posting to its chat route (D-02). */
 function newChat(analysisId: string): Chat<ChatMessage> {
@@ -74,6 +75,8 @@ function outcomeNote(outcome: ChatOutcome): string | null {
       return "The model's free request limit is reached. Try again later."
     case "unavailable":
       return "The model is busy right now. Try again in a minute."
+    case "paused":
+      return modelCallLimitMessage("Answers", outcome.resumesAt)
   }
 }
 

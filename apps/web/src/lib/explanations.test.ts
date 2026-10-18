@@ -2,7 +2,12 @@ import { createHash } from "node:crypto"
 
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { readAnalysis, readExplanation, readResult } from "@workspace/database"
+import {
+  modelCallTimesSince,
+  readAnalysis,
+  readExplanation,
+  readResult,
+} from "@workspace/database"
 import { detectFrameworks } from "@workspace/frameworks"
 import { GitHubError, defaultBranchHead, fileAtCommit } from "@workspace/github"
 import { isTooLarge, parseRepository } from "@workspace/parser"
@@ -12,6 +17,7 @@ import type * as Ai from "@workspace/ai"
 import type * as GitHub from "@workspace/github"
 
 import { explainSelection, stalenessOf } from "./explanations.server"
+import { MODEL_CALL_LIMIT } from "./limits"
 
 vi.mock("@tanstack/react-start/server-only", () => ({}))
 vi.mock("./analyses.server", () => ({
@@ -28,11 +34,14 @@ vi.mock("./env.server", () => ({
   }),
 }))
 const store = vi.fn((_: unknown) => Promise.resolve())
+const record = vi.fn((_: unknown) => Promise.resolve())
 vi.mock("@workspace/database", () => ({
   readAnalysis: vi.fn(),
   readResult: vi.fn(),
   readExplanation: vi.fn(),
   explanationWriter: () => ({ store }),
+  modelCallTimesSince: vi.fn(),
+  modelCallWriter: () => ({ record }),
 }))
 vi.mock("@workspace/github", async (actual) => ({
   ...(await actual<typeof GitHub>()),
@@ -72,6 +81,7 @@ beforeEach(() => {
   })
   vi.mocked(readResult).mockResolvedValue(stored)
   vi.mocked(readExplanation).mockResolvedValue(null)
+  vi.mocked(modelCallTimesSince).mockResolvedValue([])
 })
 
 const bytes = (text: string) => new TextEncoder().encode(text)
@@ -167,6 +177,50 @@ describe("explaining a selection (spec 009, plan Approach)", () => {
     const result = await explainSelection("a1", { kind: "box", path: "lib" })
     expect(result).toMatchObject({ status: "failed" })
     expect(ask).not.toHaveBeenCalled()
+  })
+})
+
+describe("the model call limit (spec 012, FR-007)", () => {
+  /** The organization's latest calls: as many as the limit, all at `at`. */
+  const atLimit = (at: string) =>
+    vi
+      .mocked(modelCallTimesSince)
+      .mockResolvedValue(Array<string>(MODEL_CALL_LIMIT).fill(at))
+
+  it("counts each call for the session's organization before it's made", async () => {
+    ask.mockResolvedValue({ body: "The root.", inferredRole: null })
+    await explainSelection("a1", { kind: "box", path: "" })
+    expect(record).toHaveBeenCalledWith({
+      organizationId: "org_session",
+      kind: "explanation",
+    })
+    expect(record.mock.invocationCallOrder[0]).toBeLessThan(
+      ask.mock.invocationCallOrder[0]!
+    )
+  })
+
+  it("at the limit, refuses with when explanations resume, asking nothing (AC-12)", async () => {
+    atLimit("2026-10-18T09:30:00.000Z")
+    const result = await explainSelection("a1", { kind: "box", path: "" })
+    expect(result).toEqual({
+      traced: false,
+      status: "paused",
+      resumesAt: "2026-10-19T09:30:00.000Z",
+    })
+    expect(ask).not.toHaveBeenCalled()
+    expect(record).not.toHaveBeenCalled()
+    expect(store).not.toHaveBeenCalled()
+  })
+
+  it("still shows a cached explanation at the limit: it asks nothing", async () => {
+    atLimit("2026-10-18T09:30:00.000Z")
+    vi.mocked(readExplanation).mockResolvedValue({
+      body: "Cached.",
+      inferredRole: null,
+    } as Awaited<ReturnType<typeof readExplanation>>)
+    const result = await explainSelection("a1", { kind: "box", path: "" })
+    expect(result).toMatchObject({ status: "explained", cached: true })
+    expect(modelCallTimesSince).not.toHaveBeenCalled()
   })
 })
 

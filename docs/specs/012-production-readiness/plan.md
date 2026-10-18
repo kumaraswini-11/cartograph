@@ -31,18 +31,19 @@ provider's development instance until there's a domain (spec, resolved).
 
 ## Modules and interfaces
 
-| Module                                   | What it does                                                                                                                                                          |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web/src/lib/telemetry.ts`          | The five events by name and their allowed properties: one source for both sides, and the only shape an event can take (FR-002, FR-003).                               |
-| `apps/web/src/lib/telemetry.client.ts`   | The browser's PostHog client: memory persistence, no autocapture, exceptions captured with the release (FR-001, FR-012).                                              |
-| `apps/web/src/lib/telemetry.server.ts`   | The server's: errors from server functions and routes, and the events the server sees (run done or failed, chat question asked), flushed before a function ends.      |
-| `apps/web/src/lib/headers.ts`            | The security headers and the policy, built from the configured addresses: one list of sources, no wildcard (FR-004, FR-005, C-02).                                    |
-| `apps/web/src/start.ts`                  | The request middleware sets the headers on every response, after CSRF and the sign-in provider's.                                                                     |
-| `packages/database/supabase/migrations/` | `model_calls`: one row per model call, per organization, written with the secret key, read by members under `007`'s policy.                                           |
-| `packages/database/src/limits.ts`        | `runsSince` and `modelCallsSince`: the counts a limit checks, and the time the oldest counted one ages out.                                                           |
-| `apps/web/src/lib/limits.server.ts`      | `RUN_LIMIT`, `MODEL_CALL_LIMIT` and their windows; the check before a run, an explanation or a chat question, refusing with when it's allowed again (FR-006, FR-007). |
-| `apps/web/src/a11y.test.tsx`             | Every page's markup, rendered as the server renders it, audited with axe-core for WCAG 2.2 AA (AC-14).                                                                |
-| `README.md`                              | A short "What's next", pointing to `docs/future-improvements.md`, and the features list brought up to date.                                                           |
+| Module                                   | What it does                                                                                                                                                     |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web/src/lib/telemetry.ts`          | The five events by name and their allowed properties: one source for both sides, and the only shape an event can take (FR-002, FR-003).                          |
+| `apps/web/src/lib/telemetry.client.ts`   | The browser's PostHog client: memory persistence, no autocapture, exceptions captured with the release (FR-001, FR-012).                                         |
+| `apps/web/src/lib/telemetry.server.ts`   | The server's: errors from server functions and routes, and the events the server sees (run done or failed, chat question asked), flushed before a function ends. |
+| `apps/web/src/lib/headers.ts`            | The security headers and the policy, built from the configured addresses: one list of sources, no wildcard (FR-004, FR-005, C-02).                               |
+| `apps/web/src/start.ts`                  | The request middleware sets the headers on every response, after CSRF and the sign-in provider's.                                                                |
+| `packages/database/supabase/migrations/` | `model_calls`: one row per model call, per organization, written with the secret key, read by members under `007`'s policy.                                      |
+| `packages/database/src/limits.ts`        | `runTimesSince` and `modelCallTimesSince`: the latest times a limit counts, newest first; `modelCallWriter` records a call with the secret key.                  |
+| `apps/web/src/lib/limits.ts`             | `RUN_LIMIT`, `MODEL_CALL_LIMIT` and their windows; when a limit lifts; the refusals' sentences, in the member's own time zone. Shared by both sides.             |
+| `apps/web/src/lib/limits.server.ts`      | The check before a run, an explanation's model call or a chat question, refusing with when it's allowed again (FR-006, FR-007).                                  |
+| `apps/web/src/a11y.test.tsx`             | Every page's markup, rendered as the server renders it, audited with axe-core for WCAG 2.2 AA (AC-14).                                                           |
+| `README.md`                              | A short "What's next", pointing to `docs/future-improvements.md`, and the features list brought up to date.                                                      |
 
 ## Data
 
@@ -96,6 +97,19 @@ organization and start time.
   storage, at the moment of asking: no counter to drift, nothing to reset.
   The refusal says when the oldest counted run or call leaves the window
   (FR-006, FR-007).
+  - The latest `RUN_LIMIT` (or `MODEL_CALL_LIMIT`) times are read, newest
+    first, and the limit lifts when the last of them leaves the window: right
+    even if two requests at once let the count one past the limit.
+  - An explanation's every model call counts, recorded before it's made, so
+    a call that fails still counts, as it does for the model's quota; a
+    cached explanation asks nothing and counts nothing.
+  - A chat question counts once, however many steps its lookups take: the
+    limit counts what a member asks for, and the model's own quota stays the
+    real ceiling (D-06).
+  - At the run limit, an address the organization has already analysed
+    still opens its analysis; only a new run is refused.
+  - The server sends when a limit lifts; the browser says it in the
+    member's own time zone, not the server's.
 - **D-06 One free key, two limits.** Every organization shares one Gemini
   key: its free daily quota is the real ceiling, and the model's own refusal
   (`009`, `010`: "the free request limit is reached") stays as it is. The
@@ -117,15 +131,15 @@ organization and start time.
 
 ## Thresholds
 
-| Name                      | Value  | Where              | Why                                    |
-| ------------------------- | ------ | ------------------ | -------------------------------------- |
-| `RUN_LIMIT`               | 20     | `limits.server.ts` | The spec.                              |
-| `RUN_LIMIT_WINDOW`        | 1 hour | `limits.server.ts` | The spec.                              |
-| `MODEL_CALL_LIMIT`        | 100    | `limits.server.ts` | The spec: below the shared free quota. |
-| `MODEL_CALL_LIMIT_WINDOW` | 1 day  | `limits.server.ts` | The spec.                              |
-| `LCP_MAX`                 | 2.5 s  | AC-13              | Core Web Vitals' "good".               |
-| `INP_MAX`                 | 200 ms | AC-13              | Core Web Vitals' "good".               |
-| `CLS_MAX`                 | 0.1    | AC-13              | Core Web Vitals' "good".               |
+| Name                      | Value  | Where       | Why                                    |
+| ------------------------- | ------ | ----------- | -------------------------------------- |
+| `RUN_LIMIT`               | 20     | `limits.ts` | The spec.                              |
+| `RUN_LIMIT_WINDOW`        | 1 hour | `limits.ts` | The spec.                              |
+| `MODEL_CALL_LIMIT`        | 100    | `limits.ts` | The spec: below the shared free quota. |
+| `MODEL_CALL_LIMIT_WINDOW` | 1 day  | `limits.ts` | The spec.                              |
+| `LCP_MAX`                 | 2.5 s  | AC-13       | Core Web Vitals' "good".               |
+| `INP_MAX`                 | 200 ms | AC-13       | Core Web Vitals' "good".               |
+| `CLS_MAX`                 | 0.1    | AC-13       | Core Web Vitals' "good".               |
 
 ## What needs doing outside the code
 

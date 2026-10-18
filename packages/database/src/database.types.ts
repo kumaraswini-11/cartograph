@@ -51,6 +51,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"model_calls": {
+                  Row: {
+                    "called_at": string,"id": string,"kind": string,"organization_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "called_at"?: string,"id"?: string,"kind": string,"organization_id": string
+                  }
+                  Update: {
+                    "called_at"?: string,"id"?: string,"kind"?: string,"organization_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "model_calls_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"organizations": {
                   Row: {
                     "created_at": string,"id": string

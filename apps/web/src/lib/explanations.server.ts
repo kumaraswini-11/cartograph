@@ -19,6 +19,7 @@ import { MAX_FILE_BYTES, contentHash } from "@workspace/parser"
 import { currentOrganization } from "./analyses.server"
 import type { ExplainResult, ExplainSubject, Staleness } from "./explanations"
 import { getServerEnv } from "./env.server"
+import { ModelCallsSpent, spendModelCall } from "./limits.server"
 import { SourceMismatch, sourceAtCommit } from "./source.server"
 import { analysisFacts, readStoredAnalysis } from "./stored-analysis.server"
 import { requestStorage } from "./storage.server"
@@ -57,6 +58,7 @@ export async function explainSelection(
     url: env.VITE_SUPABASE_URL,
     secretKey: env.SUPABASE_SECRET_KEY,
   })
+  const ask = askModel(languageModel(env.GEMINI_API_KEY))
   const deps: ExplainDeps = {
     traced: traces.traced,
     read: async (cacheKey) => {
@@ -81,7 +83,12 @@ export async function explainSelection(
         model: MODEL,
         promptVersion: PROMPT_VERSION,
       }),
-    ask: askModel(languageModel(env.GEMINI_API_KEY)),
+    // Each ask is a model call, counted against the organization's limit
+    // first (`012` FR-007); a cached explanation asks nothing.
+    ask: async (request) => {
+      await spendModelCall(storage, { organizationId, kind: "explanation" })
+      return ask(request)
+    },
   }
 
   let outcome: ExplainOutcome
@@ -104,6 +111,13 @@ export async function explainSelection(
       outcome = await explainBox(box, deps)
     }
   } catch (error) {
+    if (error instanceof ModelCallsSpent) {
+      return {
+        traced: traces.enabled,
+        status: "paused",
+        resumesAt: error.resumesAt,
+      }
+    }
     console.error(
       `Explaining ${subject.kind} ${subject.path} of analysis ${analysisId} failed:`,
       error

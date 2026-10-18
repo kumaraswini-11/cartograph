@@ -1,19 +1,28 @@
 import "@tanstack/react-start/server-only"
 
-import { readAnalysis } from "@workspace/database"
+import { listAnalyses, readAnalysis } from "@workspace/database"
 import type { AnalysisDetail, RunDetail } from "@workspace/database"
 import { repositoryFrom } from "@workspace/github/address"
 import type { MapInput } from "@workspace/graph"
 
 import { runAfterResponse } from "./background.server"
+import { runLimitLiftsAt } from "./limits.server"
 import { RUN_MESSAGES } from "./run-messages"
 import { runAnalysis, runDeps } from "./run.server"
 import { readSession } from "./session.server"
 import { readStoredAnalysis } from "./stored-analysis.server"
 import { requestStorage, serverRunWriter } from "./storage.server"
 
-/** What submitting an address gives: the analysis to go to, or why not. */
-export type Submitted = { analysisId: string } | { refusal: string }
+/**
+ * What submitting an address gives: the analysis to go to, or why not; at
+ * the run limit, when a run can start (`012` FR-006), for the browser to
+ * say in the member's own time.
+ */
+export type Submitted =
+  { analysisId: string } | { refusal: string } | { runsResumeAt: string }
+
+/** What a re-run gives: nothing, or when a run can start (`012` FR-006). */
+export type Rerun = { runsResumeAt: string } | null
 
 /** An analysis's page: the analysis, and its map once a run has stored one. */
 export type AnalysisPage = { analysis: AnalysisDetail; map: MapInput | null }
@@ -32,13 +41,26 @@ export async function currentOrganization(): Promise<string> {
 /**
  * A repository's address submitted (spec 008, FR-001, FR-002): refused with
  * its reason, or the organization's analysis of it, new with a run started
- * after the response, or existing with none.
+ * after the response, or existing with none. At the run limit (`012`
+ * FR-006) an existing analysis still opens; only a new one is refused.
  */
 export async function submitAddress(address: string): Promise<Submitted> {
   const read = repositoryFrom(address)
   if ("refusal" in read) return { refusal: read.refusal }
   const { repository } = read
   const organizationId = await currentOrganization()
+  const storage = await requestStorage()
+  const runsResumeAt = await runLimitLiftsAt(storage)
+  if (runsResumeAt !== null) {
+    // Repositories are matched without case, as storage matches them.
+    const existing = (await listAnalyses(storage)).find(
+      (analysis) =>
+        analysis.repository.toLowerCase() === repository.toLowerCase()
+    )
+    return existing === undefined
+      ? { runsResumeAt }
+      : { analysisId: existing.id }
+  }
   const writer = serverRunWriter()
   const { analysisId, runId } = await writer.startAnalysis({
     organizationId,
@@ -53,14 +75,17 @@ export async function submitAddress(address: string): Promise<Submitted> {
 
 /**
  * A re-run chosen from an analysis (FR-003): a new run after the response,
- * unless one is under way (FR-004). The analysis must be the current
- * organization's; the database checks it.
+ * unless one is under way (FR-004) or the organization is at its run limit
+ * (`012` FR-006). The analysis must be the current organization's; the
+ * database checks it.
  */
-export async function rerun(analysisId: string): Promise<void> {
+export async function rerun(analysisId: string): Promise<Rerun> {
   const organizationId = await currentOrganization()
   const storage = await requestStorage()
   const analysis = await readAnalysis(storage, analysisId)
   if (analysis === null) throw new Error(`No analysis ${analysisId}`)
+  const runsResumeAt = await runLimitLiftsAt(storage)
+  if (runsResumeAt !== null) return { runsResumeAt }
   const writer = serverRunWriter()
   const { runId, started } = await writer.rerunAnalysis({
     organizationId,
@@ -73,6 +98,7 @@ export async function rerun(analysisId: string): Promise<void> {
       runAnalysis({ runId, repository: analysis.repository }, runDeps(writer))
     )
   }
+  return null
 }
 
 /**

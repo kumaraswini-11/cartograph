@@ -9,7 +9,7 @@ import { isTooLarge, parseRepository } from "@workspace/parser"
 import { makeRepository } from "@workspace/parser/testing"
 
 import { pathIndex } from "../grounding.ts"
-import { answerQuestion } from "./answer.ts"
+import { answerQuestion, outcomeOnly } from "./answer.ts"
 import type { ChatDeps, ChatMessage } from "./answer.ts"
 import { MAX_LOOKUPS, MODEL_LIST_LIMIT } from "./limits.ts"
 import { forModel } from "./lookups.ts"
@@ -255,5 +255,24 @@ describe("what the model is handed (plan D-05)", () => {
       levels: [[...paths.slice(0, MODEL_LIST_LIMIT), "…and 10 more"]],
     })
     expect(forModel({ files: ["a.ts"] })).toEqual({ files: ["a.ts"] })
+  })
+})
+
+describe("a reply refused before it's answered (spec 012, FR-007)", () => {
+  it("is only its ending: no lookup, no text", async () => {
+    const reader = outcomeOnly({
+      kind: "paused",
+      resumesAt: "2026-10-19T10:00:00.000Z",
+    }).getReader()
+    const chunks: Array<UIMessageChunk> = []
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      chunks.push(value)
+    }
+    expect(chunks.map((chunk) => chunk.type)).toEqual(["start", "data-outcome"])
+    expect(chunks[1]).toMatchObject({
+      data: { kind: "paused", resumesAt: "2026-10-19T10:00:00.000Z" },
+    })
   })
 })

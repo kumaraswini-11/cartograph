@@ -61,6 +61,11 @@ secretKey }).store(…)` writes with the secret key, keeping a key's first row
 when two writes race. The table itself refuses a surface role as an inferred
 one (C-02).
 
+The per-organization limits (spec 012) are counted, not cached:
+`runTimesSince(storage, since, atMost)` and `modelCallTimesSince(…)` read the
+latest times with the member's token, and `modelCallWriter({ url, secretKey
+}).record({ organizationId, kind })` records a model call.
+
 `deleteOrganization` is the other writer: the organization-deleted webhook's
 (spec 007, D-07). Members can't call either: the functions are granted to
 the secret key's role alone, and the pgTAP tests check it.

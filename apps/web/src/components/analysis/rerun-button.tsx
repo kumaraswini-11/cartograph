@@ -6,6 +6,7 @@ import { Button } from "@workspace/ui/components/shadcn-ui/button"
 import { Spinner } from "@workspace/ui/components/shadcn-ui/spinner"
 
 import { rerunAnalysis } from "@/lib/analyses.functions"
+import { runLimitMessage } from "@/lib/limits"
 
 /**
  * Re-runs an analysis (spec 008, FR-003): a new run of the same analysis,
@@ -24,7 +25,8 @@ export function RerunButton({
   const router = useRouter()
   const rerun = useServerFn(rerunAnalysis)
   const [pending, startTransition] = useTransition()
-  const [failed, setFailed] = useState(false)
+  // Why the last re-run didn't start, if it didn't.
+  const [refusal, setRefusal] = useState<string | null>(null)
 
   return (
     <div className="flex items-center gap-2">
@@ -34,12 +36,17 @@ export function RerunButton({
         disabled={running || pending}
         onClick={() =>
           startTransition(async () => {
-            setFailed(false)
+            setRefusal(null)
             try {
-              await rerun({ data: { analysisId } })
+              const result = await rerun({ data: { analysisId } })
+              if (result !== null) {
+                // The run limit (spec 012, FR-006): when one can start.
+                setRefusal(runLimitMessage(result.runsResumeAt))
+                return
+              }
               await router.invalidate({ sync: true })
             } catch {
-              setFailed(true)
+              setRefusal("The run didn't start. Try again.")
             }
           })
         }
@@ -48,7 +55,7 @@ export function RerunButton({
         Re-run
       </Button>
       <p role="status" className="text-sm text-destructive empty:hidden">
-        {failed ? "The run didn't start. Try again." : ""}
+        {refusal ?? ""}
       </p>
     </div>
   )

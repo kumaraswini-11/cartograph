@@ -14,6 +14,7 @@ import { Input } from "@workspace/ui/components/shadcn-ui/input"
 import { Spinner } from "@workspace/ui/components/shadcn-ui/spinner"
 
 import { submitRepository } from "@/lib/analyses.functions"
+import { runLimitMessage } from "@/lib/limits"
 
 /**
  * What the form shows after a submission: why it was refused, with the
@@ -41,6 +42,9 @@ export function AddressForm() {
       try {
         const result = await submit({ data: { address } })
         if ("refusal" in result) return { error: result.refusal, address }
+        if ("runsResumeAt" in result) {
+          return { error: runLimitMessage(result.runsResumeAt), address }
+        }
         await navigate({
           to: "/analyses/$analysisId",
           params: { analysisId: result.analysisId },

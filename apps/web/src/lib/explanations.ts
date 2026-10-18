@@ -31,6 +31,8 @@ export type ExplainResult = { traced: boolean } & (
   | { status: "ungrounded" }
   /** The model's request limit is reached (plan D-02). */
   | { status: "limited" }
+  /** The organization's model calls are spent until then (`012` FR-007). */
+  | { status: "paused"; resumesAt: string }
   /** Something else went wrong, in words a member can read. */
   | { status: "failed"; message: string }
 )

@@ -18,6 +18,12 @@ export { NO_TOKEN, storageClient } from "./client.ts"
 export type { StorageAccess, StorageClient } from "./client.ts"
 export type { Database, Json } from "./database.types.ts"
 export { explanationWriter, readExplanation } from "./explanations.ts"
+export {
+  modelCallTimesSince,
+  modelCallWriter,
+  runTimesSince,
+} from "./limits.ts"
+export type { ModelCallKind, ModelCallWriter } from "./limits.ts"
 export type {
   ExplanationKind,
   ExplanationWriter,

@@ -19,6 +19,7 @@ import type {
   ExplainSubject,
   Staleness,
 } from "@/lib/explanations"
+import { modelCallLimitMessage } from "@/lib/limits"
 
 /** Why there's no explanation, in words, for each way it can fail. */
 function notice(result: ExplainResult): string | null {
@@ -27,6 +28,8 @@ function notice(result: ExplainResult): string | null {
       return null
     case "limited":
       return "The model's free request limit is reached. Try again later."
+    case "paused":
+      return modelCallLimitMessage("Explanations", result.resumesAt)
     case "ungrounded":
       return "The model named files that aren't in this repository, so its answer was discarded. Try again later."
     case "failed":

@@ -7,6 +7,7 @@ import {
   fileCacheKey,
   fileToExplain,
   languageModel,
+  outcomeOnly,
   readChatMessages,
 } from "@workspace/ai"
 import { readExplanation } from "@workspace/database"
@@ -14,6 +15,7 @@ import { edgeIndex } from "@workspace/graph"
 import { z } from "zod"
 
 import { getServerEnv } from "./env.server"
+import { ModelCallsSpent, spendModelCall } from "./limits.server"
 import { readSession } from "./session.server"
 import { sourceAtCommit } from "./source.server"
 import { analysisFacts, readStoredAnalysis } from "./stored-analysis.server"
@@ -65,6 +67,22 @@ export async function handleChat(
   const read = await readStoredAnalysis(storage, analysisId)
   if (read?.result == null) return refuse(404, "This analysis has no map yet.")
   const { analysis, result } = read
+
+  // One question, one call against the organization's limit (`012`
+  // FR-007), however many steps its lookups take: the limit counts what a
+  // member asks for, and the model's own quota is the ceiling (D-06).
+  try {
+    await spendModelCall(storage, {
+      organizationId: session.organization.id,
+      kind: "chat",
+    })
+  } catch (error) {
+    if (!(error instanceof ModelCallsSpent)) throw error
+    return chatResponse(
+      outcomeOnly({ kind: "paused", resumesAt: error.resumesAt }),
+      () => Promise.resolve()
+    )
+  }
 
   const env = getServerEnv()
   const traces = serverTracing()
