@@ -181,7 +181,10 @@ function Drawing() {
   if (failed) {
     // The rest of the page, the detail pane and the chat, still works.
     return (
+      // An alert, so a screen reader hears the map failed: it replaces the
+      // placeholder's "Loading the map".
       <EmptyState
+        role="alert"
         className="size-full"
         title="The map couldn't be drawn"
         description="Reload the page to try again. The files and their details are still in the pane."
