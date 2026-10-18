@@ -1,6 +1,6 @@
 # 010 — Repository chat
 
-**Status:** Draft
+**Status:** Approved
 **Milestone:** M4 Intelligence
 **Depends on:** 004-detail-pane, 009-file-explanations
 
@@ -26,11 +26,11 @@ which direction to go; the same arithmetic that draws the map does the walk.
   (`005`); the insights (`005`); a file's explanation (`009`); and a file's
   source at the analysed commit.
 - **FR-003** The chat shall run blast radius and dependency chain lookups with
-  the same walk as the detail pane.
+  the same walk as the detail pane, to every level.
 - **FR-004** The chat shall show each lookup, with what it returned, before the
   answer.
-- **FR-005** If a question needs more than `MAX_LOOKUPS` lookups, then the chat
-  shall answer from what it found and say it stopped at the limit.
+- **FR-005** If a question needs more than `MAX_LOOKUPS` (12) lookups, then the
+  chat shall answer from what it found and say it stopped at the limit.
 
 ### Answers
 
@@ -43,6 +43,13 @@ which direction to go; the same arithmetic that draws the map does the walk.
 - **FR-009** When a file path in an answer or a lookup is chosen, the map shall
   move the selection to it.
 - **FR-010** The chat shall trace every model call and every lookup.
+
+### Place and lifetime
+
+- **FR-011** The chat shall sit beside the details in the right pane, as two
+  tabs, Details and Chat, so it stays open while the selection changes.
+- **FR-012** A conversation shall last for the page's life and shall not be
+  stored.
 
 ## Constraints
 
@@ -66,6 +73,10 @@ which direction to go; the same arithmetic that draws the map does the walk.
   only answers questions about this analysis.
 - A lookup that fails → shown as failed, and the answer says what it couldn't
   check.
+- The model's request limit is reached → the chat says so; lookups already
+  shown stay, and nothing is answered without them.
+- A walk too long to hand over whole → its levels are handed over with the
+  longest counted, not listed; the lookup on screen shows it all.
 
 ## Acceptance criteria
 
@@ -84,14 +95,21 @@ which direction to go; the same arithmetic that draws the map does the walk.
 ## Out of scope
 
 - Scoring answer quality → `011`.
-- Keeping conversations after the page closes (see open questions).
+- Keeping conversations after the page closes, or sharing them (FR-012).
 
 ## Open questions
 
-- [NEEDS CLARIFICATION] `MAX_LOOKUPS`: proposed 12.
-- [NEEDS CLARIFICATION] How deep a chat lookup walks: every level, as the
-  detail pane does (`004`), or a depth the answer can hold?
-- [NEEDS CLARIFICATION] Where the chat sits in the three-column shell: a tab of
-  the detail pane (proposed), or a fourth area?
-- [NEEDS CLARIFICATION] Are conversations kept after the page closes, and, if
-  so, shared with the organization?
+None. Resolved 2026-10-18:
+
+- `MAX_LOOKUPS` = 12, as proposed. The model may ask for several lookups at
+  once, so a question takes fewer model calls than lookups.
+- Blast radius and dependency chain lookups walk every level, as the detail
+  pane does (`004`), so AC-04 compares like with like. What the model is
+  handed may count a long level rather than list it; the lookup shown on
+  screen holds the whole walk.
+- The chat is a tab of the right pane, Details and Chat (FR-011), not a tab
+  beside Explanation: those exist only while something is selected, and a
+  question about the repository isn't about the selection.
+- Conversations aren't kept after the page closes (FR-012), as `009`'s
+  session explanations aren't: no stored text, and no question of who may
+  read whose.
