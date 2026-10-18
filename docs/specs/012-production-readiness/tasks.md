@@ -67,7 +67,7 @@ before a run, an explanation and a chat question; the refusals.
 
 ## T05 — Accessibility
 
-**Status:** Todo
+**Status:** Done (the keyboard pass, AC-15, is the owner's browser check)
 **Blocked by:** none
 **Covers:** FR-010, FR-011, AC-14, D-07
 
@@ -76,8 +76,17 @@ what it finds.
 
 **Done when:**
 
-- [ ] The audit reports no WCAG 2.2 AA violation (AC-14).
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] The audit reports no WCAG 2.2 AA violation (AC-14):
+      `apps/web/src/a11y.test.tsx` renders every page through the app's
+      router (home, sign-in, the dashboard, the organization, an analysis
+      with its map and one whose run is under way, a missing page, a failed
+      page) and runs axe-core's WCAG 2.2 A and AA rules; planted violations
+      fail it.
+- [x] Contrast and target size, which need a laid-out page: axe-core in
+      headless Edge on a local production build, light and dark, on home,
+      sign-in and a missing page. One violation, Clerk's development badge
+      (D-09). The signed-in pages' contrast is checked by hand (D-07).
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T06 — Speed
 
