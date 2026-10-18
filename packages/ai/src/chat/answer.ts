@@ -1,8 +1,10 @@
 import {
   convertToModelMessages,
   createUIMessageStream,
+  createUIMessageStreamResponse,
   generateText,
   isStepCount,
+  safeValidateUIMessages,
 } from "ai"
 import type {
   LanguageModel,
@@ -52,6 +54,36 @@ export function keptHistory(
   return convertToModelMessages(
     kept.filter((message) => message.parts.length > 0)
   )
+}
+
+/**
+ * The conversation a request carries, checked against the UI message
+ * shape, or null if it isn't one. Only its text is ever sent on
+ * (`keptHistory`), so nothing else in it reaches the model.
+ */
+export async function readChatMessages(
+  value: unknown
+): Promise<Array<ChatMessage> | null> {
+  const result = await safeValidateUIMessages<ChatMessage>({ messages: value })
+  if (!result.success) return null
+  const last = result.data[result.data.length - 1]
+  return last?.role === "user" ? result.data : null
+}
+
+/**
+ * A question's stream as the HTTP response `useChat` reads, calling
+ * `onEnd` once it has all been sent: a serverless function can stop as soon
+ * as it has, so the traces are flushed there (`009` plan D-03).
+ */
+export function chatResponse(
+  stream: ReadableStream<UIMessageChunk>,
+  onEnd: () => Promise<void>
+): Response {
+  return createUIMessageStreamResponse({
+    stream: stream.pipeThrough(
+      new TransformStream<UIMessageChunk, UIMessageChunk>({ flush: onEnd })
+    ),
+  })
 }
 
 /** The text of the conversation's last question, for its trace. */

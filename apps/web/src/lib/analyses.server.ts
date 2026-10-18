@@ -1,17 +1,15 @@
 import "@tanstack/react-start/server-only"
 
-import { readAnalysis, readResult } from "@workspace/database"
+import { readAnalysis } from "@workspace/database"
 import type { AnalysisDetail } from "@workspace/database"
-import { detection } from "@workspace/frameworks"
 import { repositoryFrom } from "@workspace/github/address"
-import { toMapInput } from "@workspace/graph"
 import type { MapInput } from "@workspace/graph"
-import { isTooLarge, parseResult } from "@workspace/parser"
 
 import { runAfterResponse } from "./background.server"
 import { RUN_MESSAGES } from "./run-messages"
 import { runAnalysis, runDeps } from "./run.server"
 import { readSession } from "./session.server"
+import { readStoredAnalysis } from "./stored-analysis.server"
 import { requestStorage, serverRunWriter } from "./storage.server"
 
 /** What submitting an address gives: the analysis to go to, or why not. */
@@ -86,21 +84,7 @@ export async function rerun(analysisId: string): Promise<void> {
 export async function analysisPage(
   analysisId: string
 ): Promise<AnalysisPage | null> {
-  const storage = await requestStorage()
-  const analysis = await readAnalysis(storage, analysisId)
-  if (analysis === null) return null
-  const stored = await readResult(storage, analysisId)
-  if (stored === null) return { analysis, map: null }
-  const parsed = parseResult.parse(stored.parsed)
-  if (isTooLarge(parsed)) {
-    throw new Error(`Analysis ${analysisId} stored a result too large to map`)
-  }
-  return {
-    analysis,
-    map: toMapInput(
-      { repository: analysis.repository, commit: stored.commit },
-      parsed,
-      detection.parse(stored.detection)
-    ),
-  }
+  const read = await readStoredAnalysis(await requestStorage(), analysisId)
+  if (read === null) return null
+  return { analysis: read.analysis, map: read.result?.input ?? null }
 }

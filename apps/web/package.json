@@ -29,6 +29,7 @@
     "@workspace/parser": "workspace:*",
     "@workspace/ui": "workspace:*",
     "@xyflow/react": "catalog:",
+    "ai": "catalog:",
     "lucide-react": "catalog:",
     "oxc-parser": "catalog:",
     "oxc-resolver": "catalog:",

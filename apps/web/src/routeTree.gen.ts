@@ -17,6 +17,7 @@ import { Route as IdentitySignedInOrganizationRouteImport } from "./routes/_iden
 import { Route as IdentitySignInSplatRouteImport } from "./routes/_identity/sign-in.$"
 import { Route as ApiWebhooksClerkRouteImport } from "./routes/api/webhooks/clerk"
 import { Route as IdentitySignedInAnalysesAnalysisIdRouteImport } from "./routes/_identity/_signed-in/analyses.$analysisId"
+import { Route as ApiAnalysesAnalysisIdChatRouteImport } from "./routes/api/analyses.$analysisId.chat"
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
@@ -59,6 +60,12 @@ const IdentitySignedInAnalysesAnalysisIdRoute =
     path: "/analyses/$analysisId",
     getParentRoute: () => IdentitySignedInRoute,
   } as any)
+const ApiAnalysesAnalysisIdChatRoute =
+  ApiAnalysesAnalysisIdChatRouteImport.update({
+    id: "/api/analyses/$analysisId/chat",
+    path: "/api/analyses/$analysisId/chat",
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByFullPath {
   "/sign-in/$": typeof IdentitySignInSplatRoute
   "/api/webhooks/clerk": typeof ApiWebhooksClerkRoute
   "/analyses/$analysisId": typeof IdentitySignedInAnalysesAnalysisIdRoute
+  "/api/analyses/$analysisId/chat": typeof ApiAnalysesAnalysisIdChatRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
@@ -75,6 +83,7 @@ export interface FileRoutesByTo {
   "/sign-in/$": typeof IdentitySignInSplatRoute
   "/api/webhooks/clerk": typeof ApiWebhooksClerkRoute
   "/analyses/$analysisId": typeof IdentitySignedInAnalysesAnalysisIdRoute
+  "/api/analyses/$analysisId/chat": typeof ApiAnalysesAnalysisIdChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,6 +95,7 @@ export interface FileRoutesById {
   "/_identity/sign-in/$": typeof IdentitySignInSplatRoute
   "/api/webhooks/clerk": typeof ApiWebhooksClerkRoute
   "/_identity/_signed-in/analyses/$analysisId": typeof IdentitySignedInAnalysesAnalysisIdRoute
+  "/api/analyses/$analysisId/chat": typeof ApiAnalysesAnalysisIdChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | "/sign-in/$"
     | "/api/webhooks/clerk"
     | "/analyses/$analysisId"
+    | "/api/analyses/$analysisId/chat"
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | "/sign-in/$"
     | "/api/webhooks/clerk"
     | "/analyses/$analysisId"
+    | "/api/analyses/$analysisId/chat"
   id:
     | "__root__"
     | "/"
@@ -114,12 +126,14 @@ export interface FileRouteTypes {
     | "/_identity/sign-in/$"
     | "/api/webhooks/clerk"
     | "/_identity/_signed-in/analyses/$analysisId"
+    | "/api/analyses/$analysisId/chat"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   IdentityRoute: typeof IdentityRouteWithChildren
   ApiWebhooksClerkRoute: typeof ApiWebhooksClerkRoute
+  ApiAnalysesAnalysisIdChatRoute: typeof ApiAnalysesAnalysisIdChatRoute
 }
 
 declare module "@tanstack/react-router" {
@@ -180,6 +194,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IdentitySignedInAnalysesAnalysisIdRouteImport
       parentRoute: typeof IdentitySignedInRoute
     }
+    "/api/analyses/$analysisId/chat": {
+      id: "/api/analyses/$analysisId/chat"
+      path: "/api/analyses/$analysisId/chat"
+      fullPath: "/api/analyses/$analysisId/chat"
+      preLoaderRoute: typeof ApiAnalysesAnalysisIdChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -217,6 +238,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   IdentityRoute: IdentityRouteWithChildren,
   ApiWebhooksClerkRoute: ApiWebhooksClerkRoute,
+  ApiAnalysesAnalysisIdChatRoute: ApiAnalysesAnalysisIdChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

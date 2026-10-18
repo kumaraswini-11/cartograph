@@ -55,18 +55,19 @@ sentences; the prompt.
 
 ## T04 — The chat route
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T03
 **Covers:** FR-001, FR-002 (source, explanation), D-02, D-03, D-07
 
-**What to build:** `sourceAtCommit` shared; `chatStream`; the server route;
+**What to build:** `sourceAtCommit` shared; `handleChat`; the server route;
 the CSRF filter widened.
 
 **Done when:**
 
-- [ ] Tests show another site's `POST` refused, the organization from the
-      session, and another organization's analysis not found.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests show another site's `POST` refused, the organization from the
+      session, and another organization's analysis not found. Also checked
+      on the dev server: another site's `POST` gets 403, a signed-out one 401.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T05 — The Chat tab
 

@@ -12,7 +12,12 @@ export {
   filePrompt,
   systemPrompt,
 } from "./explain.ts"
-export { answerQuestion, keptHistory } from "./chat/answer.ts"
+export {
+  answerQuestion,
+  chatResponse,
+  keptHistory,
+  readChatMessages,
+} from "./chat/answer.ts"
 export type { ChatDeps, ChatMessage, ChatOutcome } from "./chat/answer.ts"
 export {
   KEPT_QUESTIONS,
