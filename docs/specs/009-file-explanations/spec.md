@@ -1,6 +1,6 @@
 # 009 — File explanations
 
-**Status:** Draft
+**Status:** Approved
 **Milestone:** M4 Intelligence
 **Depends on:** 004-detail-pane, 008-repository-analysis
 
@@ -21,8 +21,8 @@ so a working cache can be told from a broken one.
 ### Explaining
 
 - **FR-001** When an explanation of a file is requested, the system shall write
-  it from the file's source and the paths of all its dependencies and
-  dependents.
+  it from the file's source at the analysed commit and the paths of all its
+  dependencies and dependents.
 - **FR-002** When an explanation of a box is requested, the system shall write
   it about the folder: what's in it, and why its dependents point at it.
 - **FR-003** The system shall show the explanation in the detail pane's
@@ -54,7 +54,8 @@ so a working cache can be told from a broken one.
 ### Cache and tracing
 
 - **FR-010** The system shall cache explanations and inferred roles by the
-  content of what's explained, the exact model version and the prompt version.
+  content of what's explained, the neighbours it's written from, the exact
+  model version and the prompt version.
 - **FR-011** The system shall trace every request through it, and read the
   cache inside the traced request, so a cache hit is recorded as a run with no
   model call.
@@ -96,7 +97,11 @@ so a working cache can be told from a broken one.
 - A file longer than `EXPLAIN_MAX_LINES` → explained from its first
   `EXPLAIN_MAX_LINES` lines, and the explanation says it was shortened.
 - A file with no edges → explained from its own source, saying it has none.
-- A model error or timeout → a message in the tab; nothing is cached.
+- A model error, a timeout, or the model's request limit reached → a message
+  in the tab saying to try again shortly; nothing is cached.
+- A file's source at the analysed commit that doesn't match the content hash
+  the analysis recorded → no explanation, and a message; nothing is sent to
+  the model.
 
 ## Acceptance criteria
 
@@ -120,8 +125,14 @@ so a working cache can be told from a broken one.
 
 ## Open questions
 
-- [NEEDS CLARIFICATION] `EXPLAIN_MAX_LINES`: proposed 400.
-- [NEEDS CLARIFICATION] Where the file's source comes from when explaining:
-  fetched from the analysed commit (proposed), or stored with the analysis?
-- [NEEDS CLARIFICATION] Is the cache shared across organizations for the same
-  public file at the same content, or kept per organization?
+None. Resolved 2026-10-18:
+
+- `EXPLAIN_MAX_LINES` = 500, the same as `OVERSIZED_LINES` (`005`): every
+  file the map doesn't flag as oversized is explained whole.
+- The file's source is fetched from the repository at the analysed commit,
+  never stored with the analysis, and checked against the content hash the
+  analysis recorded (FR-001). A commit's files never change, so the
+  explanation is written from exactly what was parsed.
+- The cache is kept per organization. Every stored row belongs to an
+  organization (`007`), so deleting the organization deletes its cache too.
+  Two organizations explaining the same file each write their own.

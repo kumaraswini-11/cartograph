@@ -1,9 +1,8 @@
 import { startTransition, useEffect, useRef, useState } from "react"
-import { SparklesIcon, XIcon } from "lucide-react"
+import { XIcon } from "lucide-react"
 import { ROOT_LABEL } from "@workspace/graph"
 import type { Direction, Selection } from "@workspace/graph"
 import { fileName, folderOf } from "@workspace/parser/paths"
-import { EmptyState } from "@workspace/ui/components/empty-state"
 import { Button } from "@workspace/ui/components/shadcn-ui/button"
 import {
   Sidebar,
@@ -18,6 +17,7 @@ import {
 } from "@workspace/ui/components/shadcn-ui/tabs"
 
 import { BoxDetail } from "@/components/detail/box-detail"
+import { ExplanationTab } from "@/components/detail/explanation"
 import { FileDetail } from "@/components/detail/file-detail"
 import { PaneScrollContext } from "@/components/detail/file-list"
 import { SUMMARY_HEADING, Summary } from "@/components/detail/summary"
@@ -116,7 +116,6 @@ function SelectionDetail({
   onClear: () => void
 }) {
   const { boxMap } = useMapData()
-  const isFile = selection.file !== undefined
   const box = boxMap.byId.get(selection.box)
   const title =
     selection.file === undefined
@@ -172,10 +171,12 @@ function SelectionDetail({
           )}
         </TabsContent>
         <TabsContent value="explanation">
-          <EmptyState
-            icon={<SparklesIcon />}
-            title="No explanation yet"
-            description={`An explanation of this ${isFile ? "file" : "box"}, written from its real neighbours, will appear here.`}
+          <ExplanationTab
+            subject={
+              selection.file !== undefined
+                ? { kind: "file", path: selection.file }
+                : { kind: "box", path: selection.box }
+            }
           />
         </TabsContent>
       </Tabs>

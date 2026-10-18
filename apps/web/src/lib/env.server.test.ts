@@ -10,6 +10,7 @@ const valid = {
   VITE_SUPABASE_URL: "https://ref.supabase.co",
   VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_abc",
   SUPABASE_SECRET_KEY: "sb_secret_abc",
+  GEMINI_API_KEY: "gemini-key",
 }
 
 const problemsOf = (source: Record<string, string | undefined>) => {
@@ -23,8 +24,42 @@ const problemsOf = (source: Record<string, string | undefined>) => {
 }
 
 describe("the server's configuration (spec 000 FR-011, spec 006)", () => {
-  it("accepts Clerk's keys and Supabase's address and keys", () => {
+  it("accepts Clerk's keys, Supabase's address and keys, and the model's key", () => {
     expect(problemsOf(valid)).toEqual([])
+  })
+
+  it("runs without tracing, and with it once its key is there (spec 009, FR-013)", () => {
+    expect(problemsOf({ ...valid, GEMINI_API_KEY: undefined })).toEqual([
+      "GEMINI_API_KEY is missing",
+    ])
+    // Empty counts as missing, so no request is sent with an empty key.
+    expect(problemsOf({ ...valid, GEMINI_API_KEY: " " })).toEqual([
+      "GEMINI_API_KEY is missing",
+    ])
+    expect(
+      problemsOf({
+        ...valid,
+        LANGSMITH_TRACING: "true",
+        LANGSMITH_API_KEY: "lsv2_sk_abc",
+        LANGSMITH_ENDPOINT: "https://apac.api.smith.langchain.com",
+        LANGSMITH_PROJECT: "cartograph-development",
+      })
+    ).toEqual([])
+    expect(problemsOf({ ...valid, LANGSMITH_TRACING: "true" })).toEqual([
+      "LANGSMITH_API_KEY is missing",
+    ])
+    expect(
+      problemsOf({
+        ...valid,
+        LANGSMITH_API_KEY: "sk-abc",
+        LANGSMITH_TRACING: "yes",
+        LANGSMITH_ENDPOINT: "http://api.smith.langchain.com",
+      })
+    ).toEqual([
+      'LANGSMITH_TRACING: Invalid option: expected one of "true"|"false"',
+      "LANGSMITH_API_KEY: must start with lsv2_",
+      "LANGSMITH_ENDPOINT: must be an https:// address",
+    ])
   })
 
   it("names a missing value and one of the wrong kind, so the server stops", () => {

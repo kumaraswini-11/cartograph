@@ -25,6 +25,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"explanations": {
+                  Row: {
+                    "analysis_id": string,"body": string,"cache_key": string,"created_at": string,"id": string,"inferred_role": string | null,"kind": string,"model": string,"organization_id": string,"prompt_version": number,"subject": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "analysis_id": string,"body": string,"cache_key": string,"created_at"?: string,"id"?: string,"inferred_role"?: string | null,"kind": string,"model": string,"organization_id": string,"prompt_version": number,"subject": string
+                  }
+                  Update: {
+                    "analysis_id"?: string,"body"?: string,"cache_key"?: string,"created_at"?: string,"id"?: string,"inferred_role"?: string | null,"kind"?: string,"model"?: string,"organization_id"?: string,"prompt_version"?: number,"subject"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "explanations_organization_id_analysis_id_fkey"
+      columns: ["organization_id","analysis_id"]
+isOneToOne: false
+      referencedRelation: "analyses"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "explanations_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"organizations": {
                   Row: {
                     "created_at": string,"id": string

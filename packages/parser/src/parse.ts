@@ -24,6 +24,15 @@ export type ParseOptions = {
   maxFileBytes?: number
 }
 
+/**
+ * A file's content hash: the SHA-256 of its bytes, in hex. The one
+ * definition, so a file fetched later can be checked against what was
+ * parsed (spec 009, plan D-04, D-10).
+ */
+export function contentHash(bytes: Uint8Array): string {
+  return createHash("sha256").update(bytes).digest("hex")
+}
+
 /** Lines in `text`; a final newline doesn't start another line. */
 export function countLines(text: string): number {
   if (text === "") return 0
@@ -72,7 +81,7 @@ export function parseRepository(
       path: file.path,
       folder: folderOf(file.path),
       lines: countLines(text),
-      hash: createHash("sha256").update(bytes).digest("hex"),
+      hash: contentHash(bytes),
     })
     for (const found of extraction.imports)
       extracted.push({ from: file.path, ...found })
