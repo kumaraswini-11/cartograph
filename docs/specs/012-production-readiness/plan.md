@@ -176,11 +176,18 @@ organization and start time.
   tests, so a signed-in page is audited without signing in. Colour contrast
   needs a real browser, so it's checked in Lighthouse on the public pages
   and by hand on the rest.
-- **D-08 Measured on production.** Lighthouse's default mobile profile (a
-  mid-range phone on a slow 4G connection) on the production address for
-  AC-13, and Speed Insights for the 75th percentile of real page loads.
-  `008`'s map-page findings (total blocking time about 1.1 s, small tap
-  targets on mobile) are the first to fix.
+- **D-08 Measured on production.** Two measurements, each for what it can
+  see:
+  - **Speed Insights**, real page loads on the production address, at the
+    75th percentile: LCP, INP and CLS against `LCP_MAX`, `INP_MAX` and
+    `CLS_MAX`. INP is measured here only: it needs a person's
+    interactions, which a page-load lab run doesn't make.
+  - **Lighthouse's default mobile profile** (a mid-range phone on a slow 4G
+    connection), on the production address before release: LCP and CLS
+    against their thresholds, and total blocking time as the lab's stand-in
+    for INP, held to the same 200 ms.
+    `008`'s map-page findings (total blocking time about 1.1 s, small tap
+    targets on mobile) are the first to fix.
   - **What the profile showed** (the map of `t3-oss/create-t3-app`, 182
     files, at Lighthouse's 4× CPU slowdown): dagre's layout was 612 ms of
     the map's 981, in one call during the render; React's hydrating and

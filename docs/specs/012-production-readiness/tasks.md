@@ -34,7 +34,7 @@ release; the five events.
 
 ## T03 — Security headers
 
-**Status:** Done (signed-in pages: the owner's browser check)
+**Status:** Done
 **Blocked by:** T02 (the policy lists PostHog's hosts)
 **Covers:** FR-004, FR-005, C-02, AC-09, D-03, D-04
 
@@ -48,7 +48,11 @@ them.
       a production build, in headless Edge, on home, sign-in (Clerk's
       components, Protect and Cloudflare's check) and a missing page. Left:
       Clerk's development-keys warning and its development cookie (D-09).
-      Signing in, and the signed-in pages, are the owner's browser check.
+      Then signed in, in the owner's window: the dashboard, the organization
+      and two maps, with Realtime connected and the console clear. A Vercel
+      build alone renders Speed Insights, whose script only Vercel serves.
+      An error the app doesn't answer gets the headers too, at the server
+      entry, where Start answers it.
 - [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T04 — Limits
@@ -85,7 +89,10 @@ what it finds.
 - [x] Contrast and target size, which need a laid-out page: axe-core in
       headless Edge on a local production build, light and dark, on home,
       sign-in and a missing page. One violation, Clerk's development badge
-      (D-09). The signed-in pages' contrast is checked by hand (D-07).
+      (D-09). Then signed in, the same audit on the dashboard, the
+      organization and two maps, light and dark: React Flow's attribution
+      link failed contrast (2.84:1), now the theme's muted text; nothing
+      else.
 - [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T06 — Speed

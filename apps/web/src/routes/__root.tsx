@@ -70,9 +70,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             @workspace/ui/components/shadcn-ui/toast anywhere to show a toast. */}
         <Toaster />
         {/* Real page loads' Core Web Vitals (spec 012, FR-009, D-08), from
-            this origin; nothing kept on the device (FR-012). On Vercel only:
-            elsewhere its script isn't served. */}
-        <SpeedInsights route={route ?? null} />
+            this origin; nothing kept on the device (FR-012). In a build for
+            Vercel only: elsewhere its script isn't served. */}
+        {import.meta.env.VITE_SPEED_INSIGHTS && (
+          <SpeedInsights route={route ?? null} />
+        )}
         {/* Development only: the devtools Vite plugin strips this from
             production builds (removeDevtoolsOnBuild defaults to true). */}
         <TanStackDevtools

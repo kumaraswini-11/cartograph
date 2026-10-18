@@ -53,6 +53,11 @@ const config = defineConfig(({ command }) => {
     },
     define: {
       "import.meta.env.VITE_RELEASE": JSON.stringify(release),
+      // Speed Insights' script and reports are served by Vercel alone
+      // (/_vercel/speed-insights): a build for anywhere else leaves it out.
+      "import.meta.env.VITE_SPEED_INSIGHTS": JSON.stringify(
+        provider === "vercel"
+      ),
       ...(productionDomain && {
         "import.meta.env.VITE_SITE_URL": JSON.stringify(
           `https://${productionDomain}`

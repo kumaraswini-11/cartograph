@@ -11,4 +11,6 @@ interface ImportMetaEnv {
   readonly VITE_POSTHOG_HOST?: string
   /** The build's commit on Vercel, "development" elsewhere (spec 012). */
   readonly VITE_RELEASE: string
+  /** Whether the build is for Vercel, which serves Speed Insights (012). */
+  readonly VITE_SPEED_INSIGHTS: boolean
 }
