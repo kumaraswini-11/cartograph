@@ -67,7 +67,7 @@ describe("the server's configuration (spec 000 FR-011, spec 006)", () => {
       problemsOf({
         ...valid,
         VITE_POSTHOG_KEY: "phc_abc",
-        VITE_POSTHOG_HOST: "https://eu.i.posthog.com",
+        VITE_POSTHOG_HOST: "https://us.i.posthog.com",
       })
     ).toEqual([])
     expect(problemsOf({ ...valid, VITE_POSTHOG_KEY: "phc_abc" })).toEqual([
@@ -77,7 +77,7 @@ describe("the server's configuration (spec 000 FR-011, spec 006)", () => {
       problemsOf({
         ...valid,
         VITE_POSTHOG_KEY: "abc",
-        VITE_POSTHOG_HOST: "http://eu.i.posthog.com",
+        VITE_POSTHOG_HOST: "http://us.i.posthog.com",
       })
     ).toEqual([
       "VITE_POSTHOG_KEY: must start with phc_",

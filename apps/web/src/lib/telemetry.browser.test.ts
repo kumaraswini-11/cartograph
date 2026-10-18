@@ -20,7 +20,7 @@ beforeAll(() => {
   )
   posthog.init("phc_test", {
     ...BROWSER_CONFIG,
-    api_host: "https://eu.i.posthog.com",
+    api_host: "https://us.i.posthog.com",
   })
 })
 afterAll(() => vi.unstubAllGlobals())

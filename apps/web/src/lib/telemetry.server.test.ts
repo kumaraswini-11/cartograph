@@ -29,7 +29,7 @@ vi.mock("@tanstack/react-start/server-only", () => ({}))
 vi.mock("./env.server", () => ({
   getServerEnv: () => ({
     VITE_POSTHOG_KEY: "phc_test",
-    VITE_POSTHOG_HOST: "https://eu.i.posthog.com",
+    VITE_POSTHOG_HOST: "https://us.i.posthog.com",
   }),
 }))
 

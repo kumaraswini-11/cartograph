@@ -13,7 +13,7 @@ import {
 const SOURCES = {
   clerkPublishableKey: buildPublishableKey("calm-owl-12.clerk.accounts.dev"),
   supabaseUrl: "https://ref.supabase.co",
-  posthogHost: "https://eu.i.posthog.com",
+  posthogHost: "https://us.i.posthog.com",
 }
 
 /** The policy's directives, each with its sources. */
@@ -81,7 +81,7 @@ describe("the content security policy (FR-005, C-02, D-03)", () => {
       "https://*.protect.clerk.com:*",
       "https://ref.supabase.co",
       "wss://ref.supabase.co",
-      "https://eu.i.posthog.com",
+      "https://us.i.posthog.com",
     ])
     const local = directives(
       contentSecurityPolicy("n", {

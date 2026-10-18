@@ -128,7 +128,7 @@ the alternatives considered, are in
 - **AI**: [Gemini](https://ai.google.dev) through the
   [AI SDK](https://ai-sdk.dev), traced in
   [LangSmith](https://www.langchain.com/langsmith)
-- **Errors and events**: [PostHog](https://posthog.com) (EU)
+- **Errors and events**: [PostHog](https://posthog.com) (US cloud)
 - **Hosting**: [Vercel](https://vercel.com), built by
   [Nitro](https://nitro.build), with Speed Insights
 - **Review**: [CodeRabbit](https://www.coderabbit.ai) on every pull request

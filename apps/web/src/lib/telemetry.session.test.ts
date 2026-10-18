@@ -53,7 +53,7 @@ vi.mock("./session.server", () => ({
 vi.mock("./env.server", () => ({
   getServerEnv: () => ({
     VITE_POSTHOG_KEY: "phc_test",
-    VITE_POSTHOG_HOST: "https://eu.i.posthog.com",
+    VITE_POSTHOG_HOST: "https://us.i.posthog.com",
     VITE_SUPABASE_URL: "http://127.0.0.1:54321",
     SUPABASE_SECRET_KEY: "sb_secret_abc",
     CLERK_WEBHOOK_SIGNING_SECRET: "whsec_abc",

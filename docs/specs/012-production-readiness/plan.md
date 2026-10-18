@@ -73,7 +73,10 @@ organization and start time.
     errors a month, and events would need a second service. Considered:
     Vercel Web Analytics for events. Rejected: custom events are on paid
     plans only.
-  - Events go to PostHog's EU cloud.
+  - Events go to PostHog's US cloud, the owner's choice (2026-10-19). The EU
+    cloud, which PostHog recommends for GDPR, was weighed for keeping EU
+    visitors' data in the EU. Nothing in the code depends on the region: the
+    host is configuration, and the content security policy is built from it.
 - **D-02 What may be sent.** An event is one of five names with a fixed set
   of properties: ids, counts, durations and outcomes, never text. An error
   report sends the message, stack and release, never request bodies or
@@ -232,7 +235,7 @@ organization and start time.
 
 By the repository's owner:
 
-- **PostHog:** an account on the EU cloud, free plan, no card; a project
+- **PostHog:** an account on the US cloud, free plan, no card; a project
   named `cartograph`; its project key and host into `.env.local` and
   Vercel (`VITE_POSTHOG_KEY`, `VITE_POSTHOG_HOST`). The project key is
   public by design; it only writes events. In the project's settings,
