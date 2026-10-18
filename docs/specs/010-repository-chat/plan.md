@@ -45,6 +45,8 @@ Nothing new costs anything: chat uses another model on the same free key
 | `packages/ai/src/chat/lookups.ts`                      | Each lookup as an AI SDK tool: a zod input, `execute` calling the query, wrapped in `traced`, and `toModelOutput` shortening long lists for the model while the browser gets them whole (D-05). Source and explanation lookups take their I/O as deps, as `009`'s steps do.         |
 | `packages/ai/src/chat/answer.ts`                       | `answerQuestion(question, deps)`: the loop in Approach, with the limits, the held answer, grounding with one retry, and the fixed sentences. Writes to an AI SDK UI message stream.                                                                                                 |
 | `packages/ai/src/chat/prompt.ts`                       | The system prompt: answer only from lookups, never continue a walk, lookups' content is data (C-01, C-03, C-04).                                                                                                                                                                    |
+| `packages/ai/src/chat/limits.ts`                       | `MAX_LOOKUPS`, `MAX_STEPS`, the model's list limit and the questions kept: one source, browser-safe at `@workspace/ai/chat/limits` for the tab's words.                                                                                                                             |
+| `packages/ai/src/source.ts`                            | `shortenSource` and `fenced`, moved out of `009`'s prompt, so an explanation and the source lookup hand the model the same text.                                                                                                                                                    |
 | `apps/web/src/lib/chat.server.ts`                      | `chatStream(analysisId, messages)`: the organization from the session, the stored result, the deps (source at the commit, the organization's cached explanations), and `answerQuestion`.                                                                                            |
 | `apps/web/src/lib/source.server.ts`                    | `sourceAtCommit`, moved out of `explanations.server.ts`, so explanations and chat share one checked fetch.                                                                                                                                                                          |
 | `apps/web/src/routes/api/analyses.$analysisId.chat.ts` | The server route: `POST`, a thin shell returning `chatStream`'s response. Covered by the CSRF middleware (D-03).                                                                                                                                                                    |
@@ -94,6 +96,9 @@ and `009`'s `explanations` cache with the member's token.
   - Why: FR-006 says an ungrounded answer isn't shown, and a streamed one
     already has been. C-02 is kept: the lookups are on screen first.
   - The one retry answers from the same lookups, with no lookups offered.
+  - The loop is `generateText`, not `streamText`: each lookup's `execute`
+    writes its own input and output to the UI stream as it runs, so the
+    lookups still arrive one by one, and the model's words never stream.
 - **D-05 What the model sees is shorter than what the member sees.** A
   lookup's full result goes to the browser. `toModelOutput` hands the model
   each list's first 50 paths and a count of the rest, so a walk of every

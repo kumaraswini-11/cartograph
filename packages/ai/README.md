@@ -79,6 +79,23 @@ the rest counted. A box never gets an inferred role.
   `@workspace/ai/grounding` turns a named path into the analysis's file, for
   links (FR-008).
 
+## Answering a question (spec 010)
+
+`answerQuestion(analysis, messages, deps)` returns an AI SDK UI message
+stream for `useChat`. The model (`CHAT_MODEL`) is handed lookups, never the
+repository: each runs `@workspace/graph`'s query (a walk is the detail
+pane's `walk`), is its own traced run, and writes itself to the stream as it
+finishes. The answer is held until every file it names is in the analysis,
+asked for once more if not, and with no lookup made nothing is answered.
+The stream ends with a `data-outcome` part: answered (and whether it
+stopped at `MAX_LOOKUPS`), declined, ungrounded or limited.
+
+- `toModelOutput` cuts each list the model sees to `MODEL_LIST_LIMIT`
+  paths; the browser gets the whole result.
+- A file's source goes to the model fenced as data (`source.ts`, shared
+  with explanations).
+- `@workspace/ai/chat/limits` is browser-safe, for the tab's words.
+
 ## The choices behind it
 
 The model (Gemini, free tier), the tracing service (LangSmith, free plan),

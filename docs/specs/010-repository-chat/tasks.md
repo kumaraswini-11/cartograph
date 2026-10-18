@@ -37,7 +37,7 @@ every `009` row on production with `009` T01's carried `008`, `007` and
 
 ## T03 — The chat's loop
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T02
 **Covers:** FR-001, FR-004 to FR-007, FR-010, C-01, C-03, C-04, AC-02,
 AC-03, AC-04, AC-05, AC-08, D-01, D-04 to D-08
@@ -48,10 +48,10 @@ sentences; the prompt.
 
 **Done when:**
 
-- [ ] Tests with the mock model pass for AC-02, AC-03, AC-05 and AC-08, the
+- [x] Tests with the mock model pass for AC-02, AC-03, AC-05 and AC-08, the
       request limit, and the model's shortened output; a blast radius from
       the tool equals the detail pane's walk (AC-04).
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T04 — The chat route
 

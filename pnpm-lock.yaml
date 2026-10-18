@@ -297,6 +297,9 @@ importers:
       '@workspace/frameworks':
         specifier: workspace:*
         version: link:../frameworks
+      '@workspace/graph':
+        specifier: workspace:*
+        version: link:../graph
       '@workspace/parser':
         specifier: workspace:*
         version: link:../parser

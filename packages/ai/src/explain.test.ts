@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from "vitest"
 import { UNIDENTIFIED } from "@workspace/frameworks/taxonomy"
 
 import {
-  EXPLAIN_MAX_LINES,
   answerSchema,
   boxCacheKey,
   boxPrompt,
@@ -21,6 +20,7 @@ import type {
   FileToExplain,
 } from "./explain.ts"
 import { pathIndex } from "./grounding.ts"
+import { EXPLAIN_MAX_LINES } from "./source.ts"
 
 const FILE: FileToExplain = {
   repository: "expressjs/express",
