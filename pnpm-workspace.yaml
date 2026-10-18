@@ -35,12 +35,14 @@ catalogMode: strict
 
 catalog:
   "@ai-sdk/google": 4.0.95
+  "@ai-sdk/react": 4.0.143
   "@base-ui/react": 1.9.0
   "@clerk/backend": 3.24.0
   "@clerk/tanstack-react-start": 1.7.2
   "@clerk/ui": 1.40.2
   "@dagrejs/dagre": 3.1.1
   "@fontsource-variable/inter": 5.3.0
+  "@shadcn/react": 0.3.1
   "@supabase/supabase-js": 2.118.0
   "@tailwindcss/vite": 4.3.3
   "@tanstack/devtools-vite": 0.8.5

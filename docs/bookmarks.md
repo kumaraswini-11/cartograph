@@ -12,6 +12,44 @@
 - [Design System Checklist](https://www.designsystemchecklist.com/): open checklist of what a design system should cover (design language, foundations like colour and type, components, tooling, process). Useful when settling Cartograph's tokens and palette; the four starting decisions in `docs/project-doc.md` still come first.
 - [Design Token Naming Convention Tool](https://www.namedesigntokens.guide/): interactive guide for choosing a consistent token-naming scheme (category, property, variant, state). Pair with `token-naming.md` in Jakub Krehel's `better-colors` skill (see Agent skills) when the token set is defined.
 
+## UI libraries and references, outside Cartograph
+
+Kept so they aren't forgotten; none is used here. Cartograph's interface
+comes from the shadcn registry first (AGENTS.md: Interface).
+
+### shadcn registries and React component libraries
+
+- [shoogle.dev](https://shoogle.dev/search?tab=explore): searches shadcn blocks, components and templates across the shadcn registries at once.
+- [Watermelon UI](https://ui.watermelon.sh/): free components, animations, blocks and dashboards for Tailwind CSS and shadcn/ui; installs with the shadcn CLI.
+- [PaceUI](https://paceui.com/): animated React blocks for Next.js and TanStack Start, built with Motion and shadcn. Paid, once.
+- [beUI](https://beui.dev/): free, open-source animated components for React, Next.js and React Native (Motion, Tailwind CSS, Reanimated), by copy or CLI.
+- [Beautiful UI](https://www.beautifului.dev/): copy-paste components for chat agents: thinking states, human-in-the-loop approvals.
+- [Fluid Functionalism](https://www.fluidfunctionalism.com/): open-source UI components by @micka_design.
+- [Intent UI blocks](https://design.intentui.com/blocks/ui-kits): React UI-kit blocks (navigation, pagination, forms, data display) on Tailwind CSS and React Aria.
+- [HeroUI](https://heroui.com/): accessible React components on React Aria and Tailwind CSS v4; formerly NextUI.
+- [ThreeUI](https://threeui.com/browse): Three.js components, templates, WebGL backgrounds and shaders.
+
+### Motion, loaders and transitions
+
+- [transitions.dev](https://transitions.dev/): essential UI transitions for web apps, to copy or use through its agent skill.
+- [Circle Loaders](https://circleloaders.dominikakissi.com/): 24 monochrome circular loading animations, pure CSS and SVG, for agent states.
+
+### Design references and design engineering
+
+- [Emil Kowalski](https://emilkowal.ski/): design engineer at Linear; writing on interface craft and motion (the `emil-design-eng` skill comes from his work).
+- [UI Skills](https://www.ui-skills.com/): design-engineering skills for accessibility, motion, frontend craft and interface quality.
+- [GTC design tokens](https://buninux.com/design-tokens): a design-token naming convention, with its taxonomy and architecture.
+- [UI/UX Showcase](https://uiuxshowcase.com/): web design inspiration, design resources and AI tools.
+- [UI Discovery](https://uidiscovery.com/): UI inspiration from thousands of real websites, iOS apps and UI sections, with their palettes and fonts, and prompts for coding agents.
+- [Logo Domains](https://logo.domains/): free SVG logos of popular brands, to search, copy as SVG or download as PNG.
+- [Design.com](https://www.design.com/): AI design platform for logos, websites, business cards, social posts and presentations.
+
+### Other tools
+
+- [vgpu](https://vgpu.sh/): a WebGPU library designed for agents.
+- [Flavio Copes](https://flaviocopes.com/): tutorials on building and shipping software products.
+- [Sent](https://www.sent.dm/product): one API for SMS, WhatsApp and RCS, with routing, templates, compliance and fallback.
+
 ## Products and services
 
 - [kapa.ai](https://www.kapa.ai/): indexes a company's docs, tickets and wikis and serves AI answers (site, support, Slack) through an API or MCP server. Reference for grounded, source-backed answering, the behaviour Cartograph's chat panel must have.

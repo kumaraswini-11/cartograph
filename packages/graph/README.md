@@ -6,7 +6,9 @@ layout, what a selection keeps at full strength, and each box's count of
 files in a role; for the detail pane, blast radius and dependency chain (one
 walk over the edges), the summary's lists and the roles inside a box; and
 the insights (unimported, heavily imported and oversized files, and cycles),
-each with its fixed sentence.
+each with its fixed sentence; and the chat's lookups (find files, a file's
+details, its neighbours), beside the walk, the routes and the insights it
+also reads (spec 010).
 
 ## Why a separate package
 
@@ -22,8 +24,11 @@ detail pane in the browser now, and insights and chat later (specs 005,
 import {
   buildBoxes,
   edgeIndex,
+  fileDetails,
+  findFiles,
   fullStrength,
   layoutMap,
+  neighbours,
   walk,
 } from "@workspace/graph"
 
@@ -33,6 +38,11 @@ const strength = fullStrength(layout, { box: "src/lib" })
 
 // Blast radius: every file that depends on it, level by level.
 const levels = walk(edgeIndex(input.edges), "src/lib/env.ts", "dependents")
+
+// The chat's lookups: what the analysis has, never a guess.
+findFiles(input.files, "env.ts") // ["src/lib/env.ts", …], best match first
+fileDetails(input.files, "src/lib/env.ts") // role, lines, fan-in, fan-out
+neighbours(edgeIndex(input.edges), "src/lib/env.ts") // one edge each way
 ```
 
 `toMapInput(source, parsed, detection)` builds the input from the parser's
@@ -61,3 +71,7 @@ Internal and private: never published. No build step; it declares
 [Spec 005](../../docs/specs/005-structural-insights/spec.md) ·
 [plan](../../docs/specs/005-structural-insights/plan.md) ·
 [tasks](../../docs/specs/005-structural-insights/tasks.md)
+
+[Spec 010](../../docs/specs/010-repository-chat/spec.md) ·
+[plan](../../docs/specs/010-repository-chat/plan.md) ·
+[tasks](../../docs/specs/010-repository-chat/tasks.md)

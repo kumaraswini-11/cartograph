@@ -9,32 +9,60 @@ import {
   explainFile,
   languageModel,
   pathIndex,
-  tracing,
 } from "@workspace/ai"
-import type { ExplainDeps, ExplainOutcome, InferredRole } from "@workspace/ai"
-import {
-  explanationWriter,
-  readAnalysis,
-  readExplanation,
-  readResult,
-} from "@workspace/database"
-import { detection } from "@workspace/frameworks"
-import { buildBoxes, toMapInput } from "@workspace/graph"
+import type {
+  ExplainDeps,
+  ExplainOutcome,
+  FileToExplain,
+  InferredRole,
+  PathIndex,
+} from "@workspace/ai"
+import { explanationWriter, readExplanation } from "@workspace/database"
+import { buildBoxes } from "@workspace/graph"
 import { GitHubError, defaultBranchHead, fileAtCommit } from "@workspace/github"
-import {
-  MAX_FILE_BYTES,
-  contentHash,
-  isTooLarge,
-  parseResult,
-} from "@workspace/parser"
+import { MAX_FILE_BYTES, contentHash } from "@workspace/parser"
 
 import { currentOrganization } from "./analyses.server"
 import type { ExplainResult, ExplainSubject, Staleness } from "./explanations"
 import { getServerEnv } from "./env.server"
+import { SourceMismatch, sourceAtCommit } from "./source.server"
+import { readStoredAnalysis } from "./stored-analysis.server"
+import type { MappedResult } from "./stored-analysis.server"
 import { requestStorage } from "./storage.server"
+import { serverTracing } from "./tracing.server"
 
 const isInferredRole = (role: string | null): role is InferredRole =>
   role !== null && (INFERRED_ROLES as ReadonlyArray<string>).includes(role)
+
+/**
+ * A file's facts for its explanation, from the stored result, never the
+ * request (spec 009): its hash, its role, and its real neighbours. Null if
+ * the analysis has no such file. Chat finds a cached explanation with it.
+ */
+export function fileToExplain(
+  repository: string,
+  result: MappedResult,
+  analysisPaths: PathIndex,
+  path: string
+): (FileToExplain & { record: { path: string; hash: string } }) | null {
+  const record = result.parsed.files.find((file) => file.path === path)
+  const role = result.input.files.find((file) => file.path === path)?.role
+  if (record === undefined || role === undefined) return null
+  return {
+    repository,
+    path,
+    hash: record.hash,
+    detectedRole: role,
+    dependencies: result.input.edges
+      .filter((edge) => edge.from === path)
+      .map((edge) => edge.to),
+    dependents: result.input.edges
+      .filter((edge) => edge.to === path)
+      .map((edge) => edge.from),
+    analysisPaths,
+    record,
+  }
+}
 
 /**
  * A file or box of the member's organization's analysis, explained (spec
@@ -49,12 +77,7 @@ export async function explainSelection(
 ): Promise<ExplainResult> {
   const organizationId = await currentOrganization()
   const env = getServerEnv()
-  const traces = tracing({
-    tracing: env.LANGSMITH_TRACING,
-    apiKey: env.LANGSMITH_API_KEY,
-    endpoint: env.LANGSMITH_ENDPOINT,
-    project: env.LANGSMITH_PROJECT,
-  })
+  const traces = serverTracing()
   const failed = (message: string): ExplainResult => ({
     traced: traces.enabled,
     status: "failed",
@@ -62,19 +85,10 @@ export async function explainSelection(
   })
   const storage = await requestStorage()
 
-  const analysis = await readAnalysis(storage, analysisId)
-  const stored = await readResult(storage, analysisId)
-  if (analysis === null || stored === null) {
-    return failed("This analysis has no map yet.")
-  }
-  const parsed = parseResult.parse(stored.parsed)
-  if (isTooLarge(parsed)) throw new Error(`Analysis ${analysisId} has no files`)
-  // The map's own input, so a box here is the box the member sees.
-  const input = toMapInput(
-    { repository: analysis.repository, commit: stored.commit },
-    parsed,
-    detection.parse(stored.detection)
-  )
+  const read = await readStoredAnalysis(storage, analysisId)
+  if (read?.result == null) return failed("This analysis has no map yet.")
+  const { analysis, result } = read
+  const { parsed, input } = result
   const analysisPaths = pathIndex(input.files.map((file) => file.path))
 
   const writer = explanationWriter({
@@ -111,35 +125,23 @@ export async function explainSelection(
   let outcome: ExplainOutcome
   try {
     if (subject.kind === "file") {
-      const path = subject.path
-      const record = parsed.files.find((file) => file.path === path)
-      const role = input.files.find((file) => file.path === path)?.role
-      if (record === undefined || role === undefined) {
-        return failed(`${path} isn't in this analysis.`)
-      }
-      outcome = await explainFile(
-        {
-          repository: analysis.repository,
-          path,
-          hash: record.hash,
-          detectedRole: role,
-          dependencies: input.edges
-            .filter((edge) => edge.from === path)
-            .map((edge) => edge.to),
-          dependents: input.edges
-            .filter((edge) => edge.to === path)
-            .map((edge) => edge.from),
-          analysisPaths,
-        },
-        {
-          ...deps,
-          // Fetched only on a miss, at the analysed commit, and refused
-          // unless it matches the hash the parser recorded (D-04).
-          source: () =>
-            sourceAtCommit(analysis.repository, stored.commit, record),
-        }
+      const file = fileToExplain(
+        analysis.repository,
+        result,
+        analysisPaths,
+        subject.path
       )
+      if (file === null)
+        return failed(`${subject.path} isn't in this analysis.`)
+      outcome = await explainFile(file, {
+        ...deps,
+        // Fetched only on a miss, at the analysed commit, and refused
+        // unless it matches the hash the parser recorded (D-04).
+        source: () =>
+          sourceAtCommit(analysis.repository, result.commit, file.record),
+      })
     } else {
+      // The map's own boxes, so a box here is the box the member sees.
       const box = buildBoxes(input.files, input.edges).byId.get(subject.path)
       if (box === undefined) {
         return failed("This box isn't on the analysis's map.")
@@ -195,10 +197,9 @@ export async function stalenessOf(
   analysisId: string,
   subject: ExplainSubject
 ): Promise<Staleness> {
-  const storage = await requestStorage()
-  const analysis = await readAnalysis(storage, analysisId)
-  const stored = await readResult(storage, analysisId)
-  if (analysis === null || stored === null) return { status: "unknown" }
+  const read = await readStoredAnalysis(await requestStorage(), analysisId)
+  if (read?.result == null) return { status: "unknown" }
+  const { analysis, result } = read
 
   let head: string
   try {
@@ -208,13 +209,10 @@ export async function stalenessOf(
     console.error(`The head of ${analysis.repository} wasn't read:`, error)
     return { status: "unknown" }
   }
-  if (head === stored.commit) return { status: "current" }
+  if (head === result.commit) return { status: "current" }
   if (subject.kind === "box") return { status: "moved" }
 
-  const parsed = parseResult.parse(stored.parsed)
-  const record = isTooLarge(parsed)
-    ? undefined
-    : parsed.files.find((file) => file.path === subject.path)
+  const record = result.parsed.files.find((file) => file.path === subject.path)
   if (record === undefined) return { status: "unknown" }
   try {
     const bytes = await fileAtCommit(analysis.repository, head, record.path, {
@@ -230,29 +228,6 @@ export async function stalenessOf(
     console.error(`${record.path} at ${head.slice(0, 7)} wasn't read:`, error)
     return { status: "unknown" }
   }
-}
-
-/** Why a file's source can't be used: it isn't what was parsed. */
-class SourceMismatch extends Error {}
-
-/**
- * The file's text at the analysed commit, checked against the parser's
- * SHA-256 of its bytes: anything else would be explained in its place.
- */
-async function sourceAtCommit(
-  repository: string,
-  commit: string,
-  record: { path: string; hash: string }
-): Promise<string> {
-  const bytes = await fileAtCommit(repository, commit, record.path, {
-    maxBytes: MAX_FILE_BYTES,
-  })
-  if (contentHash(bytes) !== record.hash) {
-    throw new SourceMismatch(
-      `${record.path} at ${commit.slice(0, 7)} doesn't match the analysed file`
-    )
-  }
-  return new TextDecoder().decode(bytes)
 }
 
 function failureMessage(error: unknown): string {

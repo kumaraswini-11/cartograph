@@ -12,13 +12,11 @@ import type { PathIndex } from "./grounding.ts"
 import { MODEL, MODEL_OPTIONS } from "./model.ts"
 import { INFERRED_ROLES } from "./roles.ts"
 import type { InferredRole } from "./roles.ts"
+import { EXPLAIN_MAX_LINES, fenced, shortenSource } from "./source.ts"
 import type { Tracing } from "./tracing.ts"
 
 /** Raised with every change to the prompt, which misses the cache (FR-010). */
 export const PROMPT_VERSION = 1
-
-/** The most lines of a file sent to the model (spec 009). */
-export const EXPLAIN_MAX_LINES = 500
 
 /** Asks again once when an answer names an absent file (FR-006). */
 const UNGROUNDED_RETRIES = 1
@@ -131,9 +129,7 @@ export function filePrompt(
   file: FileToExplain,
   source: string
 ): { prompt: string; shortened: boolean } {
-  const lines = source.split("\n")
-  const shortened = lines.length > EXPLAIN_MAX_LINES
-  const shown = shortened ? lines.slice(0, EXPLAIN_MAX_LINES) : lines
+  const { text, lines, shortened } = shortenSource(source)
   const list = (paths: ReadonlyArray<string>) =>
     paths.length === 0
       ? "none"
@@ -153,17 +149,15 @@ export function filePrompt(
     list(file.dependents),
     "",
     shortened
-      ? `Its source, shortened to the first ${EXPLAIN_MAX_LINES} of ${lines.length} lines, between the markers:`
+      ? `Its source, shortened to the first ${EXPLAIN_MAX_LINES} of ${lines} lines, between the markers:`
       : "Its source, complete, between the markers:",
-    "<<<SOURCE",
-    shown.join("\n"),
-    "SOURCE>>>",
+    fenced(text),
   ].join("\n")
   return { prompt, shortened }
 }
 
 /** True when the model refused for its request limit (HTTP 429). */
-function isLimited(error: unknown): boolean {
+export function isLimited(error: unknown): boolean {
   if (APICallError.isInstance(error)) return error.statusCode === 429
   if (error instanceof Error && "lastError" in error) {
     return isLimited(error.lastError)

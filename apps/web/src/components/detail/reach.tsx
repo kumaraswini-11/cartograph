@@ -14,7 +14,7 @@ import { FileList } from "@/components/detail/file-list"
 import { useMapData } from "@/components/map/map-data"
 
 /** Each direction's name, what it answers, and what it says when empty. */
-const WALKS: Record<
+export const WALKS: Record<
   Direction,
   { name: string; question: string; empty: string }
 > = {
@@ -28,6 +28,43 @@ const WALKS: Record<
     question: "What it needs",
     empty: "It imports no file in this repository.",
   },
+}
+
+/**
+ * A walk's levels, nearest first (spec 004, FR-015, FR-016): the nearest
+ * `REACH_OPEN_LEVELS` show their files, deeper ones their counts until
+ * opened (C-04). The detail pane's and the chat's walks show this way.
+ */
+export function WalkLevels({
+  path,
+  direction,
+  levels,
+  headingLevel = "h4",
+}: {
+  path: string
+  direction: Direction
+  levels: ReadonlyArray<ReadonlyArray<string>>
+  /** The levels' heading: under the pane's walk heading, or a chat's. */
+  headingLevel?: "h3" | "h4"
+}) {
+  if (levels.length === 0) {
+    return (
+      <p className="px-4 py-2 text-sm text-muted-foreground">
+        {WALKS[direction].empty}
+      </p>
+    )
+  }
+  return levels.map((files, i) => (
+    <FileList
+      // A new walk starts with its nearest levels open again.
+      key={`${path}:${direction}:${i}`}
+      heading={countOf(i + 1, "step away", "steps away")}
+      rows={files.map((file) => ({ path: file }))}
+      empty=""
+      headingLevel={headingLevel}
+      defaultOpen={i < REACH_OPEN_LEVELS}
+    />
+  ))
 }
 
 /**
@@ -90,23 +127,7 @@ export function Reach({
               {WALKS[direction].question}
             </p>
           </div>
-          {levels.length === 0 ? (
-            <p className="px-4 py-2 text-sm text-muted-foreground">
-              {WALKS[direction].empty}
-            </p>
-          ) : (
-            levels.map((files, i) => (
-              <FileList
-                // A new walk starts with its nearest levels open again.
-                key={`${path}:${direction}:${i}`}
-                heading={countOf(i + 1, "step away", "steps away")}
-                rows={files.map((file) => ({ path: file }))}
-                empty=""
-                headingLevel="h4"
-                defaultOpen={i < REACH_OPEN_LEVELS}
-              />
-            ))
-          )}
+          <WalkLevels path={path} direction={direction} levels={levels} />
         </section>
       )}
     </>

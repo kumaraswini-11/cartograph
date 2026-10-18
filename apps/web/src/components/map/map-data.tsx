@@ -1,4 +1,6 @@
 import { createContext, use, useMemo } from "react"
+import { pathIndex } from "@workspace/ai/grounding"
+import type { PathIndex } from "@workspace/ai/grounding"
 import { buildBoxes, edgeIndex } from "@workspace/graph"
 import type { BoxMap, EdgeIndex, MapInput } from "@workspace/graph"
 import type { Tier } from "@workspace/frameworks/taxonomy"
@@ -15,6 +17,8 @@ type MapData = {
   input: MapInput
   boxMap: BoxMap
   index: EdgeIndex
+  /** The analysis's paths, for links in explanations and answers (`009`). */
+  paths: PathIndex
   /** Each role's tier, from the taxonomy; a role not in it is Unidentified. */
   tierOf: (role: string) => Tier
 }
@@ -31,6 +35,7 @@ export function MapDataProvider({
   const value = useMemo<MapData>(() => {
     let boxMap: BoxMap | undefined
     let index: EdgeIndex | undefined
+    let paths: PathIndex | undefined
     let tiers: Map<string, Tier> | undefined
     return {
       input,
@@ -39,6 +44,9 @@ export function MapDataProvider({
       },
       get index() {
         return (index ??= edgeIndex(input.edges))
+      },
+      get paths() {
+        return (paths ??= pathIndex(input.files.map((file) => file.path)))
       },
       tierOf(role) {
         tiers ??= new Map(input.taxonomy.map((t) => [t.role, t.tier]))
