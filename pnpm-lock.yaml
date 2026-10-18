@@ -414,6 +414,9 @@ importers:
       '@workspace/vitest-config':
         specifier: workspace:*
         version: link:../vitest-config
+      ai:
+        specifier: 'catalog:'
+        version: 7.0.140(zod@4.6.5)
       eslint:
         specifier: 'catalog:'
         version: 10.12.0(jiti@2.7.0)(supports-color@7.2.0)

@@ -1,4 +1,5 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
+import { wrapLanguageModel } from "ai"
 import type { LanguageModel } from "ai"
 
 /**
@@ -39,4 +40,34 @@ export function languageModel(
  */
 export const MODEL_OPTIONS = {
   google: { thinkingConfig: { thinkingLevel: "minimal" } },
+}
+
+/**
+ * A model whose calls wait to stay within `perMinute` requests a minute:
+ * the free tiers' limit (ADR 0003). For the evaluation (spec 011, plan
+ * D-09), which calls in a burst what members call one at a time.
+ */
+export function paced(model: LanguageModel, perMinute: number): LanguageModel {
+  if (typeof model === "string") throw new Error(`Pace a built model: ${model}`)
+  const gap = 60_000 / perMinute
+  let next = 0
+  const wait = async () => {
+    const now = Date.now()
+    const at = Math.max(now, next)
+    next = at + gap
+    if (at > now) await new Promise((resolve) => setTimeout(resolve, at - now))
+  }
+  return wrapLanguageModel({
+    model,
+    middleware: {
+      wrapGenerate: async ({ doGenerate }) => {
+        await wait()
+        return doGenerate()
+      },
+      wrapStream: async ({ doStream }) => {
+        await wait()
+        return doStream()
+      },
+    },
+  })
 }

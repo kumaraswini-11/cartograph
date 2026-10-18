@@ -5,8 +5,8 @@ import {
   answerQuestion,
   chatResponse,
   fileCacheKey,
+  fileToExplain,
   languageModel,
-  pathIndex,
   readChatMessages,
 } from "@workspace/ai"
 import { readExplanation } from "@workspace/database"
@@ -14,10 +14,9 @@ import { edgeIndex } from "@workspace/graph"
 import { z } from "zod"
 
 import { getServerEnv } from "./env.server"
-import { fileToExplain } from "./explanations.server"
 import { readSession } from "./session.server"
 import { sourceAtCommit } from "./source.server"
-import { readStoredAnalysis } from "./stored-analysis.server"
+import { analysisFacts, readStoredAnalysis } from "./stored-analysis.server"
 import { requestStorage } from "./storage.server"
 import { serverTracing } from "./tracing.server"
 
@@ -69,24 +68,26 @@ export async function handleChat(
 
   const env = getServerEnv()
   const traces = serverTracing()
-  const paths = pathIndex(result.input.files.map((file) => file.path))
-  const facts = (path: string) =>
-    fileToExplain(analysis.repository, result, paths, path)
+  const facts = analysisFacts(analysis.repository, result)
 
   const stream = answerQuestion(
-    { input: result.input, index: edgeIndex(result.input.edges), paths },
+    {
+      input: result.input,
+      index: edgeIndex(result.input.edges),
+      paths: facts.paths,
+    },
     messages,
     {
       model: languageModel(env.GEMINI_API_KEY, CHAT_MODEL),
       traced: traces.traced,
       source: (path) => {
-        const file = facts(path)
+        const file = fileToExplain(facts, path)
         if (file === null) throw new Error(`${path} isn't in this analysis`)
-        return sourceAtCommit(analysis.repository, result.commit, file.record)
+        return sourceAtCommit(analysis.repository, result.commit, file)
       },
       // D-07: the organization's cached explanation only; none is written.
       explanation: async (path) => {
-        const file = facts(path)
+        const file = fileToExplain(facts, path)
         if (file === null) return null
         const cached = await readExplanation(storage, fileCacheKey(file))
         return cached?.body ?? null

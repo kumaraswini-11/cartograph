@@ -52,7 +52,7 @@ an empty output.
 
 ## T04 — Running the cases
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** T02, T03
 **Covers:** C-03, D-06 to D-09
 
@@ -62,9 +62,9 @@ source from the archive, paced per model, traced to `cartograph-evals`;
 
 **Done when:**
 
-- [ ] A test runs a case of each kind with the mock model, and its outputs
+- [x] A test runs a case of each kind with the mock model, and its outputs
       are scored.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T05 — The report, the runs and the gate
 
