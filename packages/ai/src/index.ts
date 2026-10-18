@@ -9,6 +9,7 @@ export {
   explainFile,
   fileCacheKey,
   isLimited,
+  isUnavailable,
   filePrompt,
   systemPrompt,
 } from "./explain.ts"

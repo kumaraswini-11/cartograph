@@ -114,6 +114,16 @@ None in storage. The evaluation's records are files in the repository:
   requests a minute (3.6 Flash: 5). A run is 8 explanation calls, up to 8
   retries, and at most 120 chat calls: two runs a day fit 3.6 Flash's 20
   requests (AC-03).
+  - A case the model's server was busy for (HTTP 503, "This model is
+    currently experiencing high demand", seen on the first run) is tried
+    again, up to 3 times, waiting 15, 30, then 60 seconds, give or take a
+    fifth. Google: retry only "transient errors (like 429, 408, or 5xx)",
+    with exponential backoff, jitter and a maximum (Gemini API:
+    troubleshooting). A 429 isn't retried: on the free tier it's the day's
+    limit. Still unavailable, the case scores zero, as the spec says, marked
+    `unavailable`, so an outage isn't read as a worse model.
+  - The chat says so too (`010`): a busy model ends a turn as
+    `unavailable`, "The model is busy right now. Try again in a minute."
 - **D-10 The keys are the app's.** `pnpm eval` loads `apps/web/.env.local`
   (`node --env-file`), the one place they're kept locally. It doesn't run
   in CI: it spends quota and needs keys. Its scorers, rules and report are

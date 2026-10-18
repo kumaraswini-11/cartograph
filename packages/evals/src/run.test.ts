@@ -1,10 +1,11 @@
+import { APICallError } from "ai"
 import { MockLanguageModelV4 } from "ai/test"
 import { describe, expect, it } from "vitest"
 
 import { PINS, analyse } from "./analysis.ts"
 import { committedCases } from "./cases.ts"
 import type { Case } from "./facts.ts"
-import { runCase } from "./run.ts"
+import { UNAVAILABLE_RETRIES, runCase, runCases } from "./run.ts"
 
 const usage = {
   inputTokens: {
@@ -125,5 +126,51 @@ describe("running the cases (spec 011, plan D-06)", () => {
       ended: "ungrounded",
       scores: { grounded: 0, coverage: 0, lookupUse: 0 },
     })
+  }, 60_000)
+
+  // Google: retry transient errors (408, 5xx) with backoff; a 503 is the
+  // model's server being busy, not an answer, so the case is tried again.
+  it("tries a case again when the model is unavailable, then scores it", async () => {
+    if (express === undefined) throw new Error("no pin")
+    const analysis = await analyse(express)
+    const c = first("file")
+    if (c === undefined) throw new Error("no file case")
+    const answer = JSON.stringify({
+      body: `Used by ${naming(c.facts)}.`,
+      inferredRole: null,
+    })
+    let tries = 0
+    const flaky = new MockLanguageModelV4({
+      doGenerate: () => {
+        tries += 1
+        if (tries === 1) {
+          throw new APICallError({
+            message: "This model is currently experiencing high demand.",
+            url: "u",
+            requestBodyValues: {},
+            statusCode: 503,
+          })
+        }
+        return Promise.resolve(says(answer))
+      },
+    })
+    const waits: Array<number> = []
+    const [result] = await runCases(
+      [c],
+      [analysis],
+      { explainModel: flaky, chatModel: model([]), traced },
+      undefined,
+      (ms) => {
+        waits.push(ms)
+        return Promise.resolve()
+      }
+    )
+    expect(result).toMatchObject({
+      ended: "explained",
+      scores: { coverage: 1 },
+    })
+    expect(waits).toHaveLength(1)
+    expect(waits[0]).toBeGreaterThanOrEqual(12_000)
+    expect(UNAVAILABLE_RETRIES).toBe(3)
   }, 60_000)
 })

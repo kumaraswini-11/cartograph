@@ -210,6 +210,19 @@ describe("the chat (spec 010)", () => {
     expect(outcome).toMatchObject({ data: { kind: "limited" } })
   })
 
+  // Google's 503: "the model is overloaded", a passing state, not a limit.
+  it("says the model is busy when its server is, apart from the limit", async () => {
+    const busy = new APICallError({
+      message: "This model is currently experiencing high demand.",
+      url: "u",
+      requestBodyValues: {},
+      statusCode: 503,
+    })
+    const { outcome, text } = await run([busy])
+    expect(text).toBe("")
+    expect(outcome).toMatchObject({ data: { kind: "unavailable" } })
+  })
+
   it("shows a failed lookup as failed, and the model is told", async () => {
     const { chunks, outcome } = await run(
       [

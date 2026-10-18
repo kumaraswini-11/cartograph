@@ -12,6 +12,7 @@ import {
   explainBox,
   explainFile,
   fileToExplain,
+  isUnavailable,
   pathIndex,
 } from "@workspace/ai"
 import type {
@@ -165,12 +166,13 @@ export async function runCase(
       ended = outcome.status
     }
   } catch (error) {
-    console.error(`${c.id} failed:`, error)
+    // A busy or failing server is said apart, so the run can try again.
+    ended = isUnavailable(error) ? "unavailable" : "failed"
+    if (ended === "failed") console.error(`${c.id} failed:`, error)
     output =
       c.kind === "question"
         ? { kind: "answer", text: null, declined: false, shown: new Set() }
         : { kind: "explanation", text: null }
-    ended = "failed"
   }
   return {
     id: c.id,
@@ -206,20 +208,52 @@ function explainBoxOf(
   return explainBox(box, deps)
 }
 
-/** Every case, one after another: the models are paced, not raced. */
+/** How often a case is tried again while the model is unavailable. */
+export const UNAVAILABLE_RETRIES = 3
+
+/** The first wait before trying again; each after is twice as long. */
+const FIRST_WAIT_MS = 15_000
+
+/**
+ * The wait before the `attempt`th try again: exponential, with jitter, as
+ * Google advises for transient errors (Gemini API: troubleshooting), so a
+ * busy model gets 15, 30, then 60 seconds, give or take a fifth.
+ */
+export const backoff = (attempt: number) =>
+  FIRST_WAIT_MS * 2 ** (attempt - 1) * (0.8 + Math.random() * 0.4)
+
+const sleep = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms))
+
+/**
+ * Every case, one after another: the models are paced, not raced. A case
+ * the model was unavailable for is tried again, up to
+ * `UNAVAILABLE_RETRIES` times; still unavailable, it scores zero as the
+ * spec says, marked so.
+ */
 export async function runCases(
   cases: ReadonlyArray<Case>,
   analyses: ReadonlyArray<Analysis>,
   deps: RunDeps,
-  onCase: (result: CaseResult) => void = () => undefined
+  onCase: (result: CaseResult) => void = () => undefined,
+  wait: (ms: number) => Promise<void> = sleep
 ): Promise<Array<CaseResult>> {
   const byRepository = new Map(analyses.map((a) => [a.repository, a]))
   const results: Array<CaseResult> = []
   for (const c of cases) {
     const analysis = byRepository.get(c.repository)
-    if (analysis === undefined)
+    if (analysis === undefined) {
       throw new Error(`No analysis of ${c.repository}`)
-    const result = await runCase(c, analysis, deps)
+    }
+    let result = await runCase(c, analysis, deps)
+    for (
+      let attempt = 1;
+      result.ended === "unavailable" && attempt <= UNAVAILABLE_RETRIES;
+      attempt++
+    ) {
+      await wait(backoff(attempt))
+      result = await runCase(c, analysis, deps)
+    }
     onCase(result)
     results.push(result)
   }
