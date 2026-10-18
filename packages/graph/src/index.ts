@@ -15,6 +15,7 @@ export type { MapEdge, MapFile, MapInput } from "./input.ts"
 export { cycles, insights, sentenceOf, sentenceText } from "./insights.ts"
 export type { Insight, SentencePart } from "./insights.ts"
 export { ROOT_LABEL, labels } from "./labels.ts"
+export { fileDetails, findFiles, neighbours } from "./lookups.ts"
 export {
   FOLD_MIN_FILES,
   FOLD_TARGET,
