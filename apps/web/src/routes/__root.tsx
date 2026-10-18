@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
@@ -6,6 +7,7 @@ import { Toaster } from "@workspace/ui/components/shadcn-ui/toast"
 
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { siteMeta } from "@/lib/site"
+import { startErrorReports } from "@/lib/telemetry.browser"
 import appCss from "@/styles.css?url"
 
 export const Route = createRootRoute({
@@ -38,6 +40,9 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  // Error reports start in the browser, once (spec 012, FR-001).
+  useEffect(() => startErrorReports(), [])
+
   return (
     // The theme script sets the class on <html> before React hydrates, so the
     // attribute differs from the server render on purpose.

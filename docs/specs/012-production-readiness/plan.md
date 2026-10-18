@@ -31,19 +31,19 @@ provider's development instance until there's a domain (spec, resolved).
 
 ## Modules and interfaces
 
-| Module                                   | What it does                                                                                                                                                     |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web/src/lib/telemetry.ts`          | The five events by name and their allowed properties: one source for both sides, and the only shape an event can take (FR-002, FR-003).                          |
-| `apps/web/src/lib/telemetry.client.ts`   | The browser's PostHog client: memory persistence, no autocapture, exceptions captured with the release (FR-001, FR-012).                                         |
-| `apps/web/src/lib/telemetry.server.ts`   | The server's: errors from server functions and routes, and the events the server sees (run done or failed, chat question asked), flushed before a function ends. |
-| `apps/web/src/lib/headers.ts`            | The security headers and the policy, built from the configured addresses: one list of sources, no wildcard (FR-004, FR-005, C-02).                               |
-| `apps/web/src/start.ts`                  | The request middleware sets the headers on every response, after CSRF and the sign-in provider's.                                                                |
-| `packages/database/supabase/migrations/` | `model_calls`: one row per model call, per organization, written with the secret key, read by members under `007`'s policy.                                      |
-| `packages/database/src/limits.ts`        | `runTimesSince` and `modelCallTimesSince`: the latest times a limit counts, newest first; `modelCallWriter` records a call with the secret key.                  |
-| `apps/web/src/lib/limits.ts`             | `RUN_LIMIT`, `MODEL_CALL_LIMIT` and their windows; when a limit lifts; the refusals' sentences, in the member's own time zone. Shared by both sides.             |
-| `apps/web/src/lib/limits.server.ts`      | The check before a run, an explanation's model call or a chat question, refusing with when it's allowed again (FR-006, FR-007).                                  |
-| `apps/web/src/a11y.test.tsx`             | Every page's markup, rendered as the server renders it, audited with axe-core for WCAG 2.2 AA (AC-14).                                                           |
-| `README.md`                              | A short "What's next", pointing to `docs/future-improvements.md`, and the features list brought up to date.                                                      |
+| Module                                   | What it does                                                                                                                                                        |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web/src/lib/telemetry.ts`          | The five events by name and their allowed properties: one source for both sides, and the only shape an event can take (FR-002, FR-003).                             |
+| `apps/web/src/lib/telemetry.browser.ts`  | The browser's PostHog client: memory persistence, nothing captured but exceptions, loaded once the page is idle; errors before then held and sent (FR-001, FR-012). |
+| `apps/web/src/lib/telemetry.server.ts`   | The server's: the five events and unhandled errors, each sent immediately and awaited, so nothing waits on a function that has ended.                               |
+| `apps/web/src/lib/headers.ts`            | The security headers and the policy, built from the configured addresses: one list of sources, no wildcard (FR-004, FR-005, C-02).                                  |
+| `apps/web/src/start.ts`                  | The request middleware sets the headers on every response, after CSRF and the sign-in provider's; it and a function middleware report unhandled errors.             |
+| `packages/database/supabase/migrations/` | `model_calls`: one row per model call, per organization, written with the secret key, read by members under `007`'s policy.                                         |
+| `packages/database/src/limits.ts`        | `runTimesSince` and `modelCallTimesSince`: the latest times a limit counts, newest first; `modelCallWriter` records a call with the secret key.                     |
+| `apps/web/src/lib/limits.ts`             | `RUN_LIMIT`, `MODEL_CALL_LIMIT` and their windows; when a limit lifts; the refusals' sentences, in the member's own time zone. Shared by both sides.                |
+| `apps/web/src/lib/limits.server.ts`      | The check before a run, an explanation's model call or a chat question, refusing with when it's allowed again (FR-006, FR-007).                                     |
+| `apps/web/src/a11y.test.tsx`             | Every page's markup, rendered as the server renders it, audited with axe-core for WCAG 2.2 AA (AC-14).                                                              |
+| `README.md`                              | A short "What's next", pointing to `docs/future-improvements.md`, and the features list brought up to date.                                                         |
 
 ## Data
 
@@ -79,6 +79,36 @@ organization and start time.
   report sends the message, stack and release, never request bodies or
   variables, so a file's source can't ride along (C-01). A test lists a
   session's events and checks each (AC-08, AC-11).
+  - **The server sends all five events**, where each is known for certain:
+    an ad blocker can't drop them, and the browser loads no code for them.
+    A sign-in is Clerk's `session.created` notice, to the webhook that
+    already takes `organization.deleted`.
+  - **The browser sends exceptions only**, and keeps nothing on the device:
+    PostHog's `memory` persistence, checked in a browser's document by a
+    test (FR-012); its `no-external` bundle, for sites with a strict
+    policy, so it loads no script from elsewhere (C-02). About 100 KB
+    compressed, loaded when the browser is idle after the page is
+    interactive, so the first load pays nothing; with no key, the build
+    leaves it out.
+  - **An event's person is the Clerk user id**, never an email, and no
+    person profile is kept (`$process_person_profile: false`; the
+    browser's `person_profiles: "never"`).
+  - **An error is reported bare**: its name, its message cut to 500
+    characters and its stack's frames. The AI SDK's errors carry the
+    request's and response's bodies, and a cause may carry anything; none
+    of it is sent. A thrown value that isn't an Error is reported without
+    its contents.
+  - **The release is the build's commit** (`VERCEL_GIT_COMMIT_SHA`, a
+    Vercel system variable), defined into both bundles at build time.
+    Turbo's build cache is keyed on it and on every `VITE_` variable
+    (`turbo.json`): the build writes both in, and on Vercel they come from
+    the environment, not a file the cache already reads.
+  - Errors are caught by the request middleware (pages, server routes), a
+    function middleware (server functions, whose errors Start answers
+    itself), work after the response, the router's error page, and the
+    browser's unhandled errors and rejections. Each is reported once.
+  - Tests run in a browser's document with jsdom 29: 30 needs Node 24.15
+    or later, and the repository declares Node 24.x.
 - **D-03 The policy names each source.** `'self'`, the sign-in provider's
   frontend host, its image host, Cloudflare's challenge host, the storage
   provider's address (data and Realtime), PostHog's EU hosts and Vercel's
@@ -148,7 +178,10 @@ By the repository's owner:
 - **PostHog:** an account on the EU cloud, free plan, no card; a project
   named `cartograph`; its project key and host into `.env.local` and
   Vercel (`VITE_POSTHOG_KEY`, `VITE_POSTHOG_HOST`). The project key is
-  public by design; it only writes events.
+  public by design; it only writes events. In the project's settings,
+  "Discard client IP data" on, so a browser's address isn't kept.
+- **Clerk:** the webhook endpoint takes `session.created` as well as
+  `organization.deleted` (a sign-in's event).
 - **Vercel:** Speed Insights on for the project (Hobby: free for one
   project, 10,000 data points a month).
 - **The production address:** the project's public production domain, for

@@ -6,7 +6,7 @@ import { REFUSALS } from "@workspace/github/address"
 import type * as Database from "@workspace/database"
 
 import { rerun, submitAddress } from "./analyses.server"
-import { runAfterResponse } from "./background.server"
+import { runAnalysis } from "./run.server"
 import { runLimitLiftsAt } from "./limits.server"
 import { readSession } from "./session.server"
 import { serverRunWriter } from "./storage.server"
@@ -18,6 +18,7 @@ vi.mock("./storage.server", () => ({
   requestStorage: vi.fn(),
 }))
 vi.mock("./background.server", () => ({ runAfterResponse: vi.fn() }))
+vi.mock("./telemetry.server", () => ({ track: vi.fn(), reportError: vi.fn() }))
 vi.mock("./limits.server", () => ({ runLimitLiftsAt: vi.fn() }))
 vi.mock("@workspace/database", async (actual) => ({
   ...(await actual<typeof Database>()),
@@ -57,13 +58,13 @@ describe("submitting an address (spec 008, FR-001, FR-002, plan D-06)", () => {
       repository: "facebook/react",
       message: "Reading facebook/react's default branch",
     })
-    expect(runAfterResponse).toHaveBeenCalledOnce()
+    expect(runAnalysis).toHaveBeenCalledOnce()
   })
 
   it("goes to the analysis the organization already has, starting no run", async () => {
     startAnalysis.mockResolvedValue({ analysisId: "a", runId: null })
     expect(await submitAddress("facebook/react")).toEqual({ analysisId: "a" })
-    expect(runAfterResponse).not.toHaveBeenCalled()
+    expect(runAnalysis).not.toHaveBeenCalled()
   })
 
   it("refuses an address that isn't a GitHub repository, writing nothing (AC-09)", async () => {
@@ -92,7 +93,7 @@ describe("the run limit (spec 012, FR-006, AC-10)", () => {
       runsResumeAt: LIFTS_AT,
     })
     expect(startAnalysis).not.toHaveBeenCalled()
-    expect(runAfterResponse).not.toHaveBeenCalled()
+    expect(runAnalysis).not.toHaveBeenCalled()
   })
 
   it("still opens an analysis the organization has, starting no run", async () => {
@@ -123,6 +124,6 @@ describe("the run limit (spec 012, FR-006, AC-10)", () => {
     })
     rerunAnalysis.mockResolvedValue({ runId: "r", started: true })
     expect(await rerun("a")).toBeNull()
-    expect(runAfterResponse).toHaveBeenCalledOnce()
+    expect(runAnalysis).toHaveBeenCalledOnce()
   })
 })

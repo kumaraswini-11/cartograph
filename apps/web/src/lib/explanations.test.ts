@@ -21,8 +21,11 @@ import { MODEL_CALL_LIMIT } from "./limits"
 
 vi.mock("@tanstack/react-start/server-only", () => ({}))
 vi.mock("./analyses.server", () => ({
-  currentOrganization: () => Promise.resolve("org_session"),
+  currentMember: () =>
+    Promise.resolve({ userId: "user_1", organizationId: "org_session" }),
 }))
+vi.mock("./background.server", () => ({ runAfterResponse: vi.fn() }))
+vi.mock("./telemetry.server", () => ({ track: vi.fn(), reportError: vi.fn() }))
 vi.mock("./storage.server", () => ({
   requestStorage: () => Promise.resolve({}),
 }))

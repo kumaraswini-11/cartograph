@@ -19,7 +19,7 @@ Flash's daily reset); `010` AC-01, AC-06, AC-09 and its `interface-review`;
 
 ## T02 — Errors and events
 
-**Status:** Todo
+**Status:** Done (AC-07 is the owner's browser check, with PostHog's key)
 **Blocked by:** none
 **Covers:** FR-001 to FR-003, FR-012, C-01, AC-07, AC-08, AC-11, D-01, D-02
 
@@ -29,8 +29,8 @@ release; the five events.
 
 **Done when:**
 
-- [ ] Tests pass for AC-08 and AC-11.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] Tests pass for AC-08 and AC-11.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T03 — Security headers
 

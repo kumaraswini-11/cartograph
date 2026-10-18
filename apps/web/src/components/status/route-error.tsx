@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { Link, useRouter } from "@tanstack/react-router"
 import type { ErrorComponentProps } from "@tanstack/react-router"
 import { TriangleAlertIcon } from "lucide-react"
@@ -7,13 +8,18 @@ import {
   buttonVariants,
 } from "@workspace/ui/components/shadcn-ui/button"
 
+import { reportBrowserError } from "@/lib/telemetry.browser"
+
 /**
  * A page that failed to load or render: the router's default error page.
  * Trying again re-runs the page's loaders, which also resets this boundary.
- * The technical message is shown in development only, never to visitors.
+ * The technical message is shown in development only, never to visitors;
+ * the error is reported, as the router caught it before the browser could
+ * (spec 012, FR-001).
  */
 export function RouteError({ error }: ErrorComponentProps) {
   const router = useRouter()
+  useEffect(() => reportBrowserError(error), [error])
   const detail =
     import.meta.env.DEV && error instanceof Error ? error.message : undefined
 

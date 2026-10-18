@@ -19,6 +19,8 @@ import { readSession } from "./session.server"
 
 vi.mock("@tanstack/react-start/server-only", () => ({}))
 vi.mock("./session.server", () => ({ readSession: vi.fn() }))
+vi.mock("./background.server", () => ({ runAfterResponse: vi.fn() }))
+vi.mock("./telemetry.server", () => ({ track: vi.fn(), reportError: vi.fn() }))
 vi.mock("./storage.server", () => ({
   requestStorage: () => Promise.resolve({}),
 }))

@@ -16,13 +16,15 @@ import { explanationWriter, readExplanation } from "@workspace/database"
 import { GitHubError, defaultBranchHead, fileAtCommit } from "@workspace/github"
 import { MAX_FILE_BYTES, contentHash } from "@workspace/parser"
 
-import { currentOrganization } from "./analyses.server"
+import { currentMember } from "./analyses.server"
+import { runAfterResponse } from "./background.server"
 import type { ExplainResult, ExplainSubject, Staleness } from "./explanations"
 import { getServerEnv } from "./env.server"
 import { ModelCallsSpent, spendModelCall } from "./limits.server"
 import { SourceMismatch, sourceAtCommit } from "./source.server"
 import { analysisFacts, readStoredAnalysis } from "./stored-analysis.server"
 import { requestStorage } from "./storage.server"
+import { track } from "./telemetry.server"
 import { serverTracing } from "./tracing.server"
 
 const isInferredRole = (role: string | null): role is InferredRole =>
@@ -39,7 +41,29 @@ export async function explainSelection(
   analysisId: string,
   subject: ExplainSubject
 ): Promise<ExplainResult> {
-  const organizationId = await currentOrganization()
+  const member = await currentMember()
+  const result = await explainFor(member.organizationId, analysisId, subject)
+  // How it ended, never what it said (`012` FR-002, FR-003).
+  runAfterResponse(
+    track(member.userId, {
+      event: "explanation_requested",
+      properties: {
+        organizationId: member.organizationId,
+        analysisId,
+        kind: subject.kind,
+        outcome: result.status,
+        cached: result.status === "explained" && result.cached,
+      },
+    })
+  )
+  return result
+}
+
+async function explainFor(
+  organizationId: string,
+  analysisId: string,
+  subject: ExplainSubject
+): Promise<ExplainResult> {
   const env = getServerEnv()
   const traces = serverTracing()
   const failed = (message: string): ExplainResult => ({
