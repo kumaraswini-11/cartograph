@@ -106,6 +106,51 @@ the trade the project doc chose not to make.
   structure one.
 - **Size:** medium: storage, a list, deletion.
 
+### Plans and pricing, past the limits
+
+- **What:** `012` limits each organization's runs and model calls. Past a
+  limit, instead of only "try again tomorrow", offer a plan: "Your
+  organization has used today's 100 model calls: upgrade for more." Plans
+  per organization, a usage meter, and a paywall at the limit.
+- **For:** organizations that use Cartograph every day; and, as a piece of
+  work, it shows plans, metering and payments end to end.
+- **Fits the rule:** yes; it changes how much, never what's shown.
+- **How:** Clerk, already the sign-in and organizations, has Billing for
+  organizations (B2B plans, paid through your own Stripe account, 0.7% a
+  transaction on top of Stripe's fees). It's in beta: its APIs may change.
+- **Before it can be built:**
+  - a production Clerk instance, which needs a domain of our own (`012`
+    stays on the development instance, at $0);
+  - a Stripe account of our own;
+  - Gemini's paid tier: on the free tier, Google may use the requests to
+    improve its products (ADR 0003), which a paying customer shouldn't
+    accept.
+- **Also considered:** letting a heavy user bring their own model key, so
+  their use costs us nothing.
+- **Size:** large.
+- **Sources:** [Clerk Billing for B2B SaaS](https://clerk.com/docs/nextjs/guides/billing/for-b2b).
+
+### A cookie notice: not needed now, and when it would be
+
+- **Now:** none is needed. The EU rule (ePrivacy Directive, Article 5(3))
+  asks consent to store or read anything on a visitor's device, except what
+  is strictly necessary for the service they asked for, such as sign-in
+  session cookies (Clerk's). `012`'s analytics keep events in memory, with no
+  cookie or local storage, and no personal data (FR-003), so nothing is
+  stored to ask about. A banner shown when it isn't required only adds
+  friction.
+- **Still worth doing:** a short privacy page saying what's collected and
+  why, which GDPR's duty to inform asks for whatever the cookies.
+- **It becomes needed if** we add cookie-based analytics, session replay,
+  advertising or marketing pixels: then consent before they run, with
+  "reject" as easy as "accept".
+- **Caveat:** the sources are mostly compliance vendors' summaries, and the
+  directive is applied by each country's law; not legal advice. Check before
+  marketing in the EU.
+- **Sources:** [Article 5(3) and its exemptions](https://presencis.com/regulations/eprivacy-directive/article-5-3/),
+  [strictly necessary cookies](https://www.cookieyes.com/cookie-consent-exemption-for-strictly-necessary-cookies/),
+  [PostHog on cookieless, GDPR-friendly analytics](https://posthog.com/blog/best-gdpr-compliant-analytics-tools).
+
 ## Already ruled out
 
 From `docs/project-doc.md` ("Out of scope, and why"), and what these tools
