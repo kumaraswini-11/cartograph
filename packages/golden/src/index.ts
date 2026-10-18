@@ -2,7 +2,7 @@
 // detection (spec 002): each downloaded once at its pinned commit, and its
 // counts printed beside the ones its spec pins. The network belongs here,
 // never to the packages these scripts check.
-import { existsSync, renameSync, rmSync } from "node:fs"
+import { existsSync, readFileSync, renameSync, rmSync } from "node:fs"
 import { join } from "node:path"
 import process, { stdout } from "node:process"
 
@@ -57,11 +57,14 @@ const CACHE = join(import.meta.dirname, "..", ".cache")
 
 /**
  * The repository's files at `commit`, downloaded once into the cache, the
- * way a run fetches one (`@workspace/github`, spec 008 plan D-01).
+ * way a run fetches one (`@workspace/github`, spec 008 plan D-01). With
+ * `archive`, GitHub's own archive of that commit, kept in a file, is
+ * unpacked the same way, with no network (spec 011, plan D-03).
  */
 export async function checkout(
   repository: string,
-  commit: string
+  commit: string,
+  { archive }: { archive?: string } = {}
 ): Promise<string> {
   const name = `${repository.replace("/", "-")}-${commit}`
   const directory = join(CACHE, name)
@@ -73,7 +76,14 @@ export async function checkout(
   const staging = join(CACHE, `${name}.partial`)
   rmSync(staging, { recursive: true, force: true })
   try {
-    await extractArchive(repository, commit, staging)
+    await extractArchive(
+      repository,
+      commit,
+      staging,
+      archive === undefined
+        ? {}
+        : { fetch: () => Promise.resolve(new Response(readFileSync(archive))) }
+    )
     renameSync(staging, directory)
   } catch (error) {
     rmSync(staging, { recursive: true, force: true })

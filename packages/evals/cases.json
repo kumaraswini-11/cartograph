@@ -1,0 +1,355 @@
+[
+  {
+    "repository": "expressjs/express",
+    "commit": "a419aa7350389a275ab45fde2e849ed1f02449ef",
+    "id": "expressjs/express:file:examples/auth/index.js",
+    "kind": "file",
+    "path": "examples/auth/index.js",
+    "facts": [
+      "index.js",
+      "test/acceptance/auth.js"
+    ],
+    "rule": "neighbours"
+  },
+  {
+    "repository": "expressjs/express",
+    "commit": "a419aa7350389a275ab45fde2e849ed1f02449ef",
+    "id": "expressjs/express:file:examples/vhost/index.js",
+    "kind": "file",
+    "path": "examples/vhost/index.js",
+    "facts": [
+      "index.js",
+      "test/acceptance/vhost.js"
+    ],
+    "rule": "neighbours"
+  },
+  {
+    "repository": "vercel/commerce",
+    "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+    "id": "vercel/commerce:file:app/[page]/opengraph-image.tsx",
+    "kind": "file",
+    "path": "app/[page]/opengraph-image.tsx",
+    "facts": [
+      "components/opengraph-image.tsx",
+      "lib/shopify/index.ts"
+    ],
+    "rule": "neighbours"
+  },
+  {
+    "repository": "vercel/commerce",
+    "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+    "id": "vercel/commerce:file:components/layout/navbar/mobile-menu.tsx",
+    "kind": "file",
+    "path": "components/layout/navbar/mobile-menu.tsx",
+    "facts": [
+      "components/layout/navbar/index.tsx",
+      "components/layout/navbar/search.tsx",
+      "lib/shopify/types.ts"
+    ],
+    "rule": "neighbours"
+  },
+  {
+    "repository": "lujakob/nestjs-realworld-example-app",
+    "commit": "c1c2cc4e448b279ff083272df1ac50d20c3304fa",
+    "id": "lujakob/nestjs-realworld-example-app:file:src/article/article.interface.ts",
+    "kind": "file",
+    "path": "src/article/article.interface.ts",
+    "facts": [
+      "src/article/article.controller.ts",
+      "src/article/article.entity.ts",
+      "src/article/article.service.ts",
+      "src/user/user.interface.ts"
+    ],
+    "rule": "neighbours"
+  },
+  {
+    "repository": "lujakob/nestjs-realworld-example-app",
+    "commit": "c1c2cc4e448b279ff083272df1ac50d20c3304fa",
+    "id": "lujakob/nestjs-realworld-example-app:file:src/tag/tag.controller.spec.ts",
+    "kind": "file",
+    "path": "src/tag/tag.controller.spec.ts",
+    "facts": [
+      "src/tag/tag.controller.ts",
+      "src/tag/tag.entity.ts",
+      "src/tag/tag.service.ts"
+    ],
+    "rule": "neighbours"
+  },
+  {
+    "repository": "expressjs/express",
+    "commit": "a419aa7350389a275ab45fde2e849ed1f02449ef",
+    "id": "expressjs/express:box:examples/content-negotiation",
+    "kind": "box",
+    "folder": "examples/content-negotiation",
+    "facts": [
+      "test/acceptance/content-negotiation.js"
+    ],
+    "rule": "importers"
+  },
+  {
+    "repository": "vercel/commerce",
+    "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+    "id": "vercel/commerce:box:components/cart",
+    "kind": "box",
+    "folder": "components/cart",
+    "facts": [
+      "app/layout.tsx",
+      "components/layout/navbar/index.tsx",
+      "components/product/product-description.tsx"
+    ],
+    "rule": "importers"
+  },
+  {
+    "repository": "expressjs/express",
+    "commit": "a419aa7350389a275ab45fde2e849ed1f02449ef",
+    "id": "expressjs/express:blast_radius:What breaks if `examples/content-negotiation/db.js` changes?",
+    "kind": "question",
+    "question": "What breaks if `examples/content-negotiation/db.js` changes?",
+    "facts": [
+      "examples/content-negotiation/index.js",
+      "examples/content-negotiation/users.js",
+      "test/acceptance/content-negotiation.js"
+    ],
+    "rule": "blast_radius"
+  },
+  {
+    "repository": "expressjs/express",
+    "commit": "a419aa7350389a275ab45fde2e849ed1f02449ef",
+    "id": "expressjs/express:blast_radius:What breaks if `examples/mvc/lib/boot.js` changes?",
+    "kind": "question",
+    "question": "What breaks if `examples/mvc/lib/boot.js` changes?",
+    "facts": [
+      "examples/mvc/index.js",
+      "test/acceptance/mvc.js"
+    ],
+    "rule": "blast_radius"
+  },
+  {
+    "repository": "vercel/commerce",
+    "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+    "id": "vercel/commerce:blast_radius:What breaks if `components/cart/add-to-cart.tsx` changes?",
+    "kind": "question",
+    "question": "What breaks if `components/cart/add-to-cart.tsx` changes?",
+    "facts": [
+      "app/product/[handle]/page.tsx",
+      "components/product/product-description.tsx"
+    ],
+    "rule": "blast_radius"
+  },
+  {
+    "repository": "vercel/commerce",
+    "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+    "id": "vercel/commerce:blast_radius:What breaks if `components/grid/index.tsx` changes?",
+    "kind": "question",
+    "question": "What breaks if `components/grid/index.tsx` changes?",
+    "facts": [
+      "app/search/[collection]/page.tsx",
+      "app/search/loading.tsx",
+      "app/search/page.tsx",
+      "components/layout/product-grid-items.tsx"
+    ],
+    "rule": "blast_radius"
+  },
+  {
+    "repository": "vercel/commerce",
+    "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+    "id": "vercel/commerce:blast_radius:What breaks if `components/layout/search/filter/dropdown.tsx` changes?",
+    "kind": "question",
+    "question": "What breaks if `components/layout/search/filter/dropdown.tsx` changes?",
+    "facts": [
+      "app/search/layout.tsx",
+      "components/layout/search/collections.tsx",
+      "components/layout/search/filter/index.tsx",
+      "components/layout/search/filter/item.tsx"
+    ],
+    "rule": "blast_radius"
+  },
+  {
+    "repository": "lujakob/nestjs-realworld-example-app",
+    "commit": "c1c2cc4e448b279ff083272df1ac50d20c3304fa",
+    "id": "lujakob/nestjs-realworld-example-app:blast_radius:What breaks if `src/app.controller.ts` changes?",
+    "kind": "question",
+    "question": "What breaks if `src/app.controller.ts` changes?",
+    "facts": [
+      "index.js",
+      "src/app.module.ts",
+      "src/main.ts"
+    ],
+    "rule": "blast_radius"
+  },
+  {
+    "repository": "lujakob/nestjs-realworld-example-app",
+    "commit": "c1c2cc4e448b279ff083272df1ac50d20c3304fa",
+    "id": "lujakob/nestjs-realworld-example-app:blast_radius:What breaks if `src/article/article.service.ts` changes?",
+    "kind": "question",
+    "question": "What breaks if `src/article/article.service.ts` changes?",
+    "facts": [
+      "index.js",
+      "src/app.module.ts",
+      "src/article/article.controller.ts",
+      "src/article/article.module.ts",
+      "src/main.ts"
+    ],
+    "rule": "blast_radius"
+  },
+  {
+    "repository": "lujakob/nestjs-realworld-example-app",
+    "commit": "c1c2cc4e448b279ff083272df1ac50d20c3304fa",
+    "id": "lujakob/nestjs-realworld-example-app:blast_radius:What breaks if `src/profile/profile.service.ts` changes?",
+    "kind": "question",
+    "question": "What breaks if `src/profile/profile.service.ts` changes?",
+    "facts": [
+      "index.js",
+      "src/app.module.ts",
+      "src/main.ts",
+      "src/profile/profile.controller.ts",
+      "src/profile/profile.module.ts"
+    ],
+    "rule": "blast_radius"
+  },
+  {
+    "repository": "expressjs/express",
+    "commit": "a419aa7350389a275ab45fde2e849ed1f02449ef",
+    "id": "expressjs/express:dependency_chain:What does `examples/route-map/index.js` depend on, all the way down?",
+    "kind": "question",
+    "question": "What does `examples/route-map/index.js` depend on, all the way down?",
+    "facts": [
+      "lib/application.js",
+      "lib/express.js",
+      "lib/request.js",
+      "lib/response.js",
+      "lib/utils.js",
+      "lib/view.js"
+    ],
+    "rule": "dependency_chain"
+  },
+  {
+    "repository": "vercel/commerce",
+    "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+    "id": "vercel/commerce:dependency_chain:What does `app/opengraph-image.tsx` depend on, all the way down?",
+    "kind": "question",
+    "question": "What does `app/opengraph-image.tsx` depend on, all the way down?",
+    "facts": [
+      "components/icons/logo.tsx",
+      "components/opengraph-image.tsx"
+    ],
+    "rule": "dependency_chain"
+  },
+  {
+    "repository": "lujakob/nestjs-realworld-example-app",
+    "commit": "c1c2cc4e448b279ff083272df1ac50d20c3304fa",
+    "id": "lujakob/nestjs-realworld-example-app:dependency_chain:What does `src/article/article.entity.ts` depend on, all the way down?",
+    "kind": "question",
+    "question": "What does `src/article/article.entity.ts` depend on, all the way down?",
+    "facts": [
+      "src/article/comment.entity.ts",
+      "src/user/user.entity.ts"
+    ],
+    "rule": "dependency_chain"
+  },
+  {
+    "repository": "expressjs/express",
+    "commit": "a419aa7350389a275ab45fde2e849ed1f02449ef",
+    "id": "expressjs/express:dependents:Which files import `examples/content-negotiation/db.js`?",
+    "kind": "question",
+    "question": "Which files import `examples/content-negotiation/db.js`?",
+    "facts": [
+      "examples/content-negotiation/index.js",
+      "examples/content-negotiation/users.js"
+    ],
+    "rule": "dependents"
+  },
+  {
+    "repository": "vercel/commerce",
+    "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+    "id": "vercel/commerce:dependents:Which files import `components/cart/actions.ts`?",
+    "kind": "question",
+    "question": "Which files import `components/cart/actions.ts`?",
+    "facts": [
+      "components/cart/add-to-cart.tsx",
+      "components/cart/delete-item-button.tsx",
+      "components/cart/edit-item-quantity-button.tsx",
+      "components/cart/modal.tsx"
+    ],
+    "rule": "dependents"
+  },
+  {
+    "repository": "lujakob/nestjs-realworld-example-app",
+    "commit": "c1c2cc4e448b279ff083272df1ac50d20c3304fa",
+    "id": "lujakob/nestjs-realworld-example-app:dependents:Which files import `src/article/article.entity.ts`?",
+    "kind": "question",
+    "question": "Which files import `src/article/article.entity.ts`?",
+    "facts": [
+      "src/article/article.interface.ts",
+      "src/article/article.module.ts",
+      "src/article/article.service.ts",
+      "src/article/comment.entity.ts",
+      "src/user/user.entity.ts"
+    ],
+    "rule": "dependents"
+  },
+  {
+    "repository": "vercel/commerce",
+    "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+    "id": "vercel/commerce:route:Which file handles `POST /api/revalidate`?",
+    "kind": "question",
+    "question": "Which file handles `POST /api/revalidate`?",
+    "facts": [
+      "app/api/revalidate/route.ts"
+    ],
+    "rule": "route"
+  },
+  {
+    "repository": "lujakob/nestjs-realworld-example-app",
+    "commit": "c1c2cc4e448b279ff083272df1ac50d20c3304fa",
+    "id": "lujakob/nestjs-realworld-example-app:route:Which file handles `GET /api`?",
+    "kind": "question",
+    "question": "Which file handles `GET /api`?",
+    "facts": [
+      "src/app.controller.ts"
+    ],
+    "rule": "route"
+  },
+  {
+    "repository": "lujakob/nestjs-realworld-example-app",
+    "commit": "c1c2cc4e448b279ff083272df1ac50d20c3304fa",
+    "id": "lujakob/nestjs-realworld-example-app:route:Which file handles `POST /api/articles/:slug/favorite`?",
+    "kind": "question",
+    "question": "Which file handles `POST /api/articles/:slug/favorite`?",
+    "facts": [
+      "src/article/article.controller.ts"
+    ],
+    "rule": "route"
+  },
+  {
+    "repository": "lujakob/nestjs-realworld-example-app",
+    "commit": "c1c2cc4e448b279ff083272df1ac50d20c3304fa",
+    "id": "lujakob/nestjs-realworld-example-app:cycles:Are there any import cycles in this repository?",
+    "kind": "question",
+    "question": "Are there any import cycles in this repository?",
+    "facts": [
+      "src/article/article.entity.ts",
+      "src/article/comment.entity.ts",
+      "src/user/user.entity.ts"
+    ],
+    "rule": "cycles"
+  },
+  {
+    "repository": "expressjs/express",
+    "commit": "a419aa7350389a275ab45fde2e849ed1f02449ef",
+    "id": "expressjs/express:declined:What is a closure in JavaScript?",
+    "kind": "question",
+    "question": "What is a closure in JavaScript?",
+    "facts": [],
+    "rule": "declined"
+  },
+  {
+    "repository": "vercel/commerce",
+    "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+    "id": "vercel/commerce:declined:Write me a short poem about the sea.",
+    "kind": "question",
+    "question": "Write me a short poem about the sea.",
+    "facts": [],
+    "rule": "declined"
+  }
+]

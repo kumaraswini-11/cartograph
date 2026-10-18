@@ -1,0 +1,32 @@
+{
+  "name": "@workspace/evals",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Scores explanations and chat answers over a fixed set of cases pinned to commits, by arithmetic, and keeps each run (spec 011).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "cases": "node src/cases-cli.ts",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@workspace/ai": "workspace:*",
+    "@workspace/frameworks": "workspace:*",
+    "@workspace/golden": "workspace:*",
+    "@workspace/graph": "workspace:*",
+    "@workspace/parser": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -21,7 +21,7 @@ command typed in Claude Code, not a page of the app.
 
 ## T02 — The pinned repositories and the cases
 
-**Status:** Todo
+**Status:** Done
 **Blocked by:** none
 **Covers:** FR-001, FR-002, C-02, AC-06, D-01, D-03, D-04
 
@@ -31,10 +31,10 @@ archive file; the analysis; the rules that pick subjects and derive facts;
 
 **Done when:**
 
-- [ ] A test derives every fact in `cases.json` again from the pinned
+- [x] A test derives every fact in `cases.json` again from the pinned
       analysis and finds them equal (AC-06).
-- [ ] With the network off, the analyses still build from the archives.
-- [ ] Tests at the agreed seams pass; format, lint, typecheck and build pass.
+- [x] With the network off, the analyses still build from the archives.
+- [x] Tests at the agreed seams pass; format, lint, typecheck and build pass.
 
 ## T03 — The scores
 

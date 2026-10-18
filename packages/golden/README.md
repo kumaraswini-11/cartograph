@@ -22,7 +22,9 @@ const { lines, drift } = compareCounts(counts, pinnedCounts)
 ```
 
 Downloads go through `@workspace/github`, the way a run fetches a
-repository, into `.cache/` beside this file, which git ignores.
+repository, into `.cache/` beside this file, which git ignores. With
+`{ archive }`, `checkout` unpacks GitHub's archive of the commit from a
+file instead, with no network, as `@workspace/evals` does (spec 011).
 
 ## Status
 
