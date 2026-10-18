@@ -62,6 +62,29 @@ describe("the server's configuration (spec 000 FR-011, spec 006)", () => {
     ])
   })
 
+  it("runs without PostHog, and with it once its host is there (spec 012)", () => {
+    expect(
+      problemsOf({
+        ...valid,
+        VITE_POSTHOG_KEY: "phc_abc",
+        VITE_POSTHOG_HOST: "https://us.i.posthog.com",
+      })
+    ).toEqual([])
+    expect(problemsOf({ ...valid, VITE_POSTHOG_KEY: "phc_abc" })).toEqual([
+      "VITE_POSTHOG_HOST is missing",
+    ])
+    expect(
+      problemsOf({
+        ...valid,
+        VITE_POSTHOG_KEY: "abc",
+        VITE_POSTHOG_HOST: "http://us.i.posthog.com",
+      })
+    ).toEqual([
+      "VITE_POSTHOG_KEY: must start with phc_",
+      "VITE_POSTHOG_HOST: must be an https:// address",
+    ])
+  })
+
   it("names a missing value and one of the wrong kind, so the server stops", () => {
     expect(
       problemsOf({

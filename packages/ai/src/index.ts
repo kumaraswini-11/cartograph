@@ -17,6 +17,7 @@ export {
   answerQuestion,
   chatResponse,
   keptHistory,
+  outcomeOnly,
   readChatMessages,
 } from "./chat/answer.ts"
 export type {

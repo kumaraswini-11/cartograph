@@ -55,21 +55,21 @@ Turborepo. The choices, the reasons and the alternatives are in
 
 ## The specs
 
-| Spec                            | Milestone       | Delivers                                                                               | Depends on    |
-| ------------------------------- | --------------- | -------------------------------------------------------------------------------------- | ------------- |
-| `000-platform-requirements`     | M0 Foundation   | What the platform must provide, as capabilities; a deployed, checked empty application | none          |
-| `001-repository-parser`         | M1 Engine       | Files, edges, folders and coverage from a directory on disk; the data contract         | 000           |
-| `002-framework-detection`       | M1 Engine       | Framework adapters, file roles, exact routes, the role taxonomy                        | 001           |
-| `003-dependency-map`            | M2 Explorer     | The three-column shell, folding, folder panels, selection, the role rail               | 001, 002      |
-| `004-detail-pane`               | M2 Explorer     | The detail pane, neighbours, blast radius and dependency chain                         | 003           |
-| `005-structural-insights`       | M2 Explorer     | Cycles, unimported files, heavily imported files, oversized files; the routes table    | 002, 004      |
-| `006-sign-in-and-organizations` | M3 Platform     | Sign-in, organizations, invitations, protected pages                                   | 000           |
-| `007-organization-dashboard`    | M3 Platform     | Storage with row-level access by organization; the dashboard                           | 006           |
-| `008-repository-analysis`       | M3 Platform     | A public repository URL in, a stored map out, with live progress                       | 001, 002, 007 |
-| `009-file-explanations`         | M4 Intelligence | Traced, cached explanations of files and folders, written from their real neighbours   | 004, 008      |
-| `010-repository-chat`           | M4 Intelligence | Questions answered by looking facts up, with every lookup shown                        | 004, 009      |
-| `011-ai-evaluation`             | M4 Intelligence | AI answer quality measured as a number, for explanations and chat                      | 009, 010      |
-| `012-production-readiness`      | M5 Ship         | Error reporting, product analytics, security headers, the ship criteria checked        | all           |
+| Spec                            | Milestone       | Delivers                                                                                                | Depends on    |
+| ------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------- | ------------- |
+| `000-platform-requirements`     | M0 Foundation   | What the platform must provide, as capabilities; a deployed, checked empty application                  | none          |
+| `001-repository-parser`         | M1 Engine       | Files, edges, folders and coverage from a directory on disk; the data contract                          | 000           |
+| `002-framework-detection`       | M1 Engine       | Framework adapters, file roles, exact routes, the role taxonomy                                         | 001           |
+| `003-dependency-map`            | M2 Explorer     | The three-column shell, folding, folder panels, selection, the role rail                                | 001, 002      |
+| `004-detail-pane`               | M2 Explorer     | The detail pane, neighbours, blast radius and dependency chain                                          | 003           |
+| `005-structural-insights`       | M2 Explorer     | Cycles, unimported files, heavily imported files, oversized files; the routes table                     | 002, 004      |
+| `006-sign-in-and-organizations` | M3 Platform     | Sign-in, organizations, invitations, protected pages                                                    | 000           |
+| `007-organization-dashboard`    | M3 Platform     | Storage with row-level access by organization; the dashboard                                            | 006           |
+| `008-repository-analysis`       | M3 Platform     | A public repository URL in, a stored map out, with live progress                                        | 001, 002, 007 |
+| `009-file-explanations`         | M4 Intelligence | Traced, cached explanations of files and folders, written from their real neighbours                    | 004, 008      |
+| `010-repository-chat`           | M4 Intelligence | Questions answered by looking facts up, with every lookup shown                                         | 004, 009      |
+| `011-ai-evaluation`             | M4 Intelligence | AI answer quality measured as a number, for explanations and chat                                       | 009, 010      |
+| `012-production-readiness`      | M5 Ship         | Errors and product events, security headers, limits, speed and accessibility, the ship criteria checked | all           |
 
 A spec can start once every spec it depends on is done. The order above is
 the recommended one; any order that respects the dependencies works.
@@ -110,10 +110,10 @@ Build only what the current spec asks for: **YAGNI**, "You Aren't Gonna
 Need It" ([Martin Fowler](https://martinfowler.com/bliki/Yagni.html)). Code is
 never written ahead for a spec that hasn't started.
 
-Later specs are drafts written ahead to show where the product is going, not
-commitments. Each is resolved again when its turn comes, with what the earlier
-specs taught, and changes if it needs to: the whole path is planned roughly
-and each step in detail only when it's reached
+Each spec was first drafted ahead, to show where the product was going, not
+as a commitment, and resolved again when its turn came, with what the earlier
+specs had taught, changing where it needed to: the whole path planned roughly,
+and each step in detail only when it was reached
 ([rolling-wave planning](https://en.wikipedia.org/wiki/Rolling-wave_planning)).
 
 `000` is the one spec that looks ahead on purpose. It names the capabilities
@@ -144,7 +144,9 @@ them.
   this repository's build, so the specs stay true for anyone who builds from
   them.
 - **The build's status** is Not started, In progress or Done, at the top of
-  `tasks.md`, beside each task's own status.
+  `tasks.md`, beside each task's own status. Built means everything is built
+  and tested, and the checks that need a deployment or the owner's browser
+  are carried into the next spec's first task, which says which.
 - **Requirements** are numbered `FR-NNN` and written in
   [EARS](https://alistairmavin.com/ears/) form: "The parser shall…", "When…,
   the parser shall…", "If…, then the parser shall…".

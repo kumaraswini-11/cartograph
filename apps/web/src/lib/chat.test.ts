@@ -1,7 +1,12 @@
 import { MockLanguageModelV4 } from "ai/test"
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { readAnalysis, readExplanation, readResult } from "@workspace/database"
+import {
+  modelCallTimesSince,
+  readAnalysis,
+  readExplanation,
+  readResult,
+} from "@workspace/database"
 import { detectFrameworks } from "@workspace/frameworks"
 import { isTooLarge, parseRepository } from "@workspace/parser"
 import { makeRepository } from "@workspace/parser/testing"
@@ -9,20 +14,26 @@ import { makeRepository } from "@workspace/parser/testing"
 import type * as Ai from "@workspace/ai"
 
 import { MAX_CHAT_BODY, handleChat } from "./chat.server"
+import { MODEL_CALL_LIMIT } from "./limits"
 import { readSession } from "./session.server"
 
 vi.mock("@tanstack/react-start/server-only", () => ({}))
 vi.mock("./session.server", () => ({ readSession: vi.fn() }))
+vi.mock("./background.server", () => ({ runAfterResponse: vi.fn() }))
+vi.mock("./telemetry.server", () => ({ track: vi.fn(), reportError: vi.fn() }))
 vi.mock("./storage.server", () => ({
   requestStorage: () => Promise.resolve({}),
 }))
 vi.mock("./env.server", () => ({
   getServerEnv: () => ({ GEMINI_API_KEY: "key" }),
 }))
+const record = vi.fn((_: unknown) => Promise.resolve())
 vi.mock("@workspace/database", () => ({
   readAnalysis: vi.fn(),
   readResult: vi.fn(),
   readExplanation: vi.fn(),
+  modelCallTimesSince: vi.fn(),
+  modelCallWriter: () => ({ record }),
 }))
 const usage = {
   inputTokens: {
@@ -91,6 +102,8 @@ const conversation = JSON.stringify({
 })
 
 beforeEach(() => {
+  vi.clearAllMocks()
+  vi.mocked(modelCallTimesSince).mockResolvedValue([])
   vi.mocked(readSession).mockResolvedValue({
     signedIn: true,
     userId: "user_1",
@@ -123,6 +136,11 @@ describe("the chat route (spec 010, plan D-02, D-03)", () => {
     )
     expect(text).toContain("Exports the app.")
     expect(text).toContain('"kind":"answered"')
+    // One question, one call against the organization's limit.
+    expect(record).toHaveBeenCalledExactlyOnceWith({
+      organizationId: "org_session",
+      kind: "chat",
+    })
   })
 
   it("refuses someone signed out", async () => {
@@ -141,5 +159,27 @@ describe("the chat route (spec 010, plan D-02, D-03)", () => {
     expect((await ask("{")).status).toBe(400)
     expect((await ask(JSON.stringify({ messages: [] }))).status).toBe(400)
     expect((await ask("x".repeat(MAX_CHAT_BODY + 1))).status).toBe(413)
+  })
+})
+
+describe("the model call limit (spec 012, FR-007)", () => {
+  it("counts nothing for a question with no analysis to answer from", async () => {
+    vi.mocked(readAnalysis).mockResolvedValue(null)
+    await ask(conversation)
+    expect(record).not.toHaveBeenCalled()
+  })
+
+  it("at the limit, ends the reply with when answers resume, asking nothing", async () => {
+    vi.mocked(modelCallTimesSince).mockResolvedValue(
+      Array<string>(MODEL_CALL_LIMIT).fill("2026-10-18T09:30:00.000Z")
+    )
+    const calls = model.doGenerateCalls.length
+    const response = await ask(conversation)
+    expect(response.status).toBe(200)
+    expect(await response.text()).toContain(
+      '"data":{"kind":"paused","resumesAt":"2026-10-19T09:30:00.000Z"}'
+    )
+    expect(model.doGenerateCalls.length).toBe(calls)
+    expect(record).not.toHaveBeenCalled()
   })
 })

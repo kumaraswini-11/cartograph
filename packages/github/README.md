@@ -6,8 +6,9 @@ at that commit, from an archive that is streamed, filtered and capped.
 
 ## Why a separate package
 
-Fetching a repository is one job, and two packages need it: a run fetches
-the repository it analyses (spec 008), and the golden scripts fetch theirs
+Fetching a repository is one job, and two packages need it: the web app
+fetches the repository a run analyses (spec 008) and a file's source to
+explain (spec 009), and the golden scripts fetch theirs
 (`@workspace/golden`). One package keeps one way to do it (AGENTS.md: shared
 code goes in a package once a second package needs it). It keeps the
 network out of the parser, which must never touch it (spec 001, C-01), and
@@ -39,15 +40,20 @@ await extractArchive(address.repository, commit, directory, {
   link is written as a link to itself, so nothing can follow it out of the
   folder. It stops past `MAX_ARCHIVE_BYTES` downloaded or
   `MAX_EXTRACTED_BYTES` written.
+- `fileAtCommit(repository, commit, path, { maxBytes })` reads one file at a
+  commit, from GitHub's raw host, holding at most `maxBytes` (spec 009,
+  plan D-04): an explanation's source, and whether a file has changed.
+- A download gives up after `DOWNLOAD_TIMEOUT_MS` (two minutes).
 - Every failure is a `GitHubError` whose `failure` names its kind: not
   found, empty, too large (with the limit) or unavailable.
 
 ## Status
 
-Used by `@workspace/golden` today. The web app's runs use it from spec 008's
-T03.
+Used by the web app (a run's archive, a file's source, the default branch's
+commit for staleness) and by `@workspace/golden`.
 
 ## Docs
 
 [Spec 008](../../docs/specs/008-repository-analysis/spec.md) and its
-[plan](../../docs/specs/008-repository-analysis/plan.md), D-01 to D-03.
+[plan](../../docs/specs/008-repository-analysis/plan.md), D-01 to D-03 ·
+[Spec 009's plan](../../docs/specs/009-file-explanations/plan.md), D-04.

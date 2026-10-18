@@ -1,4 +1,5 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router"
+import { getGlobalStartContext } from "@tanstack/react-start"
 
 import { NotFound } from "@/components/status/not-found"
 import { RouteError } from "@/components/status/route-error"
@@ -18,6 +19,12 @@ export function getRouter() {
     defaultNotFoundComponent: NotFound,
     defaultErrorComponent: RouteError,
     defaultPendingComponent: RoutePending,
+    // This response's nonce, from the security headers' middleware
+    // (src/start.ts), on every inline script the router writes: its
+    // hydration data, the head's and body's scripts, and ScriptOnce's
+    // (spec 012, FR-005). In the browser there's none to read, and none is
+    // needed: what the page loads later comes from the policy's sources.
+    ssr: { nonce: getGlobalStartContext()?.nonce },
   })
 
   return router

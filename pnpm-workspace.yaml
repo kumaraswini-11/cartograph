@@ -38,6 +38,7 @@ catalog:
   "@ai-sdk/react": 4.0.143
   "@base-ui/react": 1.9.0
   "@clerk/backend": 3.24.0
+  "@clerk/shared": 4.40.0
   "@clerk/tanstack-react-start": 1.7.2
   "@clerk/ui": 1.40.2
   "@dagrejs/dagre": 3.1.1
@@ -56,17 +57,22 @@ catalog:
   "@types/node": 24.19.2
   "@types/react": 19.3.0
   "@types/react-dom": 19.3.0
+  "@vercel/speed-insights": 2.0.0
   "@vitejs/plugin-react": 6.1.2
   "@xyflow/react": 12.12.0
   "ai": 7.0.140
+  "axe-core": 4.13.0
   "class-variance-authority": 0.7.1
   "cn": 0.4.0
   "eslint": 10.12.0
+  "jsdom": 29.1.1
   "langsmith": 0.11.0
   "lucide-react": 1.57.0
   "nitro": 3.0.260903-beta
   "oxc-parser": 0.154.0
   "oxc-resolver": 11.24.2
+  "posthog-js": 1.435.8
+  "posthog-node": 5.55.0
   "prettier": 3.9.9
   "prettier-plugin-tailwindcss": 0.8.1
   "react": 19.3.0

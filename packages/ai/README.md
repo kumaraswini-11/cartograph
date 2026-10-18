@@ -74,10 +74,14 @@ the rest counted. A box never gets an inferred role.
 
 ## Shared by both
 
-- Two browser-safe subpaths: `@workspace/ai/text` reads an explanation into
-  its three formats (code, bold, bullets) and drops any other mark (FR-007);
+- Browser-safe subpaths: `@workspace/ai/text` reads an explanation into its
+  three formats (code, bold, bullets) and drops any other mark (FR-007);
   `@workspace/ai/grounding` turns a named path into the analysis's file, for
-  links (FR-008).
+  links (FR-008); `@workspace/ai/source` fences a file's source as data and
+  shortens it (`fenced`, `shortenSource`).
+- A busy model (HTTP 408 or 5xx) is told apart from the free tier's request
+  limit (429): `isUnavailable` and `isLimited`. `paced` spaces requests to
+  the model's per-minute limit, for the evaluation's runs.
 
 ## Answering a question (spec 010)
 
@@ -88,7 +92,17 @@ pane's `walk`), is its own traced run, and writes itself to the stream as it
 finishes. The answer is held until every file it names is in the analysis,
 asked for once more if not, and with no lookup made nothing is answered.
 The stream ends with a `data-outcome` part: answered (and whether it
-stopped at `MAX_LOOKUPS`), declined, ungrounded or limited.
+stopped at `MAX_LOOKUPS`), declined, ungrounded, limited (the model's
+request limit), unavailable (the model busy), or paused (the organization's
+own limit, spec 012).
+
+- `readChatMessages` checks a request's conversation against the UI message
+  shape; `keptHistory` sends the model only its recent text
+  (`@workspace/ai/chat/history`, `recentText`, browser-safe, so the tab
+  sends the same); `chatResponse` turns the stream into the HTTP response.
+- `outcomeOnly(outcome)` is a reply that is only its ending, with no model
+  asked: the app's refusal at the organization's limit (spec 012, FR-007).
+  The caller checks the limit; this package knows none.
 
 - `toModelOutput` cuts each list the model sees to `MODEL_LIST_LIMIT`
   paths; the browser gets the whole result.
@@ -105,4 +119,6 @@ the library (the AI SDK), and every option weighed are recorded in
 ## Docs
 
 [Spec 009](../../docs/specs/009-file-explanations/spec.md) and its
-[plan](../../docs/specs/009-file-explanations/plan.md), D-01 to D-03.
+[plan](../../docs/specs/009-file-explanations/plan.md), D-01 to D-03 ·
+[Spec 010](../../docs/specs/010-repository-chat/spec.md) ·
+[Spec 012](../../docs/specs/012-production-readiness/spec.md), FR-007.

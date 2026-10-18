@@ -1,11 +1,12 @@
 # 011 — AI evaluation: tasks
 
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
-**Build status:** Todo
+**Build status:** Built; the second evaluation run and the browser checks
+are carried into `012` (T01)
 
 ## T01 — The checks carried from 010 and 009
 
-**Status:** Todo, the owner's
+**Status:** Carried into `012` (T01), the owner's
 **Blocked by:** none
 **Covers:** `010` AC-01, AC-06, AC-09 and T05's `interface-review`; `009`'s
 carried browser rows; then every `009` and `010` row on production, with

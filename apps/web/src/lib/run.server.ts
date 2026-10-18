@@ -29,6 +29,12 @@ export type RunDeps = {
   remove: (directory: string) => void
 }
 
+/**
+ * How a run ended: done, failed, or stopped because the database had
+ * already ended it (a re-run ended it as stale).
+ */
+export type RunOutcome = "done" | "failed" | "stopped"
+
 /** The run's real dependencies: GitHub, the disk and the parse worker. */
 export function runDeps(writer: RunWriter): RunDeps {
   return {
@@ -54,12 +60,12 @@ export function runDeps(writer: RunWriter): RunDeps {
  * failed in the stage it reached, with a sentence saying why (FR-007).
  * When the database says the run has already ended (a re-run ended it as
  * stale), it stops without writing more. Its folder is removed however it
- * ends.
+ * ends. It says how it ended, for the run's event (spec 012, FR-002).
  */
 export async function runAnalysis(
   run: { runId: string; repository: string },
   deps: RunDeps
-): Promise<void> {
+): Promise<RunOutcome> {
   const { runId, repository } = run
   const { writer } = deps
   let stage: Stage = "fetching"
@@ -72,7 +78,7 @@ export async function runAnalysis(
       message: RUN_MESSAGES.downloading(repository, commit),
       commit,
     })
-    if (!fetching) return
+    if (!fetching) return "stopped"
     await deps.extract(repository, commit, directory)
 
     stage = "parsing"
@@ -80,7 +86,7 @@ export async function runAnalysis(
       stage,
       message: RUN_MESSAGES.parsing(repository),
     })
-    if (!parsing) return
+    if (!parsing) return "stopped"
     const result = await deps.parse(directory)
     if ("error" in result) throw new Error(`The parse failed: ${result.error}`)
     const { parsed, detection } = result
@@ -91,7 +97,7 @@ export async function runAnalysis(
         runId,
         RUN_MESSAGES.tooManyFiles(repository, files, MAX_FILES)
       )
-      return
+      return "failed"
     }
 
     stage = "storing"
@@ -100,15 +106,17 @@ export async function runAnalysis(
       stage,
       message: RUN_MESSAGES.storing(files),
     })
-    if (!storing) return
+    if (!storing) return "stopped"
     await writer.finishRun(runId, {
       parsed,
       detection,
       message: RUN_MESSAGES.done(files, commit),
     })
+    return "done"
   } catch (error) {
     console.error(`Run ${runId} of ${repository} failed while ${stage}:`, error)
     await writer.failRun(runId, failureMessage(repository, stage, error))
+    return "failed"
   } finally {
     deps.remove(directory)
   }

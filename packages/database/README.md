@@ -33,8 +33,9 @@ Reads, with the signed-in person's token:
 - `readAnalysis(storage, id)` and `readResult(storage, id)`: one
   analysis with its latest run, and its stored results.
 
-Writes go only through the server, with the secret key, and only through
-the database's own functions (spec 008, plan D-06):
+Writes go only through the server, with the secret key. A run's go through
+the database's own functions, which keep its stages in order (spec 008,
+plan D-06):
 
 ```ts
 import { runWriter } from "@workspace/database"
@@ -61,9 +62,16 @@ secretKey }).store(…)` writes with the secret key, keeping a key's first row
 when two writes race. The table itself refuses a surface role as an inferred
 one (C-02).
 
-`deleteOrganization` is the other writer: the organization-deleted webhook's
-(spec 007, D-07). Members can't call either: the functions are granted to
-the secret key's role alone, and the pgTAP tests check it.
+The per-organization limits (spec 012) are counted, not cached:
+`runTimesSince(storage, since, atMost)` and `modelCallTimesSince(…)` read the
+latest times with the member's token, and `modelCallWriter({ url, secretKey
+}).record({ organizationId, kind })` records a model call.
+
+`deleteOrganization` is the last writer: the organization-deleted webhook's
+(spec 007, D-07). So there are four, `runWriter`, `explanationWriter`,
+`modelCallWriter` and `deleteOrganization`, and members can use none of
+them: the run functions and the tables' writes are granted to the secret
+key's role alone, and the pgTAP tests check it.
 
 ## The local database
 
@@ -102,5 +110,8 @@ variables → Actions → New repository secret.
 
 [Spec 006](../../docs/specs/006-sign-in-and-organizations/spec.md) ·
 [Spec 007](../../docs/specs/007-organization-dashboard/spec.md) ·
+[Spec 008](../../docs/specs/008-repository-analysis/spec.md) ·
+[Spec 009](../../docs/specs/009-file-explanations/spec.md) ·
+[Spec 012](../../docs/specs/012-production-readiness/spec.md) ·
 [Supabase: local development](https://supabase.com/docs/guides/local-development) ·
 [Supabase: testing](https://supabase.com/docs/guides/local-development/testing/overview)

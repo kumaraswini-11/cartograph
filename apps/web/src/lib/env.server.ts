@@ -53,6 +53,17 @@ export const serverEnvSchema = z
       .url({ protocol: /^https$/, error: "must be an https:// address" })
       .optional(),
     LANGSMITH_PROJECT: z.string().optional(),
+
+    // Errors and events: PostHog (spec 012). Optional: unset, nothing is
+    // sent and everything works. Both public, read by the browser too: the
+    // project key only writes events.
+    VITE_POSTHOG_KEY: z
+      .string()
+      .regex(/^phc_/, "must start with phc_")
+      .optional(),
+    VITE_POSTHOG_HOST: z
+      .url({ protocol: /^https$/, error: "must be an https:// address" })
+      .optional(),
   })
   .superRefine((env, context) => {
     if (
@@ -63,6 +74,16 @@ export const serverEnvSchema = z
         code: "custom",
         path: ["LANGSMITH_API_KEY"],
         message: "is needed when LANGSMITH_TRACING is true",
+      })
+    }
+    if (
+      env.VITE_POSTHOG_KEY !== undefined &&
+      env.VITE_POSTHOG_HOST === undefined
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["VITE_POSTHOG_HOST"],
+        message: "is needed when VITE_POSTHOG_KEY is set",
       })
     }
   })

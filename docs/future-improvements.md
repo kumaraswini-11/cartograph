@@ -106,6 +106,93 @@ the trade the project doc chose not to make.
   structure one.
 - **Size:** medium: storage, a list, deletion.
 
+### Plans and pricing, past the limits
+
+- **What:** `012` limits each organization's runs and model calls. Past a
+  limit, instead of only "try again tomorrow", offer a plan: "Your
+  organization has used today's 100 model calls: upgrade for more." Plans
+  per organization, a usage meter, and a paywall at the limit.
+- **For:** organizations that use Cartograph every day; and, as a piece of
+  work, it shows plans, metering and payments end to end.
+- **Fits the rule:** yes; it changes how much, never what's shown.
+- **How:** Clerk, already the sign-in and organizations, has Billing for
+  organizations (B2B plans, paid through your own Stripe account, 0.7% a
+  transaction on top of Stripe's fees). It's in beta: its APIs may change.
+- **Before it can be built:**
+  - a production Clerk instance, which needs a domain of our own (`012`
+    stays on the development instance, at $0);
+  - a Stripe account of our own;
+  - Gemini's paid tier: on the free tier, Google may use the requests to
+    improve its products (ADR 0003), which a paying customer shouldn't
+    accept.
+- **Also considered:** letting a heavy user bring their own model key, so
+  their use costs us nothing.
+- **Size:** large.
+- **Sources:** [Clerk Billing for B2B SaaS](https://clerk.com/docs/nextjs/guides/billing/for-b2b).
+
+### A cookie notice: not needed now, and when it would be
+
+- **Now:** none is needed. The EU rule (ePrivacy Directive, Article 5(3))
+  asks consent to store or read anything on a visitor's device, except what
+  is strictly necessary for the service they asked for, such as sign-in
+  session cookies (Clerk's). `012`'s analytics keep events in memory, with no
+  cookie or local storage, and no personal data (FR-003), so nothing is
+  stored to ask about. A banner shown when it isn't required only adds
+  friction.
+- **Still worth doing:** a short privacy page saying what's collected and
+  why, which GDPR's duty to inform asks for whatever the cookies.
+- **It becomes needed if** we add cookie-based analytics, session replay,
+  advertising or marketing pixels: then consent before they run, with
+  "reject" as easy as "accept".
+- **Caveat:** the sources are mostly compliance vendors' summaries, and the
+  directive is applied by each country's law; not legal advice. Check before
+  marketing in the EU.
+- **Sources:** [Article 5(3) and its exemptions](https://presencis.com/regulations/eprivacy-directive/article-5-3/),
+  [strictly necessary cookies](https://www.cookieyes.com/cookie-consent-exemption-for-strictly-necessary-cookies/),
+  [PostHog on cookieless, GDPR-friendly analytics](https://posthog.com/blog/best-gdpr-compliant-analytics-tools).
+
+### A component workshop and visual review: Storybook and Chromatic
+
+- **What:** a Storybook of the interface: the shared compositions in
+  `packages/ui` and the app's presentational components (the map's boxes and
+  panels, the detail pane, a chat reply and its lookups, run progress, the
+  empty and error states), each in the states that matter: loading, empty,
+  failed, a very long path, dark theme. Chromatic publishes it on every pull
+  request, takes a snapshot of each story, and shows what changed, pixel by
+  pixel, for someone to accept or send back.
+- **For:** catching what the tests can't see: a theme token, a shadcn
+  update or a layout change that moves something, before it merges.
+  Reviewing the interface in the pull request rather than by running the
+  branch. And a catalogue of the components for whoever builds on them.
+- **Fits the rule:** yes; it's tooling, and nothing on the map changes.
+- **How:**
+  - Storybook's TanStack React framework (`@storybook/tanstack-react`, on
+    `@storybook/react-vite`): each story renders inside a memory-backed
+    router, and `createServerFn` handlers are replaced with mocks a story
+    can set. That suits this repository's rule that presentational
+    components are given their data, never fetch it (`AGENTS.md`).
+  - Storybook's Vitest addon (`@storybook/addon-vitest`) runs every story as
+    a test in a real Chromium browser, with accessibility checks alongside:
+    the laid-out complement to `apps/web/src/a11y.test.tsx`, which audits
+    whole pages but has no layout, so can't measure contrast or target
+    size.
+  - The stories' data from the fixtures the tests already use (a parsed
+    repository turned into a map's input), so a story shows a real map, not
+    a drawing of one.
+  - Chromatic in CI on each pull request, with TurboSnap so only the stories
+    a change can affect are snapshotted again.
+- **Before it can be built:** a Chromatic project and its token as a GitHub
+  Actions secret; the packages pinned in the catalog; the first stories
+  chosen (the map's boxes, the detail pane, a chat reply, the account
+  header).
+- **Cost:** $0 on Chromatic's free plan: 5,000 snapshots a month, Chrome
+  only. Every story counts once per theme and per viewport, so the stories
+  are chosen, not everything.
+- **Size:** medium.
+- **Sources:** [Storybook for TanStack React](https://storybook.js.org/docs/get-started/frameworks/tanstack-react),
+  [the Vitest addon](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon),
+  [Chromatic's pricing](https://www.chromatic.com/pricing).
+
 ## Already ruled out
 
 From `docs/project-doc.md` ("Out of scope, and why"), and what these tools

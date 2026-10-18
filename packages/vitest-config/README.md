@@ -3,7 +3,9 @@
 Cartograph's Vitest settings, one source for every package's tests (AGENTS.md:
 one source for each concern), as Turborepo recommends
 ([Vitest](https://turborepo.com/docs/guides/tools/vitest)): tests run in Node,
-beside the code they test (`src/**/*.test.ts`, `src/**/*.test.tsx`).
+beside the code they test (`src/**/*.test.ts`, `src/**/*.test.tsx`). A test that needs a browser's document says so in its first line,
+`// @vitest-environment jsdom`, as the web app's accessibility audit and its
+browser telemetry test do.
 
 ## Use
 

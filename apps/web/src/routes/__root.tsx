@@ -1,11 +1,19 @@
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
+import { useEffect } from "react"
+import {
+  HeadContent,
+  Scripts,
+  createRootRoute,
+  useRouterState,
+} from "@tanstack/react-router"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 import { Toaster } from "@workspace/ui/components/shadcn-ui/toast"
 
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { siteMeta } from "@/lib/site"
+import { startErrorReports } from "@/lib/telemetry.browser"
 import appCss from "@/styles.css?url"
 
 export const Route = createRootRoute({
@@ -38,6 +46,14 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  // Error reports start in the browser, once (spec 012, FR-001).
+  useEffect(() => startErrorReports(), [])
+  // The page's route, not its address, so every analysis's map is one page
+  // in Speed Insights (spec 012, FR-009).
+  const route = useRouterState({
+    select: (state) => state.matches[state.matches.length - 1]?.fullPath,
+  })
+
   return (
     // The theme script sets the class on <html> before React hydrates, so the
     // attribute differs from the server render on purpose.
@@ -53,6 +69,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         {/* One toast region for the whole app: call toast.add() from
             @workspace/ui/components/shadcn-ui/toast anywhere to show a toast. */}
         <Toaster />
+        {/* Real page loads' Core Web Vitals (spec 012, FR-009, D-08), from
+            this origin; nothing kept on the device (FR-012). In a build for
+            Vercel only: elsewhere its script isn't served. */}
+        {import.meta.env.VITE_SPEED_INSIGHTS && (
+          <SpeedInsights route={route ?? null} />
+        )}
         {/* Development only: the devtools Vite plugin strips this from
             production builds (removeDevtoolsOnBuild defaults to true). */}
         <TanStackDevtools

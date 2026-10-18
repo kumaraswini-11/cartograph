@@ -63,6 +63,9 @@ insert into public.results (analysis_id, organization_id, commit, parsed, detect
 insert into public.explanations (organization_id, analysis_id, cache_key, subject, kind, body, model, prompt_version) values
   ('org_a', '00000000-0000-0000-0000-00000000000a', repeat('a', 64), 'index.ts', 'file', 'A.', 'gemini-3.6-flash', 1),
   ('org_b', '00000000-0000-0000-0000-00000000000b', repeat('b', 64), 'index.ts', 'file', 'B.', 'gemini-3.6-flash', 1);
+insert into public.model_calls (organization_id, kind) values
+  ('org_a', 'explanation'),
+  ('org_b', 'chat');
 
 -- AC-04, C-01: every table has row-level access enforced, all of them.
 select ok(
@@ -153,7 +156,8 @@ select is(
   (select count(*) from public.analyses where organization_id = 'org_a')
     + (select count(*) from public.runs where organization_id = 'org_a')
     + (select count(*) from public.results where organization_id = 'org_a')
-    + (select count(*) from public.explanations where organization_id = 'org_a'),
+    + (select count(*) from public.explanations where organization_id = 'org_a')
+    + (select count(*) from public.model_calls where organization_id = 'org_a'),
   0::bigint,
   'AC-06: none of the deleted organization''s rows remain'
 );

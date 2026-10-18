@@ -5,11 +5,11 @@ one source for each concern), as Turborepo recommends
 ([sharing `tsconfig.json`](https://turborepo.com/docs/guides/tools/typescript#sharing-tsconfigjson)).
 The files are plain JSON, so their reasons are here rather than in comments.
 
-| File         | For                                                                  |
-| ------------ | -------------------------------------------------------------------- |
-| `base.json`  | Every package. Extended by the two below                             |
-| `node.json`  | Code Node.js 24 runs directly: the parser, detection, graph, scripts |
-| `react.json` | The interface, `apps/web` and `packages/ui`, bundled by Vite         |
+| File         | For                                                              |
+| ------------ | ---------------------------------------------------------------- |
+| `base.json`  | Every package. Extended by the two below                         |
+| `node.json`  | Code Node.js 24 runs directly: every TypeScript package but `ui` |
+| `react.json` | The interface, `apps/web` and `packages/ui`, bundled by Vite     |
 
 ## Why these settings
 
@@ -25,8 +25,9 @@ The files are plain JSON, so their reasons are here rather than in comments.
 - **React.** ES2022 with the DOM, resolved as a bundler does, and the
   automatic JSX runtime.
 
-A package changes only what's its own: `packages/graph` drops Node's types,
-since the browser loads it; `packages/ui` allows unused names, since shadcn's
+A package changes only what's its own: `packages/graph` and
+`packages/database` drop Node's types, since the browser loads them (the map,
+and the database's `follow`); `packages/ui` allows unused names, since shadcn's
 registry output is never edited by hand.
 
 ## Use

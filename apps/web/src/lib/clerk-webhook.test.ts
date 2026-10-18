@@ -36,42 +36,70 @@ const deleted = (id: string) => ({
   data: { id, object: "organization", deleted: true },
 })
 
+/** The webhook's actions, each recording its calls. */
+const actions = () => ({
+  signingSecret: SECRET,
+  deleteOrganization: vi.fn((_: string) => Promise.resolve()),
+  signedIn: vi.fn((_: unknown) => Promise.resolve()),
+})
+
 describe("Clerk's notices (spec 007, FR-002, plan D-07)", () => {
   it("deletes the organization a signed organization.deleted names", async () => {
-    const deleteOrganization = vi.fn(() => Promise.resolve())
-    const response = await handleClerkWebhook(notice(deleted("org_gone")), {
-      signingSecret: SECRET,
-      deleteOrganization,
-    })
+    const act = actions()
+    const response = await handleClerkWebhook(notice(deleted("org_gone")), act)
     expect(response.status).toBe(204)
-    expect(deleteOrganization).toHaveBeenCalledWith("org_gone")
+    expect(act.deleteOrganization).toHaveBeenCalledWith("org_gone")
+    expect(act.signedIn).not.toHaveBeenCalled()
   })
 
   it("refuses a notice signed with another secret, and deletes nothing", async () => {
-    const deleteOrganization = vi.fn(() => Promise.resolve())
+    const act = actions()
     const forged = `whsec_${Buffer.from("not Clerk's key at all!!").toString("base64")}`
     const response = await handleClerkWebhook(
       notice(deleted("org_gone"), forged),
-      { signingSecret: SECRET, deleteOrganization }
+      act
     )
     expect(response.status).toBe(400)
-    expect(deleteOrganization).not.toHaveBeenCalled()
+    expect(act.deleteOrganization).not.toHaveBeenCalled()
   })
 
   it("acknowledges and ignores every other notice", async () => {
-    const deleteOrganization = vi.fn(() => Promise.resolve())
+    const act = actions()
     const response = await handleClerkWebhook(
       notice({ type: "user.created", object: "event", data: { id: "user_1" } }),
-      { signingSecret: SECRET, deleteOrganization }
+      act
     )
     expect(response.status).toBe(204)
-    expect(deleteOrganization).not.toHaveBeenCalled()
+    expect(act.deleteOrganization).not.toHaveBeenCalled()
+    expect(act.signedIn).not.toHaveBeenCalled()
+  })
+
+  it("sends a started session as a sign-in (spec 012, FR-002)", async () => {
+    const act = actions()
+    const response = await handleClerkWebhook(
+      notice({
+        type: "session.created",
+        object: "event",
+        data: {
+          id: "sess_1",
+          object: "session",
+          user_id: "user_1",
+          last_active_organization_id: "org_a",
+        },
+      }),
+      act
+    )
+    expect(response.status).toBe(204)
+    expect(act.signedIn).toHaveBeenCalledExactlyOnceWith({
+      userId: "user_1",
+      organizationId: "org_a",
+    })
   })
 
   it("lets a failed delete fail, so Clerk delivers the notice again", async () => {
     await expect(
       handleClerkWebhook(notice(deleted("org_gone")), {
-        signingSecret: SECRET,
+        ...actions(),
         deleteOrganization: () => Promise.reject(new Error("storage down")),
       })
     ).rejects.toThrow("storage down")

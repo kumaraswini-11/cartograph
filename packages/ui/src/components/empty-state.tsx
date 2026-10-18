@@ -19,15 +19,18 @@ export function EmptyState({
   description,
   children,
   className,
+  role,
 }: {
   icon?: React.ReactNode
   title: React.ReactNode
   description: React.ReactNode
   children?: React.ReactNode
   className?: string
+  /** For a state that must be announced when it appears, such as an error. */
+  role?: React.AriaRole
 }) {
   return (
-    <Empty className={className}>
+    <Empty className={className} role={role}>
       <EmptyHeader>
         {icon !== undefined && <EmptyMedia variant="icon">{icon}</EmptyMedia>}
         <EmptyTitle>{title}</EmptyTitle>

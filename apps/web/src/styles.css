@@ -3,3 +3,12 @@
    its components take this app's tokens (spec 006 plan D-05). */
 @import "@workspace/ui/globals.css";
 @import "@clerk/ui/themes/shadcn.css";
+
+/* React Flow's attribution link is a fixed grey (#999), 2.84:1 on white at
+   10px, under WCAG's 4.5:1 (1.4.3; spec 012, AC-14). Its stylesheet loads
+   with the map, outside any layer, so this rule outranks it by selector
+   rather than by layer: the theme's muted text, 4.5:1 or more in both
+   themes. */
+.react-flow .react-flow__attribution a {
+  color: var(--muted-foreground);
+}

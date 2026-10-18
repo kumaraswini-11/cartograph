@@ -13,6 +13,11 @@ import { MAX_RUN_SECONDS } from "./src/lib/platform.ts"
 // to production such as OG-image URLs" (Vercel: system environment variables).
 const productionDomain = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
+// The release every error report carries (spec 012, FR-001): the commit
+// Vercel builds, a system variable like the one above; "development" for a
+// build anywhere else.
+const release = process.env.VERCEL_GIT_COMMIT_SHA ?? "development"
+
 const config = defineConfig(({ command }) => {
   // A Vercel build is published, so it must not fall back to localhost: stop
   // it instead. Vercel is detected as Nitro detects it (std-env), so this
@@ -46,13 +51,19 @@ const config = defineConfig(({ command }) => {
     environments: {
       ssr: { resolve: { external: ["oxc-parser", "oxc-resolver"] } },
     },
-    define: productionDomain
-      ? {
-          "import.meta.env.VITE_SITE_URL": JSON.stringify(
-            `https://${productionDomain}`
-          ),
-        }
-      : {},
+    define: {
+      "import.meta.env.VITE_RELEASE": JSON.stringify(release),
+      // Speed Insights' script and reports are served by Vercel alone
+      // (/_vercel/speed-insights): a build for anywhere else leaves it out.
+      "import.meta.env.VITE_SPEED_INSIGHTS": JSON.stringify(
+        provider === "vercel"
+      ),
+      ...(productionDomain && {
+        "import.meta.env.VITE_SITE_URL": JSON.stringify(
+          `https://${productionDomain}`
+        ),
+      }),
+    },
     plugins: [
       devtools(),
       tailwindcss(),

@@ -36,6 +36,11 @@ export type ChatOutcome =
   | { kind: "limited" }
   /** The model's server was busy or failed: worth asking again soon. */
   | { kind: "unavailable" }
+  /**
+   * The organization's model calls are spent until `resumesAt`, ISO 8601
+   * (`012` FR-007): refused before the model is asked.
+   */
+  | { kind: "paused"; resumesAt: string }
 
 /** The lookups as the browser knows them: each part typed by its tool. */
 export type ChatTools = InferUITools<ReturnType<typeof lookupTools>>
@@ -79,6 +84,21 @@ export function chatResponse(
     stream: stream.pipeThrough(
       new TransformStream<UIMessageChunk, UIMessageChunk>({ flush: onEnd })
     ),
+  })
+}
+
+/**
+ * A reply that is only its ending, with no model asked and no lookup made:
+ * for a question the app refuses before answering it.
+ */
+export function outcomeOnly(
+  outcome: ChatOutcome
+): ReadableStream<UIMessageChunk> {
+  return createUIMessageStream<ChatMessage>({
+    execute: ({ writer }) => {
+      writer.write({ type: "start" })
+      writer.write({ type: "data-outcome", data: outcome })
+    },
   })
 }
 

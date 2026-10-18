@@ -7,17 +7,21 @@ import {
   fileCacheKey,
   fileToExplain,
   languageModel,
+  outcomeOnly,
   readChatMessages,
 } from "@workspace/ai"
 import { readExplanation } from "@workspace/database"
 import { edgeIndex } from "@workspace/graph"
 import { z } from "zod"
 
+import { runAfterResponse } from "./background.server"
 import { getServerEnv } from "./env.server"
+import { ModelCallsSpent, spendModelCall } from "./limits.server"
 import { readSession } from "./session.server"
 import { sourceAtCommit } from "./source.server"
 import { analysisFacts, readStoredAnalysis } from "./stored-analysis.server"
 import { requestStorage } from "./storage.server"
+import { track } from "./telemetry.server"
 import { serverTracing } from "./tracing.server"
 
 /**
@@ -65,6 +69,37 @@ export async function handleChat(
   const read = await readStoredAnalysis(storage, analysisId)
   if (read?.result == null) return refuse(404, "This analysis has no map yet.")
   const { analysis, result } = read
+
+  // That it was asked, never what (`012` FR-002, FR-003).
+  const asked = (answered: boolean) =>
+    runAfterResponse(
+      track(session.userId, {
+        event: "chat_question_asked",
+        properties: {
+          organizationId: session.organization.id,
+          analysisId,
+          answered,
+        },
+      })
+    )
+  // One question, one call against the organization's limit (`012`
+  // FR-007), however many steps its lookups take: the limit counts what a
+  // member asks for, and the model's own quota is the ceiling (D-06).
+  try {
+    await spendModelCall(storage, {
+      organizationId: session.organization.id,
+      kind: "chat",
+    })
+  } catch (error) {
+    if (!(error instanceof ModelCallsSpent)) throw error
+    asked(false)
+    return chatResponse(
+      outcomeOnly({ kind: "paused", resumesAt: error.resumesAt }),
+      () => Promise.resolve()
+    )
+  }
+
+  asked(true)
 
   const env = getServerEnv()
   const traces = serverTracing()

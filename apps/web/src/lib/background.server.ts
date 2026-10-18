@@ -2,6 +2,8 @@ import "@tanstack/react-start/server-only"
 
 import { getRequest } from "@tanstack/react-start/server"
 
+import { reportError } from "./telemetry.server"
+
 /** A request whose host can keep the function alive for work after it. */
 type HostRequest = Request & {
   waitUntil?: (promise: Promise<unknown>) => void
@@ -16,12 +18,13 @@ type HostRequest = Request & {
  * on in the long-lived process. This is the one module that knows how, so
  * the app names no host.
  *
- * `work` must handle its own failures: what's left is logged, never thrown
- * into a response already sent.
+ * `work` must handle its own failures: what's left is logged and reported
+ * (spec 012, FR-001), never thrown into a response already sent.
  */
 export function runAfterResponse(work: Promise<unknown>): void {
   const settled = work.catch((error: unknown) => {
     console.error("Work after the response failed:", error)
+    return reportError(error)
   })
   const { waitUntil } = getRequest() as HostRequest
   if (typeof waitUntil === "function") waitUntil(settled)

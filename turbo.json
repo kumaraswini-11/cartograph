@@ -8,7 +8,11 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "env": ["VERCEL_PROJECT_PRODUCTION_URL"],
+      "env": [
+        "VERCEL_PROJECT_PRODUCTION_URL",
+        "VERCEL_GIT_COMMIT_SHA",
+        "VITE_*"
+      ],
       "inputs": ["$TURBO_DEFAULT$", ".env*", "!README.md"],
       "outputs": ["dist/**", ".output/**", ".vercel/output/**"]
     },
